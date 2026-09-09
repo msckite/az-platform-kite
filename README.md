@@ -4,7 +4,6 @@
 [![github-latest](https://img.shields.io/github/v/release/msckite/az-platform-kite?include_prereleases&color=blue&logo=github&label=release)](https://github.com/msckite/az-platform-kite/releases)
 [![ps-gallery-downloads](https://img.shields.io/powershellgallery/dt/MSCKite.Azure.Platform.svg)](https://www.powershellgallery.com/packages/MSCKite.Azure.Platform)
 [![github-issues](https://img.shields.io/github/issues/msckite/az-platform-kite?logo=github)](https://github.com/msckite/az-platform-kite/issues)
-[![github-license](https://img.shields.io/github/license/msckite/az-platform-kite?label=licence&color=purple)](LICENSE)
 
 </br>
 
