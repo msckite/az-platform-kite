@@ -14,8 +14,8 @@
     CmdletsToExport   = @('Connect-AdoOrganization', 'Disconnect-AdoOrganization', 'Disconnect-PlatformContext', 'Get-AdoDefault', 'Get-GitHubDefault', 'Get-PlatformContext', 'Set-AdoDefault', 'Set-GitHubDefault')
     PrivateData       = @{
         PSData = @{
-            Tags       = @('Az', 'Azure', 'Platform', 'Engineering', 'DevOps', 'GitHub', 'AzPlatformKite', 'MSC')
-            LicenseUri = 'https://github.com/msckite/az-platform-kite/blob/main/LICENSE'
+            Tags       = @('Az', 'Azure', 'Platform', 'Engineering', 'DevOps', 'GitHub', 'Kite', 'MSC')
+            LicenseUri = 'https://github.com/msckite/az-platform-kite/blob/main/LICENSE.md'
             ProjectUri = 'https://github.com/msckite/az-platform-kite'
             IconUri    = 'https://raw.githubusercontent.com/msckite/az-platform-kite/refs/heads/main/.assets/msckite-icon.png'
             Prerelease = 'prev1'
