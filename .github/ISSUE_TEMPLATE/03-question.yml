@@ -1,0 +1,38 @@
+---
+name: "Ask a question \U00002753"
+description: 'Ask a question about this project'
+title: '[Question] '
+labels: ['question :question:']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to ask a question.
+  - type: checkboxes
+    attributes:
+      label: Is there an existing issue for this?
+      description: Please search to see if an issue already exists for the proposed feature.
+      options:
+        - label: I have searched the existing issues
+          required: true
+  - type: input
+    attributes:
+      label: Version
+      description: If relevant, please provide the version of the workload/solutions you are currently using.
+      placeholder: For example 0.1.0-beta1, 2.0.0, etc.
+    validations:
+      required: false
+  - type: input
+    attributes:
+      label: Related function
+      description: If relevant, please provide which function this issue is related to?
+      placeholder: For example Get-User, New-Item, etc.
+    validations:
+      required: true
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: Describe the question you have?
+    validations:
+      required: true

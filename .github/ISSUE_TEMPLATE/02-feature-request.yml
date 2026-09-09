@@ -1,0 +1,57 @@
+---
+name: "Feature request \U0001F680"
+description: 'Suggest an idea for this project'
+title: '[Request]: '
+labels: ['needs triage :wave:']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to fill out a feature request.
+  - type: checkboxes
+    attributes:
+      label: Is there an existing issue for this?
+      description: Please search to see if an issue already exists for the proposed feature.
+      options:
+        - label: I have searched the existing issues
+          required: true
+  - type: input
+    attributes:
+      label: Version
+      description: If relevant, please provide the version of the workload/solutions you are currently using.
+      placeholder: For example 0.1.0-beta1, 2.0.0, etc.
+    validations:
+      required: false
+  - type: input
+    attributes:
+      label: Related function
+      description: If relevant, please provide which function this issue is related to?
+      placeholder: For example Get-User, New-Item, etc.
+    validations:
+      required: false
+  - type: textarea
+    id: usecase
+    attributes:
+      label: Use case
+      description: Describe the use case for this feature
+      value: |
+        **As a** [Role]
+        Define the role of the user who will benefit from the feature.
+
+        **I want** [Feature]
+        Describe the feature you would like to use.
+
+        **So that** [Benefit]
+        Explain the benefit that you will gain from the feature.
+
+        **Notes**
+        Any additional notes or considerations related to the user story.
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: If relevant, please describe how this feature could be implemented.
+    validations:
+      required: false

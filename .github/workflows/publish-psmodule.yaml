@@ -1,0 +1,89 @@
+name: Publish Module to PowerShell Gallery
+
+on:
+  release:
+    types: [published]
+
+env:
+  MODULE_NAME: MSCKite.Azure.Platform
+  CONFIGURATION: Release
+
+jobs:
+  publish:
+    runs-on: windows-latest
+
+    env:
+      TAG_NAME: ${{ github.event.release.tag_name }}
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Update module manifest
+        shell: pwsh
+        run: ./build.ps1
+
+      - name: Build module
+        shell: pwsh
+        run: |
+          dotnet publish "src/$env:MODULE_NAME.csproj" `
+            --configuration $env:CONFIGURATION `
+            --output "src/bin/$env:CONFIGURATION/netstandard2.0/$env:MODULE_NAME"
+
+      - name: Verify module version
+        shell: pwsh
+        run: |
+          $tag = $env:TAG_NAME.TrimStart('v')  # Remove leading 'v' if present
+          $manifestPath = Join-Path -Path "src/bin/$env:CONFIGURATION/netstandard2.0/$env:MODULE_NAME" -ChildPath "$env:MODULE_NAME.psd1"
+
+          if (-not (Test-Path $manifestPath)) {
+              Write-Error "No module manifest (.psd1) found at '$manifestPath'"
+              exit 1
+          }
+
+          $manifest = Test-ModuleManifest -Path $manifestPath
+          $moduleVersion = $manifest.Version.ToString()
+
+          # Get prerelease string from manifest if it exists
+          $prerelease = $manifest.PrivateData.PSData.Prerelease
+
+          # Construct full version string from manifest
+          $fullModuleVersion = $moduleVersion
+          if ($prerelease) {
+              $fullModuleVersion = "$moduleVersion-$prerelease"
+          }
+
+          Write-Host "Release tag: $tag"
+          Write-Host "Module version: $moduleVersion"
+          Write-Host "Module prerelease: $prerelease"
+          Write-Host "Module full version: $fullModuleVersion"
+
+          if ($fullModuleVersion -ne $tag) {
+              Write-Error "Module version '$fullModuleVersion' does not match release tag '$tag'"
+              exit 1
+          }
+
+      - name: Install module dependencies
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Install-Module -Name Az.Accounts, Az.Resources -Force -AllowClobber -Scope CurrentUser -Repository PSGallery
+
+      - name: Publish module
+        shell: pwsh
+        env:
+          NUGET_API_KEY: ${{ secrets.PSGALLERY_API_KEY }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          $modulePath = "src/bin/$env:CONFIGURATION/netstandard2.0/$env:MODULE_NAME"
+
+          Publish-Module -Path $modulePath -Repository PSGallery -NuGetApiKey $env:NUGET_API_KEY

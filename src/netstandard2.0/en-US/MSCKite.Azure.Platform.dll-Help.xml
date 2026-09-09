@@ -1,0 +1,635 @@
+<?xml version="1.0" encoding="utf-8"?>
+<helpItems xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" schema="maml" xmlns="http://msh">
+  <command:command>
+    <command:details>
+      <command:name>Connect-AdoOrganization</command:name>
+      <maml:description>
+        <maml:para>Connects to an Azure DevOps organization and optionally a project within it.</maml:para>
+      </maml:description>
+      <command:verb>Connect</command:verb>
+      <command:noun>AdoOrganization</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>Validates authentication against Azure DevOps and marks the session as connected so that other
+Azure DevOps commands in this module can use it. Requires the Az.Accounts module version 5.5 or
+higher.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Connect-AdoOrganization</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="0" aliases="O">
+          <maml:name>Organization</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="1" aliases="P">
+          <maml:name>Project</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="true (ByPropertyName)" position="0" aliases="O">
+        <maml:name>Organization</maml:name>
+        <maml:description>
+          <maml:para>The name of the Azure DevOps organization to connect to.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="true (ByPropertyName)" position="1" aliases="P">
+        <maml:name>Project</maml:name>
+        <maml:description>
+          <maml:para>The name of the Azure DevOps project to connect to within the specified organization.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>You can pipe the organization or project name to this cmdlet by property name.</maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>MSCKite.Azure.Platform.Models.DevOpsContext</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>Represents the connected Azure DevOps organization and project.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>This cmdlet requires the Az.Accounts module version 5.5 or higher.</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>--------- Example 1 - Connect to an organization ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Connect-AdoOrganization -Organization "https://dev.azure.com/myorg"
+```</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 2 - Connect to an organization and project ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Connect-AdoOrganization -Organization "https://dev.azure.com/myorg" -Project "My Project"
+```</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version</maml:linkText>
+        <maml:uri />
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command>
+    <command:details>
+      <command:name>Disconnect-AdoOrganization</command:name>
+      <maml:description>
+        <maml:para>Disconnects the current Azure DevOps session established by Connect-AdoOrganization.</maml:para>
+      </maml:description>
+      <command:verb>Disconnect</command:verb>
+      <command:noun>AdoOrganization</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>Clears the current Azure DevOps session state. If no session is connected, the cmdlet has no
+effect.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Disconnect-AdoOrganization</maml:name>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters />
+    <command:inputTypes />
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>MSCKite.Azure.Platform.Models.DevOpsContext</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>The context that was disconnected, or `$null` if the session was already disconnected.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para />
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>--------- Example 1 - Disconnect from Azure DevOps ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Disconnect-AdoOrganization
+```</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version</maml:linkText>
+        <maml:uri />
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command>
+    <command:details>
+      <command:name>Disconnect-PlatformContext</command:name>
+      <maml:description>
+        <maml:para>Signs out of every currently signed-in context: Azure, Azure DevOps, and GitHub.</maml:para>
+      </maml:description>
+      <command:verb>Disconnect</command:verb>
+      <command:noun>PlatformContext</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>Checks the sign-in status of Azure, Azure DevOps, and GitHub, and signs out of each context that
+is currently signed in. Contexts that are already signed out are left untouched. Requires the
+Az.Accounts module version 5.5 or higher.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Disconnect-PlatformContext</maml:name>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters />
+    <command:inputTypes />
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>A JSON string summarizing which contexts were signed out, or a message stating everything was
+already signed out.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>This cmdlet requires the Az.Accounts module version 5.5 or higher.</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>--------- Example 1 - Sign out of all connected platform contexts ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Disconnect-PlatformContext
+```</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version</maml:linkText>
+        <maml:uri />
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command>
+    <command:details>
+      <command:name>Get-AdoDefault</command:name>
+      <maml:description>
+        <maml:para>Gets the default Azure DevOps organization and project previously stored with Set-AdoDefault.</maml:para>
+      </maml:description>
+      <command:verb>Get</command:verb>
+      <command:noun>AdoDefault</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>Returns the Organization, Project, and CollectionUri currently stored for use by other Azure
+DevOps commands. If no defaults have been set, the returned values are empty.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Get-AdoDefault</maml:name>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters />
+    <command:inputTypes />
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>MSCKite.Azure.Platform.Models.AdoDefaults</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>The Organization, Project, and CollectionUri currently stored via Set-AdoDefault.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para />
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>--------- Example 1 - Get the current Azure DevOps defaults ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Get-AdoDefault
+```</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version</maml:linkText>
+        <maml:uri />
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command>
+    <command:details>
+      <command:name>Get-GitHubDefault</command:name>
+      <maml:description>
+        <maml:para>Gets the default GitHub owner and repository previously stored with Set-GitHubDefault.</maml:para>
+      </maml:description>
+      <command:verb>Get</command:verb>
+      <command:noun>GitHubDefault</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>Returns the Owner, Repository, and RepositoryUri currently stored for use by other GitHub
+commands. If no defaults have been set, the returned values are empty.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Get-GitHubDefault</maml:name>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters />
+    <command:inputTypes />
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>MSCKite.Azure.Platform.Models.GitHubDefaults</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>The Owner, Repository, and RepositoryUri currently stored via Set-GitHubDefault.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para />
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>--------- Example 1 - Get the current GitHub defaults ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Get-GitHubDefault
+```</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version</maml:linkText>
+        <maml:uri />
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command>
+    <command:details>
+      <command:name>Get-PlatformContext</command:name>
+      <maml:description>
+        <maml:para>Gets the combined sign-in status for Azure, Azure DevOps, and GitHub as a single JSON object.</maml:para>
+      </maml:description>
+      <command:verb>Get</command:verb>
+      <command:noun>PlatformContext</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>Combines the Azure context, the Azure DevOps REST API auth status, and the local GitHub CLI auth
+status into a single JSON object. By default, contexts that are not signed in are omitted.
+Requires the Az.Accounts module version 5.5 or higher.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Get-PlatformContext</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>All</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>All</maml:name>
+        <maml:description>
+          <maml:para>Includes contexts that are not signed in, with the reason surfaced as a warning, instead of
+omitting them.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes />
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>A JSON string combining the Azure, Azure DevOps, and GitHub contexts. Nothing is written if no
+context qualifies.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>This cmdlet requires the Az.Accounts module version 5.5 or higher.</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>--------- Example 1 - Get the status of all signed-in contexts ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Get-PlatformContext
+```</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 2 - Get the status of every context, including those not signed in ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Get-PlatformContext -All
+```</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version</maml:linkText>
+        <maml:uri />
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command>
+    <command:details>
+      <command:name>Set-AdoDefault</command:name>
+      <maml:description>
+        <maml:para>Sets the default Azure DevOps organization and project used by other Azure DevOps commands.</maml:para>
+      </maml:description>
+      <command:verb>Set</command:verb>
+      <command:noun>AdoDefault</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>Persists the Organization and Project as defaults for later Azure DevOps commands. Pass `$null`
+(or omit a parameter) to clear that value.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Set-AdoDefault</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="0" aliases="none">
+          <maml:name>Organization</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="1" aliases="none">
+          <maml:name>Project</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="true (ByPropertyName)" position="0" aliases="none">
+        <maml:name>Organization</maml:name>
+        <maml:description>
+          <maml:para>The name of the Azure DevOps organization to use as the default. Pass `$null` to clear it.
+The name of the Azure DevOps organization to use as the default.
+Pass `$null` to clear it.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="true (ByPropertyName)" position="1" aliases="none">
+        <maml:name>Project</maml:name>
+        <maml:description>
+          <maml:para>The name of the Azure DevOps project to use as the default. Pass `$null` to clear it.
+The name of the Azure DevOps project to use as the default.
+Pass `$null` to clear it.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>You can pipe the organization or project name to this cmdlet by property name.</maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>MSCKite.Azure.Platform.Models.AdoDefaults</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>The Organization, Project, and CollectionUri that were persisted.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para />
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>--------- Example 1 - Set the default organization and project ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Set-AdoDefault -Organization "myorg" -Project "My Project"
+```</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version</maml:linkText>
+        <maml:uri />
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command>
+    <command:details>
+      <command:name>Set-GitHubDefault</command:name>
+      <maml:description>
+        <maml:para>Sets the default GitHub owner and repository used by other GitHub commands.</maml:para>
+      </maml:description>
+      <command:verb>Set</command:verb>
+      <command:noun>GitHubDefault</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>Persists the Owner and Repository as defaults for later GitHub commands. Pass `$null` (or omit
+a parameter) to clear that value.
+
+This is **not** the same as the GitHub CLI's own default repository (`gh repo set-default`).
+`Set-GitHubDefault` writes a single, global, per-user default to `github-config.jsonc`,
+independent of the current directory; this is intentional, so it keeps working outside of any
+git repo, such as in Azure DevOps or GitHub Actions pipeline steps. `gh repo set-default` instead
+sets a per-clone default in that repository's `.git/config`, used by `gh` commands like `gh pr`
+and `gh issue`. If you want `gh` itself to default to a specific repository, run
+`gh repo set-default` directly.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Set-GitHubDefault</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="0" aliases="none">
+          <maml:name>Owner</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="1" aliases="none">
+          <maml:name>Repository</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="true (ByPropertyName)" position="0" aliases="none">
+        <maml:name>Owner</maml:name>
+        <maml:description>
+          <maml:para>The name of the GitHub owner (user or organization) to use as the default. Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="true (ByPropertyName)" position="1" aliases="none">
+        <maml:name>Repository</maml:name>
+        <maml:description>
+          <maml:para>The name of the GitHub repository to use as the default. Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>You can pipe the owner or repository name to this cmdlet by property name.</maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>MSCKite.Azure.Platform.Models.GitHubDefaults</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>The Owner, Repository, and RepositoryUri that were persisted.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>This cmdlet does not call or configure the GitHub CLI. See the DESCRIPTION section for how this
+default relates to `gh repo set-default`.</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>--------- Example 1 - Set the default owner and repository ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Set-GitHubDefault -Owner "myorg" -Repository "myrepo"
+```</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version</maml:linkText>
+        <maml:uri />
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+</helpItems>
