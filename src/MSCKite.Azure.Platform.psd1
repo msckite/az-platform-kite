@@ -8,14 +8,16 @@
     Description       = 'Lightweight automation for Azure platform engineering, developer enablement, and cloud operations.'
     PowerShellVersion = '7.0'
     RequiredModules   = @(
-        @{ ModuleName = 'Az.Accounts'; ModuleVersion = '0.1.0' },
-        @{ ModuleName = 'Az.Resources'; ModuleVersion = '0.1.0' }
+        @{ ModuleName = 'Az.Accounts'; ModuleVersion = '5.5' },
+        @{ ModuleName = 'Az.Resources'; ModuleVersion = '10.1' }
     )
     CmdletsToExport   = @('Connect-AdoOrganization', 'Disconnect-AdoOrganization', 'Disconnect-PlatformContext', 'Get-AdoDefault', 'Get-GitHubDefault', 'Get-PlatformContext', 'Set-AdoDefault', 'Set-GitHubDefault')
     PrivateData       = @{
         PSData = @{
-            Tags       = @('Az', 'Azure', 'Platform', 'Engineering', 'DevOps', 'GitHub', 'AzPlatformKite', 'MSC')
-            ProjectUri = 'https://github.com/msckite/az-platform-kit'
+            Tags       = @('Az', 'Azure', 'Platform', 'Engineering', 'DevOps', 'GitHub', 'Kite', 'MSC')
+            LicenseUri = 'https://github.com/msckite/az-platform-kite/blob/main/LICENSE.md'
+            ProjectUri = 'https://github.com/msckite/az-platform-kite'
+            IconUri    = 'https://raw.githubusercontent.com/msckite/az-platform-kite/refs/heads/main/.assets/msckite-icon.png'
             Prerelease = 'alpha2'
         }
     }
