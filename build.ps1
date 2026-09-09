@@ -32,9 +32,10 @@ Copy-Item -Path $sourceManifest -Destination $manifestPath -Force
 # Read the manifest content
 $manifestContent = Get-Content -Path $manifestPath -Raw
 
-# Update ModuleVersion (preserving existing spacing around '=')
+# Update ModuleVersion (preserving existing spacing around '='). Anchored to the
+# start of the line so nested RequiredModules ModuleVersion entries are left untouched.
 $moduleVersion = ($tagName -split '-')[0]
-$manifestContent = $manifestContent -replace "(ModuleVersion\s*=\s*)'[^']*'", ('$1' + "'$moduleVersion'")
+$manifestContent = $manifestContent -replace "(?m)^(\s*ModuleVersion\s*=\s*)'[^']*'", ('$1' + "'$moduleVersion'")
 
 # Update Prerelease if applicable (preserving existing spacing around '=')
 if ($isPrerelease) {
