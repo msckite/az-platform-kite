@@ -31,6 +31,12 @@ jobs:
         shell: pwsh
         run: ./build.ps1
 
+      - name: Install module dependencies
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Install-Module -Name Az.Accounts, Az.Resources -Force -AllowClobber -Scope CurrentUser -Repository PSGallery
+
       - name: Build module
         shell: pwsh
         run: |
@@ -70,12 +76,6 @@ jobs:
               Write-Error "Module version '$fullModuleVersion' does not match release tag '$tag'"
               exit 1
           }
-
-      - name: Install module dependencies
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-          Install-Module -Name Az.Accounts, Az.Resources -Force -AllowClobber -Scope CurrentUser -Repository PSGallery
 
       - name: Publish module
         shell: pwsh
