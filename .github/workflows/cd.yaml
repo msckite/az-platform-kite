@@ -21,7 +21,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Verify CI succeeded
         shell: pwsh
@@ -50,7 +50,7 @@ jobs:
           Write-Host "Found successful CI run $($successfulRun.html_url) for release commit '$env:RELEASE_SHA'."
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '8.0.x'
 
