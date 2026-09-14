@@ -82,7 +82,8 @@ switch ($Mode) {
             OutputFolder = './docs'
         }
         if ($Command) {
-            $newMarkdownCommandHelpSplat.Command = $Command
+            # New-MarkdownCommandHelp takes -CommandInfo (CommandInfo[]), not command name strings
+            $newMarkdownCommandHelpSplat.CommandInfo = Get-Command -Name $Command -Module $moduleName
         } else {
             $newMarkdownCommandHelpSplat.WithModulePage = $true
         }

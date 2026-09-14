@@ -54,3 +54,7 @@ Sets the default Azure DevOps organization and project used by other Azure DevOp
 
 Sets the default GitHub owner and repository used by other GitHub commands.
 
+### [Set-GitHubLabels](Set-GitHubLabels.md)
+
+Creates, updates, and removes GitHub repository labels to match a labels definition file.
+

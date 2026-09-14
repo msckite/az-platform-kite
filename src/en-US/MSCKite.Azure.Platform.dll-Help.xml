@@ -940,4 +940,218 @@ Set-GitHubDefault -Owner "myorg" -Repository "myrepo"
       </maml:navigationLink>
     </command:relatedLinks>
   </command:command>
+  <command:command>
+    <command:details>
+      <command:name>Set-GitHubLabels</command:name>
+      <maml:description>
+        <maml:para>Creates, updates, and removes GitHub repository labels to match a labels definition file.</maml:para>
+      </maml:description>
+      <command:verb>Set</command:verb>
+      <command:noun>GitHubLabels</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>Reconciles the labels on a GitHub repository with a jsonc definitions file, matching labels by
+their `name`.
+Labels present in the file but missing on the repository are created, labels that
+exist on both but have a different `color` or `description` are updated, and labels that exist on
+the repository but aren't listed in the file are removed unless `-KeepExistingLabels` is
+specified.
+
+The labels file can be either a top-level JSON array of label objects, or an object with a
+`labels` array property.
+JSONC comments and trailing commas are allowed.
+Each label object
+requires a `name` and a `color` (a 6-digit hex value, with or without a leading `#`, e.g.
+`#d73a4a`), and may include an optional `description`.
+
+`Owner` and `Repository` fall back to the values stored via `Set-GitHubDefault` when not
+specified.
+This cmdlet supports `-WhatIf`/`-Confirm` and shells out to the GitHub CLI (`gh`), so
+you must be signed in (`gh auth login`) with permission to manage labels on the target
+repository.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Set-GitHubLabels</maml:name>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="0" aliases="Path">
+          <maml:name>LabelFilePath</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="1" aliases="none">
+          <maml:name>Owner</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="2" aliases="none">
+          <maml:name>Repository</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>KeepExistingLabels</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>WhatIf</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>Confirm</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="cf">
+        <maml:name>Confirm</maml:name>
+        <maml:description>
+          <maml:para>Prompts you for confirmation before running the cmdlet.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>KeepExistingLabels</maml:name>
+        <maml:description>
+          <maml:para>Preserves repository labels that aren't present in the input file instead of removing them.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByPropertyName)" position="0" aliases="Path">
+        <maml:name>LabelFilePath</maml:name>
+        <maml:description>
+          <maml:para>Path to a jsonc file containing the desired labels: either a top-level array of label objects, or
+an object with a `labels` array property.
+Each label requires a `name` and a `color` (6-digit hex,
+with or without a leading `#`), and may include a `description`.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="true (ByPropertyName)" position="1" aliases="none">
+        <maml:name>Owner</maml:name>
+        <maml:description>
+          <maml:para>The name of the GitHub owner (user or organization) of the repository.
+Falls back to the value
+stored via `Set-GitHubDefault` when not specified.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="true (ByPropertyName)" position="2" aliases="none">
+        <maml:name>Repository</maml:name>
+        <maml:description>
+          <maml:para>The name of the GitHub repository whose labels should be synced.
+Falls back to the value stored
+via `Set-GitHubDefault` when not specified.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="wi">
+        <maml:name>WhatIf</maml:name>
+        <maml:description>
+          <maml:para>Runs the command in a mode that only reports what would happen without performing the actions.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>You can pipe the label file path, owner, or repository name to this cmdlet by property name.</maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>MSCKite.Azure.Platform.Models.GitHubLabelSyncResult</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>The Owner, Repository, and the names of labels that were Added, Updated, Removed, and Unchanged.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>This cmdlet requires the GitHub CLI (`gh`) to be installed and signed in
+(`gh auth login`) with permission to manage labels on the target repository.</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>--------- Example 1 - Sync labels using the stored default owner/repository ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Set-GitHubLabels -LabelFilePath ./templates/github-labels.jsonc
+```</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 2 - Preview changes without applying them ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Set-GitHubLabels -LabelFilePath ./templates/github-labels.jsonc -Owner "myorg" -Repository "myrepo" -WhatIf
+```</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 3 - Sync labels without removing extras ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Set-GitHubLabels -LabelFilePath ./templates/github-labels.jsonc -Owner "myorg" -Repository "myrepo" -KeepExistingLabels
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Creates missing labels and updates changed ones, but leaves any repository labels that aren't
+listed in the file untouched instead of removing them.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version</maml:linkText>
+        <maml:uri />
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
 </helpItems>
