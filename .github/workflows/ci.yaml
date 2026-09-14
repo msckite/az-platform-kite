@@ -1,18 +1,6 @@
 name: Build, Test and Validate (CI)
 
 on:
-  push:
-    branches:
-      - 'features/**'
-      - 'fixes/**'
-    paths:
-      - 'src/**'
-      - 'tests/**'
-      - 'docs/**'
-      - 'build.ps1'
-      - 'platyps.ps1'
-      - '.github/workflows/ci.yaml'
-      - '.github/workflows/cd.yaml'
   pull_request:
     branches:
       - main
