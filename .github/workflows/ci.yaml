@@ -3,7 +3,6 @@ name: Build, Test and Validate (CI)
 on:
   push:
     branches:
-      - main
       - 'features/**'
       - 'fixes/**'
     paths:
