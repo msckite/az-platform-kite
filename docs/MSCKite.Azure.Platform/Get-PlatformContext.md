@@ -4,7 +4,7 @@ external help file: MSCKite.Azure.Platform.dll-Help.xml
 HelpUri: ''
 Locale: en-NL
 Module Name: MSCKite.Azure.Platform
-ms.date: 09/08/2026
+ms.date: 09/14/2026
 PlatyPS schema version: 2024-05-01
 title: Get-PlatformContext
 ---
