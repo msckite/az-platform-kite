@@ -42,6 +42,10 @@ Gets the default GitHub owner and repository previously stored with Set-GitHubDe
 
 Gets the combined sign-in status for Azure, Azure DevOps, and GitHub as a single JSON object.
 
+### [New-RandomPassword](New-RandomPassword.md)
+
+Generates cryptographically secure random passwords with configurable complexity, length, and output formats.
+
 ### [Set-AdoDefault](Set-AdoDefault.md)
 
 Sets the default Azure DevOps organization and project used by other Azure DevOps commands.

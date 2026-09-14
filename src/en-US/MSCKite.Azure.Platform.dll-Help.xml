@@ -415,6 +415,314 @@ Get-PlatformContext -All
   </command:command>
   <command:command>
     <command:details>
+      <command:name>New-RandomPassword</command:name>
+      <maml:description>
+        <maml:para>Generates cryptographically secure random passwords with configurable complexity, length, and output formats.</maml:para>
+      </maml:description>
+      <command:verb>New</command:verb>
+      <command:noun>RandomPassword</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>Generates random passwords using a cryptographically secure random number generator. By default,
+passwords are 16 characters long and include uppercase letters, lowercase letters, numbers, and
+special characters. When multiple character sets are enabled, each generated password contains at
+least one character from every enabled set.
+
+Use `-ExcludeCharacters` or `-NoAmbiguousCharacters` for human-readable passwords, and use
+`-AsSecureString` when a password must be passed directly to cmdlets that accept secure strings.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>New-RandomPassword</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="None">
+          <maml:name>Length</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">Int16</command:parameterValue>
+          <dev:type>
+            <maml:name>System.Int16</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>Uppercase</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>Lowercase</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>Numbers</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>SpecialCharacters</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="None">
+          <maml:name>SpecialCharacterSet</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>AsSecureString</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="None">
+          <maml:name>ExcludeCharacters</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>NoAmbiguousCharacters</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="None">
+          <maml:name>Count</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>System.Int32</maml:name>
+          </dev:type>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="None">
+        <maml:name>AsSecureString</maml:name>
+        <maml:description>
+          <maml:para>Returns each generated password as a read-only `SecureString` instead of a password object.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="None">
+        <maml:name>Count</maml:name>
+        <maml:description>
+          <maml:para>Specifies how many unique passwords to generate.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>System.Int32</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="None">
+        <maml:name>ExcludeCharacters</maml:name>
+        <maml:description>
+          <maml:para>Specifies characters to remove from every enabled character set before generating passwords.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="None">
+        <maml:name>Length</maml:name>
+        <maml:description>
+          <maml:para>Specifies the password length. The minimum length is 8 and the maximum length is 256.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.Int16</command:parameterValue>
+        <dev:type>
+          <maml:name>System.Int16</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="None">
+        <maml:name>Lowercase</maml:name>
+        <maml:description>
+          <maml:para>Includes lowercase letters from `a` through `z`. This character set is enabled by default. Use
+`-Lowercase:$false` to disable it.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="None">
+        <maml:name>NoAmbiguousCharacters</maml:name>
+        <maml:description>
+          <maml:para>Excludes predefined visually similar characters from every enabled character set. The excluded
+characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="None">
+        <maml:name>Numbers</maml:name>
+        <maml:description>
+          <maml:para>Includes numeric characters from `0` through `9`. This character set is enabled by default. Use
+`-Numbers:$false` to disable it.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="None">
+        <maml:name>SpecialCharacters</maml:name>
+        <maml:description>
+          <maml:para>Includes special characters. This character set is enabled by default. Use
+`-SpecialCharacters:$false` to disable it.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="None">
+        <maml:name>SpecialCharacterSet</maml:name>
+        <maml:description>
+          <maml:para>Specifies the characters used by the special character category.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="None">
+        <maml:name>Uppercase</maml:name>
+        <maml:description>
+          <maml:para>Includes uppercase letters from `A` through `Z`. This character set is enabled by default. Use
+`-Uppercase:$false` to disable it.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes />
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>MSCKite.Azure.Platform.Models.RandomPasswordResult</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>The default output object containing the generated password, password length, and complexity label.</maml:para>
+        </maml:description>
+      </command:returnValue>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>System.Security.SecureString</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>When `-AsSecureString` is specified, the cmdlet returns each generated password as a read-only
+secure string.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>`New-RandomPassword` uses `System.Security.Cryptography.RandomNumberGenerator` and rejection
+sampling to avoid modulo bias when selecting characters.</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>--------- Example 1 - Generate a default password ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+New-RandomPassword
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Generates one 16-character password containing uppercase, lowercase, numeric, and special
+characters.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 2 - Generate a longer password ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+New-RandomPassword -Length 32
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Generates one 32-character password.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 3 - Exclude ambiguous characters ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+New-RandomPassword -NoAmbiguousCharacters
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Generates a password that excludes visually similar characters such as `0`, `O`, `o`, `1`, `l`,
+`L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 4 - Use a custom special character set ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+New-RandomPassword -Length 20 -SpecialCharacterSet '!@#$%'
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Generates a 20-character password and uses only the supplied special characters for the special
+character category.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 5 - Generate multiple passwords ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+New-RandomPassword -Count 10
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Generates 10 unique password objects.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 6 - Return a SecureString ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+$Password = New-RandomPassword -AsSecureString
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Returns the generated password as a read-only `SecureString`.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version</maml:linkText>
+        <maml:uri />
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command>
+    <command:details>
       <command:name>Set-AdoDefault</command:name>
       <maml:description>
         <maml:para>Sets the default Azure DevOps organization and project used by other Azure DevOps commands.</maml:para>
