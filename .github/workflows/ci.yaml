@@ -1,4 +1,4 @@
-name: Continuous Integration (CI)
+name: Build, Test and Validate (CI)
 
 on:
   push:

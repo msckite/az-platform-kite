@@ -1,4 +1,4 @@
-name: Continuous Deployment (CD) - PowerShell Gallery
+name: Publish to PowerShell Gallery (CD)
 
 on:
   release:
