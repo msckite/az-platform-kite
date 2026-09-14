@@ -430,3 +430,4 @@ FodyWeavers.xsd
 
 # Additional project files
 maml/**
+testResults.xml

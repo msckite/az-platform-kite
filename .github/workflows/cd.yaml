@@ -1,4 +1,4 @@
-name: Publish Module to PowerShell Gallery
+name: Publish to PowerShell Gallery (CD)
 
 on:
   release:
@@ -17,13 +17,40 @@ jobs:
 
     permissions:
       contents: read
+      actions: read
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+
+      - name: Verify CI succeeded
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          RELEASE_SHA: ${{ github.sha }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          $headers = @{
+              Authorization = "Bearer $env:GH_TOKEN"
+              Accept = 'application/vnd.github+json'
+              'X-GitHub-Api-Version' = '2022-11-28'
+          }
+
+          $uri = "https://api.github.com/repos/$env:REPOSITORY/actions/workflows/ci.yaml/runs?head_sha=$env:RELEASE_SHA&status=completed&per_page=20"
+          $response = Invoke-RestMethod -Uri $uri -Headers $headers
+          $successfulRun = $response.workflow_runs | Where-Object conclusion -EQ 'success' | Select-Object -First 1
+
+          if (-not $successfulRun) {
+              Write-Error "No successful CI workflow run found for release commit '$env:RELEASE_SHA'. Run CI successfully before publishing this release."
+              exit 1
+          }
+
+          Write-Host "Found successful CI run $($successfulRun.html_url) for release commit '$env:RELEASE_SHA'."
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '8.0.x'
 
@@ -43,6 +70,22 @@ jobs:
           dotnet publish "src/$env:MODULE_NAME.csproj" `
             --configuration $env:CONFIGURATION `
             --output "src/bin/$env:CONFIGURATION/netstandard2.0/$env:MODULE_NAME"
+
+      - name: Run Pester tests
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          Install-Module -Name Pester -MinimumVersion 5.5.0 -Force -SkipPublisherCheck -Scope CurrentUser -Repository PSGallery
+
+          $modulePath = "src/bin/$env:CONFIGURATION/netstandard2.0/$env:MODULE_NAME/$env:MODULE_NAME.psd1"
+          if (-not (Test-Path $modulePath)) {
+              Write-Error "No module manifest (.psd1) found at '$modulePath'"
+              exit 1
+          }
+
+          $env:MODULE_UNDER_TEST = Convert-Path $modulePath
+          Invoke-Pester -Path ./tests -CI
 
       - name: Verify module version
         shell: pwsh
