@@ -1,0 +1,77 @@
+// Alternative label set for Set-GitHubLabels. Copy and customize, then run:
+// Set-GitHubLabels -LabelFilePath ./github-labels.jsonc -Owner <owner> -Repository <repo>
+{
+    "$schema": "https://raw.githubusercontent.com/msckite/az-platform-kite/refs/heads/main/schemas/github-labels.schema.json",
+    "labels": [
+        {
+            "name": "bug :beetle:",
+            "color": "#d73a4a",
+            "description": "Something isn't working"
+        },
+        {
+            "name": "documentation :page_facing_up:",
+            "color": "#0075ca",
+            "description": "Improvements or additions to documentation"
+        },
+        {
+            "name": "duplicate :palms_up_together:",
+            "color": "#cfd3d7",
+            "description": "This issue or pull request already exists"
+        },
+        {
+            "name": "enhancement :sparkles:",
+            "color": "#a2eeef",
+            "description": "New feature or request"
+        },
+        {
+            "name": "good first issue :heart:",
+            "color": "#7057ff",
+            "description": "Good for newcomers"
+        },
+        {
+            "name": "help wanted :hatching_chick:",
+            "color": "#008672",
+            "description": "Extra attention is needed"
+        },
+        {
+            "name": "in pr :point_right:",
+            "color": "#344966",
+            "description": "This is when an issue is due because a pull request is still open"
+        },
+        {
+            "name": "in progress :dart:",
+            "color": "#e8e8e8",
+            "description": "This item is in progress and will be worked on"
+        },
+        {
+            "name": "invalid :x:",
+            "color": "#e8e8e8",
+            "description": "This doesn't seem right"
+        },
+        {
+            "name": "long term :hourglass:",
+            "color": "#e8e8e8",
+            "description": "Will be worked on, but will take a longer amount of time due to complexity or priorities"
+        },
+        {
+            "name": "needs triage :wave:",
+            "color": "#e8e8e8",
+            "description": "Needs triage by the team"
+        },
+        {
+            "name": "on hold :lock:",
+            "color": "#e8e8e8",
+            "description": "This is on hold until further notice"
+        },
+        {
+            "name": "question :question:",
+            "color": "#fbca04",
+            "description": "Further information is requested"
+        },
+        {
+            "name": "wontfix :-1:",
+            "color": "#ffffff",
+            "description": "This will not be worked on"
+        }
+    ]
+}

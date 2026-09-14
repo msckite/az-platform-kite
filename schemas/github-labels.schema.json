@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/msckite/az-platform-kite/refs/heads/main/schemas/github-labels.schema.json",
+  "title": "GitHub labels definitions for Set-GitHubLabels",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "labels": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/label"
+      }
+    }
+  },
+  "required": [
+    "labels"
+  ],
+  "definitions": {
+    "label": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Label name; used to identify create/update/remove operations"
+        },
+        "color": {
+          "type": "string",
+          "pattern": "^#?[0-9A-Fa-f]{6}$",
+          "description": "6-digit hex color, with or without a leading '#'"
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional label description"
+        }
+      },
+      "required": [
+        "name",
+        "color"
+      ]
+    }
+  }
+}
