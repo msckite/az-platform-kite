@@ -1,0 +1,160 @@
+name: Sync Issue Status Labels
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - closed
+
+  issues:
+    types:
+      - reopened
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+
+jobs:
+  pr-label-sync:
+    if: github.event_name == 'pull_request_target'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Update linked issue labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const linkedIssues = await github.graphql(
+              `query($owner: String!, $repo: String!, $number: Int!) {
+                repository(owner: $owner, name: $repo) {
+                  pullRequest(number: $number) {
+                    closingIssuesReferences(first: 100) {
+                      nodes {
+                        number
+                        repository {
+                          nameWithOwner
+                        }
+                      }
+                    }
+                  }
+                }
+              }`,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                number: context.payload.pull_request.number
+              }
+            );
+
+            const issueNumbers = [
+              ...new Set(
+                linkedIssues.repository.pullRequest.closingIssuesReferences.nodes
+                  .filter(issue => issue.repository.nameWithOwner === `${context.repo.owner}/${context.repo.repo}`)
+                  .map(issue => issue.number)
+              )
+            ];
+
+            if (issueNumbers.length === 0) {
+              core.info('No linked issues found.');
+              return;
+            }
+
+            for (const issueNumber of issueNumbers) {
+
+              if (context.payload.action === 'opened') {
+                core.info(`Updating issue #${issueNumber} -> In Progress`);
+
+                // Remove todo label
+                try {
+                  await github.rest.issues.removeLabel({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: issueNumber,
+                    name: 'todo :construction_worker:'
+                  });
+                } catch {}
+
+                // Add in progress label
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber,
+                  labels: ['in progress :dart:']
+                });
+              }
+
+              if (
+                context.payload.action === 'closed' &&
+                context.payload.pull_request.merged === true
+              ) {
+                core.info(`Updating issue #${issueNumber} -> Completed`);
+
+                // Remove in progress label
+                try {
+                  await github.rest.issues.removeLabel({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: issueNumber,
+                    name: 'in progress :dart:'
+                  });
+                } catch {}
+
+                // Add completed label
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber,
+                  labels: ['completed :white_check_mark:']
+                });
+              }
+
+              if (
+                context.payload.action === 'closed' &&
+                context.payload.pull_request.merged === false
+              ) {
+                core.info(
+                  `PR closed without merge. No label changes for issue #${issueNumber}`
+                );
+              }
+            }
+
+  issue-reopened:
+    if: github.event_name == 'issues'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Reset labels when issue is reopened
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issueNumber = context.payload.issue.number;
+
+            try {
+              await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                name: 'completed :white_check_mark:'
+              });
+            } catch {}
+
+            try {
+              await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                name: 'in progress :dart:'
+              });
+            } catch {}
+
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              labels: ['todo :construction_worker:']
+            });
+
+            core.info(
+              `Issue #${issueNumber} reopened: completed -> todo`
+            );
