@@ -4,7 +4,7 @@ external help file: MSCKite.Azure.Platform.dll-Help.xml
 HelpUri: ''
 Locale: en-NL
 Module Name: MSCKite.Azure.Platform
-ms.date: 09/14/2026
+ms.date: 09/15/2026
 PlatyPS schema version: 2024-05-01
 title: Connect-AdoOrganization
 ---
@@ -115,3 +115,8 @@ Represents the connected Azure DevOps organization and project.
 This cmdlet requires the Az.Accounts module version 5.5 or higher.
 
 ## RELATED LINKS
+
+- [Disconnect-AdoOrganization](https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Disconnect-AdoOrganization.md)
+- [Get-AdoDefault](https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Get-AdoDefault.md)
+- [Set-AdoDefault](https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Set-AdoDefault.md)
+

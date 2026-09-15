@@ -1,10 +1,10 @@
----
+﻿---
 document type: cmdlet
 external help file: MSCKite.Azure.Platform.dll-Help.xml
 HelpUri: ''
 Locale: en-NL
 Module Name: MSCKite.Azure.Platform
-ms.date: 09/14/2026
+ms.date: 09/15/2026
 PlatyPS schema version: 2024-05-01
 title: Set-GitHubLabels
 ---
@@ -21,7 +21,7 @@ Creates, updates, and removes GitHub repository labels to match a labels definit
 
 ```
 Set-GitHubLabels [-LabelFilePath] <string> [[-Owner] <string>] [[-Repository] <string>]
- [-KeepExistingLabels] [-WhatIf] [-Confirm]
+ [-KeepExistingLabels] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## ALIASES
@@ -35,10 +35,8 @@ exist on both but have a different `color` or `description` are updated, and lab
 the repository but aren't listed in the file are removed unless `-KeepExistingLabels` is
 specified.
 
-The labels file can be either a top-level JSON array of label objects, or an object with a
-`labels` array property.
-JSONC comments and trailing commas are allowed.
-Each label object
+The labels file must be a JSON object with a `templateVersion` in `Major.Minor.Patch` SemVer
+format and a `labels` array property. JSONC comments and trailing commas are allowed. Each label object
 requires a `name` and a `color` (a 6-digit hex value, with or without a leading `#`, e.g.
 `#d73a4a`), and may include an optional `description`.
 
@@ -118,6 +116,9 @@ HelpMessage: ''
 
 ### -LabelFilePath
 
+Path to a versioned jsonc file containing a `templateVersion` and the desired `labels` array.
+Each label requires a `name` and a `color` (6-digit hex,
+with or without a leading `#`), and may include a `description`.
 Path to a jsonc file containing the desired labels: either a top-level array of label objects, or
 an object with a `labels` array property.
 Each label requires a `name` and a `color` (6-digit hex,
@@ -233,5 +234,7 @@ The Owner, Repository, and the names of labels that were Added, Updated, Removed
 This cmdlet requires the GitHub CLI (`gh`) to be installed and signed in
 (`gh auth login`) with permission to manage labels on the target repository.
 
-
 ## RELATED LINKS
+
+- [Set-GitHubDefault](https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Set-GitHubDefault.md)
+

@@ -1,10 +1,10 @@
----
+﻿---
 document type: cmdlet
 external help file: MSCKite.Azure.Platform.dll-Help.xml
 HelpUri: ''
 Locale: en-NL
 Module Name: MSCKite.Azure.Platform
-ms.date: 09/14/2026
+ms.date: 09/15/2026
 PlatyPS schema version: 2024-05-01
 title: New-RandomPassword
 ---
@@ -20,9 +20,9 @@ Generates cryptographically secure random passwords with configurable complexity
 ### __AllParameterSets
 
 ```
-New-RandomPassword [-Length <Int16>] [-Uppercase] [-Lowercase] [-Numbers] [-SpecialCharacters]
- [-SpecialCharacterSet <String>] [-AsSecureString] [-ExcludeCharacters <String>]
- [-NoAmbiguousCharacters] [-Count <Int32>] [<CommonParameters>]
+New-RandomPassword [-Length <short>] [-Uppercase] [-Lowercase] [-Numbers] [-SpecialCharacters]
+ [-SpecialCharacterSet <string>] [-AsSecureString] [-ExcludeCharacters <string>]
+ [-NoAmbiguousCharacters] [-Count <int>]
 ```
 
 ## ALIASES
@@ -98,14 +98,19 @@ Returns each generated password as a read-only `SecureString` instead of a passw
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
-Parameter Sets: (All)
-Aliases: None
-
-Required: False
-Position: Named
-Default value: False
-Accept pipeline input: False
-Accept wildcard characters: False
+DefaultValue: False
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
 ```
 
 ### -Count
@@ -114,14 +119,19 @@ Specifies how many unique passwords to generate.
 
 ```yaml
 Type: System.Int32
-Parameter Sets: (All)
-Aliases: None
-
-Required: False
-Position: Named
-Default value: 1
-Accept pipeline input: False
-Accept wildcard characters: False
+DefaultValue: 1
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
 ```
 
 ### -ExcludeCharacters
@@ -130,98 +140,145 @@ Specifies characters to remove from every enabled character set before generatin
 
 ```yaml
 Type: System.String
-Parameter Sets: (All)
-Aliases: None
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
+DefaultValue: None
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
 ```
 
 ### -Length
 
 Specifies the password length. The minimum length is 8 and the maximum length is 256.
+Specifies the password length.
+The minimum length is 8 and the maximum length is 256.
 
 ```yaml
 Type: System.Int16
-Parameter Sets: (All)
-Aliases: None
-
-Required: False
-Position: Named
-Default value: 16
-Accept pipeline input: False
-Accept wildcard characters: False
+DefaultValue: 16
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
 ```
 
 ### -Lowercase
 
 Includes lowercase letters from `a` through `z`. This character set is enabled by default. Use
 `-Lowercase:$false` to disable it.
+Includes lowercase letters from `a` through `z`.
+This character set is enabled by default.
+Use
+`-Lowercase:$false` to disable it.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
-Parameter Sets: (All)
-Aliases: None
-
-Required: False
-Position: Named
-Default value: True
-Accept pipeline input: False
-Accept wildcard characters: False
+DefaultValue: True
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
 ```
 
 ### -NoAmbiguousCharacters
 
 Excludes predefined visually similar characters from every enabled character set. The excluded
 characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
+Excludes predefined visually similar characters from every enabled character set.
+The excluded
+characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
-Parameter Sets: (All)
-Aliases: None
-
-Required: False
-Position: Named
-Default value: False
-Accept pipeline input: False
-Accept wildcard characters: False
+DefaultValue: False
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
 ```
 
 ### -Numbers
 
 Includes numeric characters from `0` through `9`. This character set is enabled by default. Use
 `-Numbers:$false` to disable it.
+Includes numeric characters from `0` through `9`.
+This character set is enabled by default.
+Use
+`-Numbers:$false` to disable it.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
-Parameter Sets: (All)
-Aliases: None
-
-Required: False
-Position: Named
-Default value: True
-Accept pipeline input: False
-Accept wildcard characters: False
+DefaultValue: True
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
 ```
 
 ### -SpecialCharacters
 
 Includes special characters. This character set is enabled by default. Use
 `-SpecialCharacters:$false` to disable it.
+Includes special characters.
+This character set is enabled by default.
+Use
+`-SpecialCharacters:$false` to disable it.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
-Parameter Sets: (All)
-Aliases: None
-
-Required: False
-Position: Named
-Default value: True
-Accept pipeline input: False
-Accept wildcard characters: False
+DefaultValue: True
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
 ```
 
 ### -SpecialCharacterSet
@@ -230,31 +287,45 @@ Specifies the characters used by the special character category.
 
 ```yaml
 Type: System.String
-Parameter Sets: (All)
-Aliases: None
-
-Required: False
-Position: Named
-Default value: '!@#$%^&*()-_=+[]{}:,.?'
-Accept pipeline input: False
-Accept wildcard characters: False
+DefaultValue: '!@#$%^&*()-_=+[]{}:,.?'
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
 ```
 
 ### -Uppercase
 
 Includes uppercase letters from `A` through `Z`. This character set is enabled by default. Use
 `-Uppercase:$false` to disable it.
+Includes uppercase letters from `A` through `Z`.
+This character set is enabled by default.
+Use
+`-Uppercase:$false` to disable it.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
-Parameter Sets: (All)
-Aliases: None
-
-Required: False
-Position: Named
-Default value: True
-Accept pipeline input: False
-Accept wildcard characters: False
+DefaultValue: True
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
 ```
 
 ### CommonParameters
@@ -283,3 +354,6 @@ secure string.
 sampling to avoid modulo bias when selecting characters.
 
 ## RELATED LINKS
+
+- [New-RandomUniqueId](https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/New-RandomUniqueId.md)
+

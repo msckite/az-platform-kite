@@ -23,7 +23,7 @@ Describe 'Set-GitHubLabels' {
         Set-GitHubDefault -Owner $null -Repository $null | Out-Null
 
         $path = Join-Path $TestDrive 'labels.jsonc'
-        '{"labels":[]}' | Set-Content -Path $path
+        '{"templateVersion":"1.0.0","labels":[]}' | Set-Content -Path $path
 
         { Set-GitHubLabels -LabelFilePath $path } | Should -Throw '*Owner and Repository are required*'
     }
@@ -34,32 +34,40 @@ Describe 'Set-GitHubLabels' {
         { Set-GitHubLabels -LabelFilePath $path -Owner 'o' -Repository 'r' } | Should -Throw '*not found*'
     }
 
-    It 'throws when the file is neither an array nor an object with a labels array' {
+    It 'throws when the file is not a versioned labels template object' {
         $path = Join-Path $TestDrive 'bad-shape.jsonc'
-        '{"foo": []}' | Set-Content -Path $path
+        '{"templateVersion":"1.0.0","foo": []}' | Set-Content -Path $path
 
-        { Set-GitHubLabels -LabelFilePath $path -Owner 'o' -Repository 'r' } | Should -Throw '*must be a JSON array*'
+        { Set-GitHubLabels -LabelFilePath $path -Owner 'o' -Repository 'r' } | Should -Throw '*must be a JSON object*'
+    }
+
+    It 'throws when the template version is missing or invalid' {
+        $path = Join-Path $TestDrive 'invalid-version.jsonc'
+        '{"labels":[]}' | Set-Content -Path $path
+
+        { Set-GitHubLabels -LabelFilePath $path -Owner 'o' -Repository 'r' } | Should -Throw '*templateVersion*'
     }
 
     It 'throws when a label has an invalid color' {
         $path = Join-Path $TestDrive 'bad-color.jsonc'
-        '[{"name":"bug","color":"red"}]' | Set-Content -Path $path
+        '{"templateVersion":"1.0.0","labels":[{"name":"bug","color":"red"}]}' | Set-Content -Path $path
 
         { Set-GitHubLabels -LabelFilePath $path -Owner 'o' -Repository 'r' } | Should -Throw '*invalid color*'
     }
 
     It 'throws on duplicate label names' {
         $path = Join-Path $TestDrive 'dup.jsonc'
-        '[{"name":"bug","color":"#ffffff"},{"name":"bug","color":"#000000"}]' | Set-Content -Path $path
+        '{"templateVersion":"1.0.0","labels":[{"name":"bug","color":"#ffffff"},{"name":"bug","color":"#000000"}]}' | Set-Content -Path $path
 
         { Set-GitHubLabels -LabelFilePath $path -Owner 'o' -Repository 'r' } | Should -Throw '*Duplicate label name*'
     }
 
-    It 'parses jsonc comments and a top-level "labels" object before contacting GitHub' {
+    It 'parses a versioned jsonc labels template before contacting GitHub' {
         $path = Join-Path $TestDrive 'valid.jsonc'
         @'
 // comment
 {
+    "templateVersion": "1.0.0",
   "labels": [
     { "name": "bug", "color": "#d73a4a", "description": "Something isn't working" }
   ]

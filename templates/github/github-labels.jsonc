@@ -2,6 +2,7 @@
 // Set-GitHubLabels -LabelFilePath ./github-labels.jsonc -Owner <owner> -Repository <repo>
 {
     "$schema": "https://raw.githubusercontent.com/msckite/az-platform-kite/refs/heads/main/schemas/github-labels.schema.json",
+    "templateVersion": "1.0.0",
     "labels": [
         {
             "name": "bug :beetle:",

@@ -109,6 +109,18 @@ Connect-AdoOrganization -Organization "https://dev.azure.com/myorg" -Project "My
         <maml:linkText>Online Version</maml:linkText>
         <maml:uri />
       </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Disconnect-AdoOrganization</maml:linkText>
+        <maml:uri>https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Disconnect-AdoOrganization.md</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Get-AdoDefault</maml:linkText>
+        <maml:uri>https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Get-AdoDefault.md</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Set-AdoDefault</maml:linkText>
+        <maml:uri>https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Set-AdoDefault.md</maml:uri>
+      </maml:navigationLink>
     </command:relatedLinks>
   </command:command>
   <command:command>
@@ -162,6 +174,10 @@ Disconnect-AdoOrganization
       <maml:navigationLink>
         <maml:linkText>Online Version</maml:linkText>
         <maml:uri />
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Connect-AdoOrganization</maml:linkText>
+        <maml:uri>https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Connect-AdoOrganization.md</maml:uri>
       </maml:navigationLink>
     </command:relatedLinks>
   </command:command>
@@ -219,6 +235,14 @@ Disconnect-PlatformContext
         <maml:linkText>Online Version</maml:linkText>
         <maml:uri />
       </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Get-PlatformContext</maml:linkText>
+        <maml:uri>https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Get-PlatformContext.md</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Connect-AdoOrganization</maml:linkText>
+        <maml:uri>https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Connect-AdoOrganization.md</maml:uri>
+      </maml:navigationLink>
     </command:relatedLinks>
   </command:command>
   <command:command>
@@ -273,6 +297,14 @@ Get-AdoDefault
         <maml:linkText>Online Version</maml:linkText>
         <maml:uri />
       </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Set-AdoDefault</maml:linkText>
+        <maml:uri>https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Set-AdoDefault.md</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Connect-AdoOrganization</maml:linkText>
+        <maml:uri>https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Connect-AdoOrganization.md</maml:uri>
+      </maml:navigationLink>
     </command:relatedLinks>
   </command:command>
   <command:command>
@@ -326,6 +358,10 @@ Get-GitHubDefault
       <maml:navigationLink>
         <maml:linkText>Online Version</maml:linkText>
         <maml:uri />
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Set-GitHubDefault</maml:linkText>
+        <maml:uri>https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Set-GitHubDefault.md</maml:uri>
       </maml:navigationLink>
     </command:relatedLinks>
   </command:command>
@@ -411,6 +447,14 @@ Get-PlatformContext -All
         <maml:linkText>Online Version</maml:linkText>
         <maml:uri />
       </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Disconnect-PlatformContext</maml:linkText>
+        <maml:uri>https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Disconnect-PlatformContext.md</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Connect-AdoOrganization</maml:linkText>
+        <maml:uri>https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Connect-AdoOrganization.md</maml:uri>
+      </maml:navigationLink>
     </command:relatedLinks>
   </command:command>
   <command:command>
@@ -494,7 +538,9 @@ destination.</maml:para>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>Branch</maml:name>
         <maml:description>
-          <maml:para>The repository branch to clone. Defaults to `main`.</maml:para>
+          <maml:para>The repository branch to clone. Defaults to `main`.
+The repository branch to clone.
+Defaults to `main`.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
         <dev:type>
@@ -534,6 +580,9 @@ Defaults to `templates`.</maml:para>
         <maml:name>OutputFolder</maml:name>
         <maml:description>
           <maml:para>Local folder to copy the downloaded folder(s) into. Defaults to `.downloads`, a dedicated folder
+separate from any in-use configuration so reruns never overwrite it.
+Local folder to copy the downloaded folder(s) into.
+Defaults to `.downloads`, a dedicated folder
 separate from any in-use configuration so reruns never overwrite it.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
@@ -544,7 +593,9 @@ separate from any in-use configuration so reruns never overwrite it.</maml:para>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>RepositoryUrl</maml:name>
         <maml:description>
-          <maml:para>The git URL to clone. Defaults to the `az-platform-kite` repository.</maml:para>
+          <maml:para>The git URL to clone. Defaults to the `az-platform-kite` repository.
+The git URL to clone.
+Defaults to the `az-platform-kite` repository.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
         <dev:type>
@@ -635,6 +686,14 @@ New-PlatformConfigStructure -InputFolder ./config-src/templates -OutputFolder ./
         <maml:linkText>Online Version</maml:linkText>
         <maml:uri />
       </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>New-PlatformConfigStructure</maml:linkText>
+        <maml:uri>https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/New-PlatformConfigStructure.md</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Test-PlatformTemplate</maml:linkText>
+        <maml:uri>https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Test-PlatformTemplate.md</maml:uri>
+      </maml:navigationLink>
     </command:relatedLinks>
   </command:command>
   <command:command>
@@ -720,6 +779,9 @@ is specified to overwrite it.</maml:para>
         <maml:name>InputFolder</maml:name>
         <maml:description>
           <maml:para>Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`. When omitted, a
+default `global-config.jsonc` template is generated instead.
+Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
+When omitted, a
 default `global-config.jsonc` template is generated instead.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
@@ -730,7 +792,9 @@ default `global-config.jsonc` template is generated instead.</maml:para>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="true (ByPropertyName)" position="0" aliases="none">
         <maml:name>OutputFolder</maml:name>
         <maml:description>
-          <maml:para>Destination folder for the platform configuration structure. Defaults to `config`.</maml:para>
+          <maml:para>Destination folder for the platform configuration structure. Defaults to `config`.
+Destination folder for the platform configuration structure.
+Defaults to `config`.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
         <dev:type>
@@ -811,6 +875,14 @@ New-PlatformConfigStructure -OutputFolder ./config -Force
         <maml:linkText>Online Version</maml:linkText>
         <maml:uri />
       </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Get-PlatformTemplate</maml:linkText>
+        <maml:uri>https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Get-PlatformTemplate.md</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Test-PlatformTemplate</maml:linkText>
+        <maml:uri>https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Test-PlatformTemplate.md</maml:uri>
+      </maml:navigationLink>
     </command:relatedLinks>
   </command:command>
   <command:command>
@@ -834,10 +906,10 @@ Use `-ExcludeCharacters` or `-NoAmbiguousCharacters` for human-readable password
     <command:syntax>
       <command:syntaxItem>
         <maml:name>New-RandomPassword</maml:name>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="None">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
           <maml:name>Length</maml:name>
           <maml:description />
-          <command:parameterValue required="true" variableLength="false">Int16</command:parameterValue>
+          <command:parameterValue required="true" variableLength="false">short</command:parameterValue>
           <dev:type>
             <maml:name>System.Int16</maml:name>
           </dev:type>
@@ -870,10 +942,10 @@ Use `-ExcludeCharacters` or `-NoAmbiguousCharacters` for human-readable password
             <maml:name>System.Management.Automation.SwitchParameter</maml:name>
           </dev:type>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="None">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
           <maml:name>SpecialCharacterSet</maml:name>
           <maml:description />
-          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
           <dev:type>
             <maml:name>System.String</maml:name>
           </dev:type>
@@ -885,10 +957,10 @@ Use `-ExcludeCharacters` or `-NoAmbiguousCharacters` for human-readable password
             <maml:name>System.Management.Automation.SwitchParameter</maml:name>
           </dev:type>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="None">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
           <maml:name>ExcludeCharacters</maml:name>
           <maml:description />
-          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
           <dev:type>
             <maml:name>System.String</maml:name>
           </dev:type>
@@ -900,10 +972,10 @@ Use `-ExcludeCharacters` or `-NoAmbiguousCharacters` for human-readable password
             <maml:name>System.Management.Automation.SwitchParameter</maml:name>
           </dev:type>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="None">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
           <maml:name>Count</maml:name>
           <maml:description />
-          <command:parameterValue required="true" variableLength="false">Int32</command:parameterValue>
+          <command:parameterValue required="true" variableLength="false">int</command:parameterValue>
           <dev:type>
             <maml:name>System.Int32</maml:name>
           </dev:type>
@@ -911,7 +983,7 @@ Use `-ExcludeCharacters` or `-NoAmbiguousCharacters` for human-readable password
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="None">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>AsSecureString</maml:name>
         <maml:description>
           <maml:para>Returns each generated password as a read-only `SecureString` instead of a password object.</maml:para>
@@ -920,7 +992,7 @@ Use `-ExcludeCharacters` or `-NoAmbiguousCharacters` for human-readable password
           <maml:name>System.Management.Automation.SwitchParameter</maml:name>
         </dev:type>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="None">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>Count</maml:name>
         <maml:description>
           <maml:para>Specifies how many unique passwords to generate.</maml:para>
@@ -930,7 +1002,7 @@ Use `-ExcludeCharacters` or `-NoAmbiguousCharacters` for human-readable password
           <maml:name>System.Int32</maml:name>
         </dev:type>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="None">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>ExcludeCharacters</maml:name>
         <maml:description>
           <maml:para>Specifies characters to remove from every enabled character set before generating passwords.</maml:para>
@@ -940,57 +1012,74 @@ Use `-ExcludeCharacters` or `-NoAmbiguousCharacters` for human-readable password
           <maml:name>System.String</maml:name>
         </dev:type>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="None">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>Length</maml:name>
         <maml:description>
-          <maml:para>Specifies the password length. The minimum length is 8 and the maximum length is 256.</maml:para>
+          <maml:para>Specifies the password length. The minimum length is 8 and the maximum length is 256.
+Specifies the password length.
+The minimum length is 8 and the maximum length is 256.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.Int16</command:parameterValue>
         <dev:type>
           <maml:name>System.Int16</maml:name>
         </dev:type>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="None">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>Lowercase</maml:name>
         <maml:description>
           <maml:para>Includes lowercase letters from `a` through `z`. This character set is enabled by default. Use
+`-Lowercase:$false` to disable it.
+Includes lowercase letters from `a` through `z`.
+This character set is enabled by default.
+Use
 `-Lowercase:$false` to disable it.</maml:para>
         </maml:description>
         <dev:type>
           <maml:name>System.Management.Automation.SwitchParameter</maml:name>
         </dev:type>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="None">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>NoAmbiguousCharacters</maml:name>
         <maml:description>
           <maml:para>Excludes predefined visually similar characters from every enabled character set. The excluded
+characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
+Excludes predefined visually similar characters from every enabled character set.
+The excluded
 characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.</maml:para>
         </maml:description>
         <dev:type>
           <maml:name>System.Management.Automation.SwitchParameter</maml:name>
         </dev:type>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="None">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>Numbers</maml:name>
         <maml:description>
           <maml:para>Includes numeric characters from `0` through `9`. This character set is enabled by default. Use
+`-Numbers:$false` to disable it.
+Includes numeric characters from `0` through `9`.
+This character set is enabled by default.
+Use
 `-Numbers:$false` to disable it.</maml:para>
         </maml:description>
         <dev:type>
           <maml:name>System.Management.Automation.SwitchParameter</maml:name>
         </dev:type>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="None">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>SpecialCharacters</maml:name>
         <maml:description>
           <maml:para>Includes special characters. This character set is enabled by default. Use
+`-SpecialCharacters:$false` to disable it.
+Includes special characters.
+This character set is enabled by default.
+Use
 `-SpecialCharacters:$false` to disable it.</maml:para>
         </maml:description>
         <dev:type>
           <maml:name>System.Management.Automation.SwitchParameter</maml:name>
         </dev:type>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="None">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>SpecialCharacterSet</maml:name>
         <maml:description>
           <maml:para>Specifies the characters used by the special character category.</maml:para>
@@ -1000,10 +1089,14 @@ characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, 
           <maml:name>System.String</maml:name>
         </dev:type>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="None">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>Uppercase</maml:name>
         <maml:description>
           <maml:para>Includes uppercase letters from `A` through `Z`. This character set is enabled by default. Use
+`-Uppercase:$false` to disable it.
+Includes uppercase letters from `A` through `Z`.
+This character set is enabled by default.
+Use
 `-Uppercase:$false` to disable it.</maml:para>
         </maml:description>
         <dev:type>
@@ -1119,6 +1212,10 @@ $Password = New-RandomPassword -AsSecureString
         <maml:linkText>Online Version</maml:linkText>
         <maml:uri />
       </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>New-RandomUniqueId</maml:linkText>
+        <maml:uri>https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/New-RandomUniqueId.md</maml:uri>
+      </maml:navigationLink>
     </command:relatedLinks>
   </command:command>
   <command:command>
@@ -1153,6 +1250,9 @@ not contain special characters and is not suitable for passwords, secrets, or se
         <maml:name>Length</maml:name>
         <maml:description>
           <maml:para>Specifies the identifier length. The minimum length is 4, the maximum length is 12, and the default
+length is 8.
+Specifies the identifier length.
+The minimum length is 4, the maximum length is 12, and the default
 length is 8.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.Int16</command:parameterValue>
@@ -1235,6 +1335,10 @@ $ResourceGroupName = "rg-$ProjectSuffix"
         <maml:linkText>Online Version</maml:linkText>
         <maml:uri />
       </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>New-RandomPassword</maml:linkText>
+        <maml:uri>https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/New-RandomPassword.md</maml:uri>
+      </maml:navigationLink>
     </command:relatedLinks>
   </command:command>
   <command:command>
@@ -1277,6 +1381,10 @@ $ResourceGroupName = "rg-$ProjectSuffix"
         <maml:description>
           <maml:para>The name of the Azure DevOps organization to use as the default. Pass `$null` to clear it.
 The name of the Azure DevOps organization to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps organization to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps organization to use as the default.
 Pass `$null` to clear it.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
@@ -1288,6 +1396,10 @@ Pass `$null` to clear it.</maml:para>
         <maml:name>Project</maml:name>
         <maml:description>
           <maml:para>The name of the Azure DevOps project to use as the default. Pass `$null` to clear it.
+The name of the Azure DevOps project to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps project to use as the default.
+Pass `$null` to clear it.
 The name of the Azure DevOps project to use as the default.
 Pass `$null` to clear it.</maml:para>
         </maml:description>
@@ -1338,6 +1450,14 @@ Set-AdoDefault -Organization "myorg" -Project "My Project"
       <maml:navigationLink>
         <maml:linkText>Online Version</maml:linkText>
         <maml:uri />
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Get-AdoDefault</maml:linkText>
+        <maml:uri>https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Get-AdoDefault.md</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Connect-AdoOrganization</maml:linkText>
+        <maml:uri>https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Connect-AdoOrganization.md</maml:uri>
       </maml:navigationLink>
     </command:relatedLinks>
   </command:command>
@@ -1391,6 +1511,12 @@ and `gh issue`. If you want `gh` itself to default to a specific repository, run
 it.
 The name of the GitHub owner (user or organization) to use as the default.
 Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
 it.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
@@ -1402,6 +1528,10 @@ it.</maml:para>
         <maml:name>Repository</maml:name>
         <maml:description>
           <maml:para>The name of the GitHub repository to use as the default. Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
 The name of the GitHub repository to use as the default.
 Pass `$null` to clear it.</maml:para>
         </maml:description>
@@ -1454,6 +1584,14 @@ Set-GitHubDefault -Owner "myorg" -Repository "myrepo"
         <maml:linkText>Online Version</maml:linkText>
         <maml:uri />
       </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Get-GitHubDefault</maml:linkText>
+        <maml:uri>https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Get-GitHubDefault.md</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Set-GitHubLabels</maml:linkText>
+        <maml:uri>https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Set-GitHubLabels.md</maml:uri>
+      </maml:navigationLink>
     </command:relatedLinks>
   </command:command>
   <command:command>
@@ -1473,10 +1611,8 @@ exist on both but have a different `color` or `description` are updated, and lab
 the repository but aren't listed in the file are removed unless `-KeepExistingLabels` is
 specified.
 
-The labels file can be either a top-level JSON array of label objects, or an object with a
-`labels` array property.
-JSONC comments and trailing commas are allowed.
-Each label object
+The labels file must be a JSON object with a `templateVersion` in `Major.Minor.Patch` SemVer
+format and a `labels` array property. JSONC comments and trailing commas are allowed. Each label object
 requires a `name` and a `color` (a 6-digit hex value, with or without a leading `#`, e.g.
 `#d73a4a`), and may include an optional `description`.
 
@@ -1558,7 +1694,10 @@ repository.</maml:para>
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByPropertyName)" position="0" aliases="Path">
         <maml:name>LabelFilePath</maml:name>
         <maml:description>
-          <maml:para>Path to a jsonc file containing the desired labels: either a top-level array of label objects, or
+          <maml:para>Path to a versioned jsonc file containing a `templateVersion` and the desired `labels` array.
+Each label requires a `name` and a `color` (6-digit hex,
+with or without a leading `#`), and may include a `description`.
+Path to a jsonc file containing the desired labels: either a top-level array of label objects, or
 an object with a `labels` array property.
 Each label requires a `name` and a `color` (6-digit hex,
 with or without a leading `#`), and may include a `description`.</maml:para>
@@ -1667,6 +1806,153 @@ listed in the file untouched instead of removing them.</maml:para>
       <maml:navigationLink>
         <maml:linkText>Online Version</maml:linkText>
         <maml:uri />
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Set-GitHubDefault</maml:linkText>
+        <maml:uri>https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Set-GitHubDefault.md</maml:uri>
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command>
+    <command:details>
+      <command:name>Test-PlatformTemplate</command:name>
+      <maml:description>
+        <maml:para>Reports template and schema version compatibility and whether a newer template is available.</maml:para>
+      </maml:description>
+      <command:verb>Test</command:verb>
+      <command:noun>PlatformTemplate</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>Requires a `templateVersion` in the template and a `schemaVersion` in the schema. Both values
+must use `Major.Minor.Patch` SemVer. A pair is compatible only when the versions match exactly.
+An unversioned or malformed file is rejected. Provide `-LatestTemplatePath` to compare the
+current template with a separately downloaded template; the command reports update availability
+without changing either file.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Test-PlatformTemplate</maml:name>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="0" aliases="Path">
+          <maml:name>TemplatePath</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="1" aliases="none">
+          <maml:name>SchemaPath</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>LatestTemplatePath</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>LatestTemplatePath</maml:name>
+        <maml:description>
+          <maml:para>Path to a separately downloaded template to compare against `-TemplatePath` for update
+availability. When omitted, no update check is performed.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByPropertyName)" position="1" aliases="none">
+        <maml:name>SchemaPath</maml:name>
+        <maml:description>
+          <maml:para>Path to the JSON schema file containing the `schemaVersion` to validate against the template.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByPropertyName)" position="0" aliases="Path">
+        <maml:name>TemplatePath</maml:name>
+        <maml:description>
+          <maml:para>Path to the template file containing the `templateVersion` to validate against the schema.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>You can pipe a template path to `-TemplatePath` by property name.</maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>MSCKite.Azure.Platform.Models.PlatformTemplateVersionResult</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>The template and schema paths, their versions, compatibility status, and (when
+`-LatestTemplatePath` is specified) whether a newer template is available.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>Use matching template and schema releases. Increase major versions for breaking changes, and
+increase minor or patch versions for compatible changes. All templates must use the versioned
+object format.</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>--------- Example 1 - Validate a template/schema pair ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Test-PlatformTemplate -TemplatePath ./config/global-config.jsonc -SchemaPath ./schemas/global-config.schema.json
+```</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 2 - Check for a newer downloaded template ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Test-PlatformTemplate -TemplatePath ./config/global-config.jsonc -SchemaPath ./schemas/global-config.schema.json -LatestTemplatePath ./.downloads/templates/global-config.jsonc
+```</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version</maml:linkText>
+        <maml:uri />
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Get-PlatformTemplate</maml:linkText>
+        <maml:uri>https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Get-PlatformTemplate.md</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>New-PlatformConfigStructure</maml:linkText>
+        <maml:uri>https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/New-PlatformConfigStructure.md</maml:uri>
       </maml:navigationLink>
     </command:relatedLinks>
   </command:command>

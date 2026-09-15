@@ -70,3 +70,7 @@ Sets the default GitHub owner and repository used by other GitHub commands.
 
 Creates, updates, and removes GitHub repository labels to match a labels definition file.
 
+### [Test-PlatformTemplate](Test-PlatformTemplate.md)
+
+Reports template and schema version compatibility and whether a newer template is available.
+

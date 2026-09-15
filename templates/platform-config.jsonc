@@ -1,5 +1,6 @@
 {
     "$schema": "https://raw.githubusercontent.com/msckite/az-platform-kite/refs/heads/main/schemas/platform-config.schema.json",
+    "templateVersion": "1.0.0",
     "environments": [
         {
             "displayName": "Development",

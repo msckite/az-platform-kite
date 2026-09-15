@@ -4,7 +4,7 @@ external help file: MSCKite.Azure.Platform.dll-Help.xml
 HelpUri: ''
 Locale: en-NL
 Module Name: MSCKite.Azure.Platform
-ms.date: 09/14/2026
+ms.date: 09/15/2026
 PlatyPS schema version: 2024-05-01
 title: Get-GitHubDefault
 ---
@@ -58,3 +58,6 @@ The Owner, Repository, and RepositoryUri currently stored via Set-GitHubDefault.
 ## NOTES
 
 ## RELATED LINKS
+
+- [Set-GitHubDefault](https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Set-GitHubDefault.md)
+
