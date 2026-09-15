@@ -1,0 +1,118 @@
+{
+    "$schema": "https://raw.githubusercontent.com/msckite/az-platform-kite/refs/heads/main/schemas/platform-config.schema.json",
+    "environments": [
+        {
+            "displayName": "Development",
+            "environmentCode": "dev",
+            "description": "Development environment for the ${displayName} service",
+            "resourceGroup": {
+                "name": "rg-${uniqueId}${serviceShort}-${environmentCode}-${regionCode}",
+                "location": "${location}",
+                "tags": {
+                    "service": "${serviceShort}",
+                    "environment": "development",
+                    "location": "${location}",
+                    "owner": "engineering-team",
+                    "criticality": "low",
+                    "cost-center": "engineering",
+                    "public": "true"
+                }
+            },
+            "securityGroups": [
+                {
+                    "displayName": "SG ${displayName} - Developers",
+                    "mailNickName": "sg-${uniqueId}${serviceShort}-${environmentCode}-devs",
+                    "description": "Security group for users with developer access to the Azure environment",
+                    "roleAssignments": [
+                        {
+                            "role": "Contributor",
+                            "scope": "/subscriptions/${subscriptionId}/resourceGroups/rg-${uniqueId}${serviceShort}-${environmentCode}-${regionCode}"
+                        }
+                    ]
+                },
+                {
+                    "displayName": "SG ${displayName} - Administrators",
+                    "mailNickName": "sg-${uniqueId}${serviceShort}-${environmentCode}-admins",
+                    "description": "Security group for users with administrative access to the Azure environment",
+                    "roleAssignments": [
+                        {
+                            "role": "Owner",
+                            "scope": "/subscriptions/${subscriptionId}/resourceGroups/rg-${uniqueId}${serviceShort}-${environmentCode}-${regionCode}"
+                        }
+                    ]
+                },
+                {
+                    "displayName": "SG ${displayName} - Stakeholders",
+                    "mailNickName": "sg-${uniqueId}${serviceShort}-${environmentCode}-stakeholders",
+                    "description": "Security group for users with read-only access to the Azure environment",
+                    "roleAssignments": [
+                        {
+                            "role": "Reader",
+                            "scope": "/subscriptions/${subscriptionId}/resourceGroups/rg-${uniqueId}${serviceShort}-${environmentCode}-${regionCode}"
+                        }
+                    ]
+                }
+            ],
+            "userAssignedIdentity": {
+                "name": "id-${uniqueId}${serviceShort}-${tool}-${environmentCode}",
+                "federatedCredential": {
+                    "name": "fic-${uniqueId}${serviceShort}-${tool}-${environmentCode}",
+                    "issuer": "https://token.actions.githubusercontent.com",
+                    "subjectType": "environment",
+                    "audiences": [
+                        "api://AzureADTokenExchange"
+                    ]
+                },
+                "roleAssignments": [
+                    {
+                        "role": "Contributor",
+                        "scope": "/subscriptions/${subscriptionId}/resourceGroups/rg-${uniqueId}${serviceShort}-${environmentCode}-${regionCode}"
+                    },
+                    {
+                        "role": "Contributor", // cross-environment contributor role assignment
+                        "scope": "/subscriptions/${subscriptionId}/resourceGroups/rg-${uniqueId}${serviceShort}-prd-${regionCode}"
+                    },
+                    {
+                        "role": "Azure Deployment Stack Contributor",
+                        "scope": "/subscriptions/${subscriptionId}/resourceGroups/rg-${uniqueId}${serviceShort}-${environmentCode}-${regionCode}"
+                    }
+                ]
+            },
+            "githubEnvironment": {
+                "name": "${environmentCode}",
+                "protectionRules": {
+                    "requiredReviewers": [],
+                    "waitTimerMinutes": 0
+                },
+                "secrets": [
+                    {
+                        "name": "AZURE_CLIENT_ID",
+                        "value": "${clientId}"
+                    },
+                    {
+                        "name": "AZURE_SUBSCRIPTION_ID",
+                        "value": "${subscriptionId}"
+                    },
+                    {
+                        "name": "AZURE_TENANT_ID",
+                        "value": "${tenantId}"
+                    }
+                ],
+                "variables": [
+                    {
+                        "name": "ENV_CODE",
+                        "value": "${environmentCode}"
+                    },
+                    {
+                        "name": "RESOURCE_GROUP_NAME",
+                        "value": "rg-${uniqueId}${serviceShort}-${environmentCode}-${regionCode}"
+                    },
+                    {
+                        "name": "DEPLOYMENT_STACK_NAME",
+                        "value": "rgds-${uniqueId}${serviceShort}-${environmentCode}-${regionCode}"
+                    }
+                ]
+            }
+        }
+    ]
+}

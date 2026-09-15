@@ -1,6 +1,6 @@
 @{
     RootModule        = 'MSCKite.Azure.Platform.dll'
-    ModuleVersion     = '0.1.0'
+    ModuleVersion     = '1.2.3'
     GUID              = '3d8f6c2e-9b4a-4c1d-8e2f-6a7b5c9d0e1f'
     Author            = 'Martin Swinkels'
     CompanyName       = 'MSCKite™'
@@ -11,14 +11,14 @@
         @{ ModuleName = 'Az.Accounts'; ModuleVersion = '5.5' },
         @{ ModuleName = 'Az.Resources'; ModuleVersion = '10.1' }
     )
-    CmdletsToExport   = @('Connect-AdoOrganization', 'Disconnect-AdoOrganization', 'Disconnect-PlatformContext', 'Get-AdoDefault', 'Get-GitHubDefault', 'Get-PlatformContext', 'New-RandomPassword', 'Set-AdoDefault', 'Set-GitHubDefault', 'Set-GitHubLabels')
+    CmdletsToExport   = @('Connect-AdoOrganization', 'Disconnect-AdoOrganization', 'Disconnect-PlatformContext', 'Get-AdoDefault', 'Get-GitHubDefault', 'Get-PlatformContext', 'Get-PlatformTemplate', 'New-PlatformConfigStructure', 'New-RandomPassword', 'Set-AdoDefault', 'Set-GitHubDefault', 'Set-GitHubLabels')
     PrivateData       = @{
         PSData = @{
             Tags       = @('Az', 'Azure', 'Platform', 'Engineering', 'DevOps', 'GitHub', 'Kite', 'MSC')
             LicenseUri = 'https://github.com/msckite/az-platform-kite/blob/main/LICENSE.md'
             ProjectUri = 'https://github.com/msckite/az-platform-kite'
             IconUri    = 'https://raw.githubusercontent.com/msckite/az-platform-kite/refs/heads/main/.assets/msckite-icon.png'
-            Prerelease = 'alpha2'
+            Prerelease = 'beta.1'
         }
     }
 }

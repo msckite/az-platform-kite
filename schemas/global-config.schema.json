@@ -1,0 +1,104 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/msckite/az-platform-kite/refs/heads/main/schemas/global-config.schema.json",
+  "title": "Global Config Schema",
+  "description": "Global configuration for the New-PlatformConfigStructure command.",
+  "type": "object",
+  "required": [
+    "tenantId",
+    "subscriptionId",
+    "uniqueId",
+    "serviceShort",
+    "displayName",
+    "location",
+    "regionCode",
+    "sourceControl"
+  ],
+  "properties": {
+    "$schema": {
+      "description": "Optional schema reference for tooling.",
+      "type": "string"
+    },
+    "tenantId": {
+      "description": "The Azure tenant ID (GUID) for the deployment. Accepts a GUID or a placeholder token (e.g. ${TenantId}).",
+      "type": "string",
+      "examples": [
+        "00000000-0000-0000-0000-000000000000",
+        "${TenantId}"
+      ]
+    },
+    "subscriptionId": {
+      "description": "The Azure subscription ID (GUID) for the deployment. Accepts a GUID or a placeholder token (e.g. ${SubscriptionId}).",
+      "type": "string",
+      "examples": [
+        "00000000-0000-0000-0000-000000000000",
+        "${SubscriptionId}"
+      ]
+    },
+    "uniqueId": {
+      "description": "Unique identifier for the deployment",
+      "type": "string"
+    },
+    "serviceShort": {
+      "description": "Short service name used in resource names.",
+      "type": "string"
+    },
+    "displayName": {
+      "description": "Display name for the service",
+      "type": "string"
+    },
+    "location": {
+      "description": "Azure location name used for the deployment.",
+      "type": "string",
+      "examples": [
+        "westeurope",
+        "northeurope"
+      ]
+    },
+    "regionCode": {
+      "description": "Azure region code used in names.",
+      "type": "string",
+      "examples": [
+        "weu",
+        "neu"
+      ]
+    },
+    "sourceControl": {
+      "description": "Source-control settings for the service repository.",
+      "type": "object",
+      "required": [
+        "tool",
+        "owner",
+        "repository",
+        "branchStrategy"
+      ],
+      "properties": {
+        "tool": {
+          "description": "Source control provider.",
+          "type": "string",
+          "enum": [
+            "github"
+          ]
+        },
+        "owner": {
+          "description": "Source control organization or owner.",
+          "type": "string"
+        },
+        "repository": {
+          "description": "Source control repository name.",
+          "type": "string"
+        },
+        "branchStrategy": {
+          "description": "Repository branching strategy.",
+          "type": "string",
+          "enum": [
+            "github",
+            "release"
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
