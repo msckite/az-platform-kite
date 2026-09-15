@@ -70,6 +70,9 @@ Azure Platform Kite transforms knowledge, experience, and AI-assisted engineerin
 
 ## How to use it?
 
+> [!TIP]
+> Explore all available cmdlets in the [help documentation](docs/MSCKite.Azure.Platform/MSCKite.Azure.Platform.md), including detailed usage, parameters, and examples.
+
 <!-- omit from toc -->
 ### Quickstart
 
