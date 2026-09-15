@@ -6,119 +6,36 @@ on:
 
 env:
   MODULE_NAME: MSCKite.Azure.Platform
-  CONFIGURATION: Release
 
 jobs:
-  publish:
-    runs-on: windows-latest
+  build-test:
+    uses: ./.github/workflows/ci.yaml
+    with:
+      configuration: Release
+      tag_name: ${{ github.event.release.tag_name }}
+      upload_artifact: true
+    permissions:
+      contents: read
 
-    env:
-      TAG_NAME: ${{ github.event.release.tag_name }}
+  publish:
+    needs: build-test
+    runs-on: windows-latest
 
     permissions:
       contents: read
-      actions: read
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Verify CI succeeded
-        shell: pwsh
-        env:
-          GH_TOKEN: ${{ github.token }}
-          REPOSITORY: ${{ github.repository }}
-          RELEASE_SHA: ${{ github.sha }}
-        run: |
-          $ErrorActionPreference = 'Stop'
-
-          $headers = @{
-              Authorization = "Bearer $env:GH_TOKEN"
-              Accept = 'application/vnd.github+json'
-              'X-GitHub-Api-Version' = '2022-11-28'
-          }
-
-          $uri = "https://api.github.com/repos/$env:REPOSITORY/actions/workflows/ci.yaml/runs?head_sha=$env:RELEASE_SHA&status=completed&per_page=20"
-          $response = Invoke-RestMethod -Uri $uri -Headers $headers
-          $successfulRun = $response.workflow_runs | Where-Object conclusion -EQ 'success' | Select-Object -First 1
-
-          if (-not $successfulRun) {
-              Write-Error "No successful CI workflow run found for release commit '$env:RELEASE_SHA'. Run CI successfully before publishing this release."
-              exit 1
-          }
-
-          Write-Host "Found successful CI run $($successfulRun.html_url) for release commit '$env:RELEASE_SHA'."
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v6
+      - name: Download tested module
+        uses: actions/download-artifact@v7
         with:
-          dotnet-version: '8.0.x'
-
-      - name: Update module manifest
-        shell: pwsh
-        run: ./build.ps1
+          name: powershell-module
+          path: module
 
       - name: Install module dependencies
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
           Install-Module -Name Az.Accounts, Az.Resources -Force -AllowClobber -Scope CurrentUser -Repository PSGallery
-
-      - name: Build module
-        shell: pwsh
-        run: |
-          dotnet publish "src/$env:MODULE_NAME.csproj" `
-            --configuration $env:CONFIGURATION `
-            --output "src/bin/$env:CONFIGURATION/netstandard2.0/$env:MODULE_NAME"
-
-      - name: Run Pester tests
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-
-          Install-Module -Name Pester -MinimumVersion 5.5.0 -Force -SkipPublisherCheck -Scope CurrentUser -Repository PSGallery
-
-          $modulePath = "src/bin/$env:CONFIGURATION/netstandard2.0/$env:MODULE_NAME/$env:MODULE_NAME.psd1"
-          if (-not (Test-Path $modulePath)) {
-              Write-Error "No module manifest (.psd1) found at '$modulePath'"
-              exit 1
-          }
-
-          $env:MODULE_UNDER_TEST = Convert-Path $modulePath
-          Invoke-Pester -Path ./tests -CI
-
-      - name: Verify module version
-        shell: pwsh
-        run: |
-          $tag = $env:TAG_NAME.TrimStart('v')  # Remove leading 'v' if present
-          $manifestPath = Join-Path -Path "src/bin/$env:CONFIGURATION/netstandard2.0/$env:MODULE_NAME" -ChildPath "$env:MODULE_NAME.psd1"
-
-          if (-not (Test-Path $manifestPath)) {
-              Write-Error "No module manifest (.psd1) found at '$manifestPath'"
-              exit 1
-          }
-
-          $manifest = Test-ModuleManifest -Path $manifestPath
-          $moduleVersion = $manifest.Version.ToString()
-
-          # Get prerelease string from manifest if it exists
-          $prerelease = $manifest.PrivateData.PSData.Prerelease
-
-          # Construct full version string from manifest
-          $fullModuleVersion = $moduleVersion
-          if ($prerelease) {
-              $fullModuleVersion = "$moduleVersion-$prerelease"
-          }
-
-          Write-Host "Release tag: $tag"
-          Write-Host "Module version: $moduleVersion"
-          Write-Host "Module prerelease: $prerelease"
-          Write-Host "Module full version: $fullModuleVersion"
-
-          if ($fullModuleVersion -ne $tag) {
-              Write-Error "Module version '$fullModuleVersion' does not match release tag '$tag'"
-              exit 1
-          }
 
       - name: Publish module
         shell: pwsh
@@ -127,6 +44,4 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
 
-          $modulePath = "src/bin/$env:CONFIGURATION/netstandard2.0/$env:MODULE_NAME"
-
-          Publish-Module -Path $modulePath -Repository PSGallery -NuGetApiKey $env:NUGET_API_KEY
+          Publish-Module -Path ./module -Repository PSGallery -NuGetApiKey $env:NUGET_API_KEY
