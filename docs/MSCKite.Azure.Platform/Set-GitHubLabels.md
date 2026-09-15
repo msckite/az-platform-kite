@@ -35,10 +35,8 @@ exist on both but have a different `color` or `description` are updated, and lab
 the repository but aren't listed in the file are removed unless `-KeepExistingLabels` is
 specified.
 
-The labels file can be either a top-level JSON array of label objects, or an object with a
-`labels` array property.
-JSONC comments and trailing commas are allowed.
-Each label object
+The labels file must be a JSON object with a `templateVersion` in `Major.Minor.Patch` SemVer
+format and a `labels` array property. JSONC comments and trailing commas are allowed. Each label object
 requires a `name` and a `color` (a 6-digit hex value, with or without a leading `#`, e.g.
 `#d73a4a`), and may include an optional `description`.
 
@@ -118,8 +116,7 @@ HelpMessage: ''
 
 ### -LabelFilePath
 
-Path to a jsonc file containing the desired labels: either a top-level array of label objects, or
-an object with a `labels` array property.
+Path to a versioned jsonc file containing a `templateVersion` and the desired `labels` array.
 Each label requires a `name` and a `color` (6-digit hex,
 with or without a leading `#`), and may include a `description`.
 

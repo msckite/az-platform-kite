@@ -16,6 +16,7 @@ namespace MSCKite.Azure.Platform.Commands.Bootstrap
         private const string DefaultGlobalConfigTemplate =
 @"{
   ""$schema"": ""https://raw.githubusercontent.com/msckite/az-platform-kite/refs/heads/main/schemas/global-config.schema.json"",
+    ""templateVersion"": ""1.0.0"",
   ""tenantId"": """",
   ""subscriptionId"": """",
   ""uniqueId"": """",

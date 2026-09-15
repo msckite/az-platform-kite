@@ -6,6 +6,7 @@ using System.IO;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using MSCKite.Azure.Platform.Internal.Common;
 using MSCKite.Azure.Platform.Models;
 
 namespace MSCKite.Azure.Platform.Internal.GitHub
@@ -15,13 +16,15 @@ namespace MSCKite.Azure.Platform.Internal.GitHub
     {
         private static readonly Regex ColorPattern = new Regex("^#?[0-9A-Fa-f]{6}$", RegexOptions.Compiled);
 
-        // Parses a jsonc file that is either a top-level array of labels or an object with a "labels" array
+        // Parses a versioned jsonc label template with a labels array
         internal static List<GitHubLabel> LoadFromFile(string path)
         {
             if (!File.Exists(path))
             {
                 throw new FileNotFoundException($"Labels file not found: {path}", path);
             }
+
+            TemplateVersionHelper.ReadVersion(path, "templateVersion");
 
             var json = File.ReadAllText(path);
             var options = new JsonDocumentOptions
@@ -33,19 +36,11 @@ namespace MSCKite.Azure.Platform.Internal.GitHub
             using (var document = JsonDocument.Parse(json, options))
             {
                 var root = document.RootElement;
-                JsonElement arrayElement;
-
-                if (root.ValueKind == JsonValueKind.Array)
+                if (root.ValueKind != JsonValueKind.Object ||
+                    !root.TryGetProperty("labels", out var arrayElement) ||
+                    arrayElement.ValueKind != JsonValueKind.Array)
                 {
-                    arrayElement = root;
-                }
-                else if (root.ValueKind == JsonValueKind.Object && root.TryGetProperty("labels", out var labelsProperty))
-                {
-                    arrayElement = labelsProperty;
-                }
-                else
-                {
-                    throw new InvalidOperationException("Labels file must be a JSON array of labels or an object with a \"labels\" array.");
+                    throw new InvalidOperationException("Labels file must be a JSON object with a \"templateVersion\" and a \"labels\" array.");
                 }
 
                 var labels = new List<GitHubLabel>();
