@@ -4,7 +4,7 @@ external help file: MSCKite.Azure.Platform.dll-Help.xml
 HelpUri: ''
 Locale: en-NL
 Module Name: MSCKite.Azure.Platform
-ms.date: 09/14/2026
+ms.date: 09/15/2026
 PlatyPS schema version: 2024-05-01
 title: Set-AdoDefault
 ---
@@ -45,6 +45,10 @@ Set-AdoDefault -Organization "myorg" -Project "My Project"
 The name of the Azure DevOps organization to use as the default. Pass `$null` to clear it.
 The name of the Azure DevOps organization to use as the default.
 Pass `$null` to clear it.
+The name of the Azure DevOps organization to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps organization to use as the default.
+Pass `$null` to clear it.
 
 ```yaml
 Type: System.String
@@ -66,6 +70,10 @@ HelpMessage: ''
 ### -Project
 
 The name of the Azure DevOps project to use as the default. Pass `$null` to clear it.
+The name of the Azure DevOps project to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps project to use as the default.
+Pass `$null` to clear it.
 The name of the Azure DevOps project to use as the default.
 Pass `$null` to clear it.
 
@@ -108,3 +116,7 @@ The Organization, Project, and CollectionUri that were persisted.
 ## NOTES
 
 ## RELATED LINKS
+
+- [Get-AdoDefault](https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Get-AdoDefault.md)
+- [Connect-AdoOrganization](https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Connect-AdoOrganization.md)
+

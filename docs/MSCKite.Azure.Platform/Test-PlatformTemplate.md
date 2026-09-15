@@ -1,4 +1,4 @@
----
+﻿---
 document type: cmdlet
 external help file: MSCKite.Azure.Platform.dll-Help.xml
 HelpUri: ''
@@ -17,9 +17,14 @@ Reports template and schema version compatibility and whether a newer template i
 
 ## SYNTAX
 
-```powershell
-Test-PlatformTemplate [-TemplatePath] <string> [-SchemaPath] <string> [-LatestTemplatePath <string>]
+### __AllParameterSets
+
 ```
+Test-PlatformTemplate [-TemplatePath] <string> [-SchemaPath] <string> [-LatestTemplatePath <string>]
+ [<CommonParameters>]
+```
+
+## ALIASES
 
 ## DESCRIPTION
 
@@ -43,8 +48,101 @@ Test-PlatformTemplate -TemplatePath ./config/global-config.jsonc -SchemaPath ./s
 Test-PlatformTemplate -TemplatePath ./config/global-config.jsonc -SchemaPath ./schemas/global-config.schema.json -LatestTemplatePath ./.downloads/templates/global-config.jsonc
 ```
 
+## PARAMETERS
+
+### -LatestTemplatePath
+
+Path to a separately downloaded template to compare against `-TemplatePath` for update
+availability. When omitted, no update check is performed.
+
+```yaml
+Type: System.String
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
+### -SchemaPath
+
+Path to the JSON schema file containing the `schemaVersion` to validate against the template.
+
+```yaml
+Type: System.String
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: 1
+  IsRequired: true
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: true
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
+### -TemplatePath
+
+Path to the template file containing the `templateVersion` to validate against the schema.
+
+```yaml
+Type: System.String
+DefaultValue: ''
+SupportsWildcards: false
+Aliases:
+- Path
+ParameterSets:
+- Name: (All)
+  Position: 0
+  IsRequired: true
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: true
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
+### CommonParameters
+
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
+-InformationAction, -InformationVariable, -OutBuffer, -OutVariable, -PipelineVariable,
+-ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see
+[about_CommonParameters](https://go.microsoft.com/fwlink/?LinkID=113216).
+
+## INPUTS
+
+### System.String
+
+You can pipe a template path to `-TemplatePath` by property name.
+
+## OUTPUTS
+
+### MSCKite.Azure.Platform.Models.PlatformTemplateVersionResult
+
+The template and schema paths, their versions, compatibility status, and (when
+`-LatestTemplatePath` is specified) whether a newer template is available.
+
 ## NOTES
 
 Use matching template and schema releases. Increase major versions for breaking changes, and
 increase minor or patch versions for compatible changes. All templates must use the versioned
 object format.
+
+## RELATED LINKS
+
+- [Get-PlatformTemplate](https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Get-PlatformTemplate.md)
+- [New-PlatformConfigStructure](https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/New-PlatformConfigStructure.md)
+

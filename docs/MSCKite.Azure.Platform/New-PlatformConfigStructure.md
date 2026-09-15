@@ -106,6 +106,9 @@ HelpMessage: ''
 
 Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`. When omitted, a
 default `global-config.jsonc` template is generated instead.
+Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
+When omitted, a
+default `global-config.jsonc` template is generated instead.
 
 ```yaml
 Type: System.String
@@ -127,6 +130,8 @@ HelpMessage: ''
 ### -OutputFolder
 
 Destination folder for the platform configuration structure. Defaults to `config`.
+Destination folder for the platform configuration structure.
+Defaults to `config`.
 
 ```yaml
 Type: System.String
@@ -190,4 +195,7 @@ whether scaffolding succeeded.
 ## NOTES
 
 ## RELATED LINKS
+
+- [Get-PlatformTemplate](https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Get-PlatformTemplate.md)
+- [Test-PlatformTemplate](https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Test-PlatformTemplate.md)
 

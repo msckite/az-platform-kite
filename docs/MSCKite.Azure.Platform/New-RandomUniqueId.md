@@ -1,4 +1,4 @@
----
+﻿---
 document type: cmdlet
 external help file: MSCKite.Azure.Platform.dll-Help.xml
 HelpUri: ''
@@ -20,7 +20,7 @@ Generates a simple random alphanumeric identifier for non-security use cases.
 ### __AllParameterSets
 
 ```
-New-RandomUniqueId [-Length <short>]
+New-RandomUniqueId [-Length <short>] [<CommonParameters>]
 ```
 
 ## ALIASES
@@ -68,6 +68,9 @@ Generates one identifier for each input object by binding its `Length` property.
 
 Specifies the identifier length. The minimum length is 4, the maximum length is 12, and the default
 length is 8.
+Specifies the identifier length.
+The minimum length is 4, the maximum length is 12, and the default
+length is 8.
 
 ```yaml
 Type: System.Int16
@@ -111,4 +114,6 @@ This cmdlet uses a pseudo-random number generator and does not provide cryptogra
 guaranteed global uniqueness.
 
 ## RELATED LINKS
+
+- [New-RandomPassword](https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/New-RandomPassword.md)
 

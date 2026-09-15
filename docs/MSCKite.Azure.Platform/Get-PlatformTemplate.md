@@ -65,6 +65,8 @@ New-PlatformConfigStructure -InputFolder ./config-src/templates -OutputFolder ./
 ### -Branch
 
 The repository branch to clone. Defaults to `main`.
+The repository branch to clone.
+Defaults to `main`.
 
 ```yaml
 Type: System.String
@@ -152,6 +154,9 @@ HelpMessage: ''
 
 Local folder to copy the downloaded folder(s) into. Defaults to `.downloads`, a dedicated folder
 separate from any in-use configuration so reruns never overwrite it.
+Local folder to copy the downloaded folder(s) into.
+Defaults to `.downloads`, a dedicated folder
+separate from any in-use configuration so reruns never overwrite it.
 
 ```yaml
 Type: System.String
@@ -173,6 +178,8 @@ HelpMessage: ''
 ### -RepositoryUrl
 
 The git URL to clone. Defaults to the `az-platform-kite` repository.
+The git URL to clone.
+Defaults to the `az-platform-kite` repository.
 
 ```yaml
 Type: System.String
@@ -242,4 +249,7 @@ whether the download succeeded.
 Requires the `git` CLI to be installed and available on `PATH`.
 
 ## RELATED LINKS
+
+- [New-PlatformConfigStructure](https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/New-PlatformConfigStructure.md)
+- [Test-PlatformTemplate](https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Test-PlatformTemplate.md)
 
