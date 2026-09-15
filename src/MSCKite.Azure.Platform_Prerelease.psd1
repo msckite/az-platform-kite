@@ -11,7 +11,7 @@
         @{ ModuleName = 'Az.Accounts'; ModuleVersion = '5.5' },
         @{ ModuleName = 'Az.Resources'; ModuleVersion = '10.1' }
     )
-    CmdletsToExport   = @('Connect-AdoOrganization', 'Disconnect-AdoOrganization', 'Disconnect-PlatformContext', 'Get-AdoDefault', 'Get-GitHubDefault', 'Get-PlatformContext', 'Get-PlatformTemplate', 'New-PlatformConfigStructure', 'New-RandomPassword', 'Set-AdoDefault', 'Set-GitHubDefault', 'Set-GitHubLabels')
+    CmdletsToExport   = @('Connect-AdoOrganization', 'Disconnect-AdoOrganization', 'Disconnect-PlatformContext', 'Get-AdoDefault', 'Get-GitHubDefault', 'Get-PlatformContext', 'Get-PlatformTemplate', 'New-PlatformConfigStructure', 'New-RandomPassword', 'New-RandomUniqueId', 'Set-AdoDefault', 'Set-GitHubDefault', 'Set-GitHubLabels')
     PrivateData       = @{
         PSData = @{
             Tags       = @('Az', 'Azure', 'Platform', 'Engineering', 'DevOps', 'GitHub', 'Kite', 'MSC')

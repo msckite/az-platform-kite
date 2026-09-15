@@ -54,6 +54,10 @@ Scaffolds the platform configuration folder, creating a `global-config.jsonc` fi
 
 Generates cryptographically secure random passwords with configurable complexity, length, and output formats.
 
+### [New-RandomUniqueId](New-RandomUniqueId.md)
+
+Generates a simple random alphanumeric identifier for non-security use cases.
+
 ### [Set-AdoDefault](Set-AdoDefault.md)
 
 Sets the default Azure DevOps organization and project used by other Azure DevOps commands.

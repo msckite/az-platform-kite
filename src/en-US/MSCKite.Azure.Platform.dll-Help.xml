@@ -1123,6 +1123,122 @@ $Password = New-RandomPassword -AsSecureString
   </command:command>
   <command:command>
     <command:details>
+      <command:name>New-RandomUniqueId</command:name>
+      <maml:description>
+        <maml:para>Generates a simple random alphanumeric identifier for non-security use cases.</maml:para>
+      </maml:description>
+      <command:verb>New</command:verb>
+      <command:noun>RandomUniqueId</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>Generates a random string from uppercase letters, lowercase letters, and numbers. The identifier is
+intended for test data, resource suffixes, demo environments, and temporary object names. It does
+not contain special characters and is not suitable for passwords, secrets, or security tokens.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>New-RandomUniqueId</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>Length</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">short</command:parameterValue>
+          <dev:type>
+            <maml:name>System.Int16</maml:name>
+          </dev:type>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="true (ByPropertyName)" position="Named" aliases="none">
+        <maml:name>Length</maml:name>
+        <maml:description>
+          <maml:para>Specifies the identifier length. The minimum length is 4, the maximum length is 12, and the default
+length is 8.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.Int16</command:parameterValue>
+        <dev:type>
+          <maml:name>System.Int16</maml:name>
+        </dev:type>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>System.Int16</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>You can pipe an object with a `Length` property to this cmdlet.</maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>The cmdlet returns the generated identifier as a plain string.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>This cmdlet uses a pseudo-random number generator and does not provide cryptographic security or
+guaranteed global uniqueness.</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>--------- Example 1 - Generate an identifier with the default length ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+New-RandomUniqueId
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Generates an 8-character alphanumeric string.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 2 - Generate a shorter resource suffix ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+$ProjectSuffix = New-RandomUniqueId -Length 6
+$StorageAccountName = "stg$ProjectSuffix"
+$ResourceGroupName = "rg-$ProjectSuffix"
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Generates a 6-character suffix and uses it in temporary Azure resource names.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 3 - Supply lengths through the pipeline ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+@(
+    [pscustomobject]@{ Length = 4 }
+    [pscustomobject]@{ Length = 12 }
+) | New-RandomUniqueId
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Generates one identifier for each input object by binding its `Length` property.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version</maml:linkText>
+        <maml:uri />
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command>
+    <command:details>
       <command:name>Set-AdoDefault</command:name>
       <maml:description>
         <maml:para>Sets the default Azure DevOps organization and project used by other Azure DevOps commands.</maml:para>
