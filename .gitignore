@@ -429,5 +429,7 @@ FodyWeavers.xsd
 *.msp
 
 # Additional project files
+.downloads/**
 maml/**
+config/**
 testResults.xml

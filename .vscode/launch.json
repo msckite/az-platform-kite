@@ -8,7 +8,8 @@
             "name": "PowerShell cmdlets: pwsh",
             "type": "coreclr",
             "request": "launch",
-            "preLaunchTask": "build",
+            // "preLaunchTask": "Prepare cmdlet debugger",
+            "preLaunchTask": "Build",
             "program": "pwsh",
             "args": [
                 "-NoExit",

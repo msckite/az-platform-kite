@@ -1,25 +1,130 @@
 {
-    // See https://go.microsoft.com/fwlink/?LinkId=733558
-    // for the documentation about the tasks.json format
     "version": "2.0.0",
+    "windows": {
+        "options": {
+            "shell": {
+                "executable": "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
+                "args": [
+                    "-NoProfile",
+                    "-ExecutionPolicy",
+                    "Bypass",
+                    "-Command"
+                ]
+            }
+        }
+    },
     "tasks": [
         {
-            "label": "build",
-            "command": "dotnet",
+            "label": "Clean",
             "type": "shell",
-            "args": [
-                "build",
-                "${workspaceFolder}/src/MSCKite.Azure.Platform.csproj",
-                // Ask dotnet build to generate full paths for file names.
-                "/property:GenerateFullPaths=true",
-                // Do not generate summary otherwise it leads to duplicate errors in Problems panel
-                "/consoleloggerparameters:NoSummary"
-            ],
-            "group": "build",
+            "command": "Invoke-PSake build.ps1 -taskList Clean",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
             "presentation": {
-                "reveal": "silent"
+                "reveal": "always",
+                "panel": "new",
+                "clear": true
+            }
+        },
+        {
+            "label": "Build",
+            "type": "shell",
+            "command": "Invoke-PSake build.ps1 -taskList Build",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true,
+                "close": true
             },
             "problemMatcher": "$msCompile"
+        },
+        // {
+        //     "label": "Stop previous cmdlet debugger",
+        //     "type": "shell",
+        //     "command": "$moduleName = 'MSCKite.Azure.' + 'Platform.dll'; $pattern = '*' + $moduleName + '*'; Get-CimInstance Win32_Process -ErrorAction SilentlyContinue | Where-Object { $_.Name -eq 'pwsh.exe' -and $_.CommandLine -like $pattern } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }; exit 0",
+        //     "presentation": {
+        //         "reveal": "silent",
+        //         "panel": "dedicated",
+        //         "clear": true,
+        //         "close": true
+        //     }
+        // },
+        // {
+        //     "label": "Prepare cmdlet debugger",
+        //     "dependsOrder": "sequence",
+        //     "dependsOn": [
+        //         //"Stop previous cmdlet debugger",
+        //         "Build"
+        //     ]
+        // },
+        {
+            "label": "Default",
+            "type": "shell",
+            "command": "Invoke-PSake build.ps1 -taskList Default",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new",
+                "clear": true
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Test",
+            "type": "shell",
+            "command": "Invoke-PSake build.ps1 -taskList Test -parameters @{Output='${input:pesterOutput}'}",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new",
+                "clear": true
+            },
+            "problemMatcher": [
+                "$pester"
+            ]
+        },
+        {
+            "label": "Pester",
+            "type": "shell",
+            "command": "Invoke-Pester -Path ./tests -Output Detailed",
+            "group": {
+                "kind": "test",
+                "isDefault": false
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new",
+                "clear": true
+            },
+            "problemMatcher": [
+                "$pester"
+            ]
+        }
+    ],
+    "inputs": [
+        {
+            "id": "pesterOutput",
+            "type": "pickString",
+            "description": "Pester output level",
+            "options": [
+                "Detailed",
+                "Normal",
+                "Minimal",
+                "None"
+            ],
+            "default": "Normal"
         }
     ]
 }

@@ -1,49 +1,82 @@
 [CmdletBinding()]
-param()
+param(
+    [Parameter()]
+    [ValidateSet('Detailed', 'Diagnostic', 'Minimal', 'None', 'Normal')]
+    [string]$Output = 'Normal'
+)
 
-#region Variables
-
-# The tag name in the format v<version>[-<prerelease>], e.g. v1.0.0 or v1.0.0-beta
-$tagName = $env:TAG_NAME -replace '^v', ''
-
-# Determine if the tag name indicates a prerelease version
-$isPrerelease = $tagName -match '-'
-
-# Define the module name
-$moduleName = 'MSCKite.Azure.Platform'
-$sourcePath = "$PSScriptRoot\src"
-
-#endregion
-
-#region Update Module Manifest
-
-# Select the appropriate template based on prerelease status
-$sourceManifest = if ($isPrerelease) {
-    "$sourcePath\$moduleName`_Prerelease.psd1"
-} else {
-    "$sourcePath\$moduleName`_Release.psd1"
+Properties {
+    $script:Output = $Output
+    $script:rootPath = (Get-Item $PSScriptRoot).FullName
+    $script:sourcePath = Join-Path $script:rootPath 'src'
+    $script:testsPath = Join-Path $script:rootPath 'tests'
+    $script:projectFile = Join-Path $script:sourcePath 'MSCKite.Azure.Platform.csproj'
+    $script:moduleName = 'MSCKite.Azure.Platform'
+    $script:buildConfiguration = 'Debug'
+    $script:tagName = $env:TAG_NAME
+    $script:isPrerelease = $script:tagName -match '-'
+    $script:manifestPath = Join-Path $script:sourcePath "$script:moduleName.psd1"
 }
 
-$manifestPath = Join-Path -Path $sourcePath -ChildPath "$moduleName.psd1"
+Task Default -Depends Build
 
-# Copy the selected template to create a fresh manifest file
-Copy-Item -Path $sourceManifest -Destination $manifestPath -Force
+Task UpdateManifest {
+    if ([string]::IsNullOrWhiteSpace($script:tagName)) {
+        return
+    }
 
-# Read the manifest content
-$manifestContent = Get-Content -Path $manifestPath -Raw
+    $sourceManifest = if ($script:isPrerelease) {
+        Join-Path $script:sourcePath "$script:moduleName`_Prerelease.psd1"
+    } else {
+        Join-Path $script:sourcePath "$script:moduleName`_Release.psd1"
+    }
 
-# Update ModuleVersion (preserving existing spacing around '='). Anchored to the
-# start of the line so nested RequiredModules ModuleVersion entries are left untouched.
-$moduleVersion = ($tagName -split '-')[0]
-$manifestContent = $manifestContent -replace "(?m)^(\s*ModuleVersion\s*=\s*)'[^']*'", ('$1' + "'$moduleVersion'")
+    Copy-Item -Path $sourceManifest -Destination $script:manifestPath -Force
 
-# Update Prerelease if applicable (preserving existing spacing around '=')
-if ($isPrerelease) {
-    $prereleaseVersion = ($tagName -split '-')[1]
-    $manifestContent = $manifestContent -replace "(Prerelease\s*=\s*)'[^']*'", ('$1' + "'$prereleaseVersion'")
+    $manifestContent = Get-Content -Path $script:manifestPath -Raw
+    $moduleVersion = ($script:tagName -split '-')[0].TrimStart('v')
+
+    $manifestContent = $manifestContent -replace "(?m)^(\s*ModuleVersion\s*=\s*)'[^']*'", ('${1}' + "'$moduleVersion'")
+
+    if ($script:isPrerelease) {
+        $prereleaseVersion = ($script:tagName -split '-', 2)[1]
+        $manifestContent = $manifestContent -replace "(Prerelease\s*=\s*)'[^']*'", ('${1}' + "'$prereleaseVersion'")
+    }
+
+    $manifestContent | Set-Content -Path $script:manifestPath -NoNewline
 }
 
-# Write the updated content back to the manifest
-$manifestContent | Set-Content -Path $manifestPath -NoNewline
+Task Clean {
+    if (Get-Module -Name $script:moduleName -All) {
+        Remove-Module -Name $script:moduleName -Force -ErrorAction SilentlyContinue
+    }
 
-#endregion
+    & dotnet clean $script:projectFile --configuration $script:buildConfiguration --nologo
+    if ($LASTEXITCODE -ne 0) {
+        throw 'dotnet clean failed.'
+    }
+}
+
+Task Build -Depends Clean, UpdateManifest {
+    if (Get-Module -Name $script:moduleName -All) {
+        Remove-Module -Name $script:moduleName -Force -ErrorAction SilentlyContinue
+    }
+
+    & dotnet build $script:projectFile --configuration $script:buildConfiguration --nologo
+    if ($LASTEXITCODE -ne 0) {
+        throw 'dotnet build failed.'
+    }
+}
+
+Task Test -Depends Build {
+    if (-not (Get-Command Invoke-Pester -ErrorAction SilentlyContinue)) {
+        throw 'Pester is not installed. Install-Module Pester -Scope CurrentUser -Force'
+    }
+
+    $config = New-PesterConfiguration
+    $config.Run.Path = $script:testsPath
+    $config.Run.PassThru = $false
+    $config.Output.Verbosity = $script:Output
+    Invoke-Pester -Configuration $config
+}
+

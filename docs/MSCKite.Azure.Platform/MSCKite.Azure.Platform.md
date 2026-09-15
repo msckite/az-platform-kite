@@ -5,7 +5,7 @@ HelpInfoUri: ''
 Locale: en-NL
 Module Guid: 3d8f6c2e-9b4a-4c1d-8e2f-6a7b5c9d0e1f
 Module Name: MSCKite.Azure.Platform
-ms.date: 09/08/2026
+ms.date: 09/15/2026
 PlatyPS schema version: 2024-05-01
 title: MSCKite.Azure.Platform Module
 ---
@@ -41,6 +41,14 @@ Gets the default GitHub owner and repository previously stored with Set-GitHubDe
 ### [Get-PlatformContext](Get-PlatformContext.md)
 
 Gets the combined sign-in status for Azure, Azure DevOps, and GitHub as a single JSON object.
+
+### [Get-PlatformTemplate](Get-PlatformTemplate.md)
+
+Downloads one or more folders (with their subfolders and files) from the Azure Platform Kite repository into a local folder.
+
+### [New-PlatformConfigStructure](New-PlatformConfigStructure.md)
+
+Scaffolds the platform configuration folder, creating a `global-config.jsonc` file either from a default template or copied from an existing input folder.
 
 ### [New-RandomPassword](New-RandomPassword.md)
 

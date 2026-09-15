@@ -1,0 +1,289 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/msckite/az-platform-kite/refs/heads/main/schemas/platform-config.schema.json",
+  "title": "Platform Config Schema",
+  "description": "Per-service configuration describing the Azure and GitHub environments to provision for a repository.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "environments"
+  ],
+  "properties": {
+    "$schema": {
+      "description": "Optional schema reference for tooling.",
+      "type": "string"
+    },
+    "environments": {
+      "description": "The environments (e.g. dev, prd) to provision resources and RBAC for.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/environmentConfig"
+      }
+    }
+  },
+  "definitions": {
+    "environmentConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "displayName",
+        "environmentCode",
+        "resourceGroup",
+        "securityGroups",
+        "userAssignedIdentity",
+        "githubEnvironment"
+      ],
+      "properties": {
+        "displayName": {
+          "description": "Human-readable name for the environment (e.g. Development).",
+          "type": "string",
+          "minLength": 1
+        },
+        "environmentCode": {
+          "description": "Short lowercase code for the environment, used in resource names, the GitHub environment name, and the OIDC subject claim.",
+          "type": "string",
+          "pattern": "^[a-z0-9]+$",
+          "examples": [
+            "dev",
+            "prd"
+          ]
+        },
+        "description": {
+          "description": "Optional description of the environment.",
+          "type": "string"
+        },
+        "resourceGroup": {
+          "$ref": "#/definitions/resourceGroup"
+        },
+        "securityGroups": {
+          "description": "Microsoft Entra security groups to create and assign RBAC roles to for this environment.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/securityGroup"
+          }
+        },
+        "userAssignedIdentity": {
+          "$ref": "#/definitions/userAssignedIdentity"
+        },
+        "githubEnvironment": {
+          "$ref": "#/definitions/githubEnvironment"
+        }
+      }
+    },
+    "resourceGroup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "location"
+      ],
+      "properties": {
+        "name": {
+          "description": "Azure resource group name.",
+          "type": "string",
+          "minLength": 1
+        },
+        "location": {
+          "description": "Azure location name for the resource group.",
+          "type": "string",
+          "minLength": 1
+        },
+        "tags": {
+          "description": "Tags to apply to the resource group.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securityGroup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "displayName",
+        "mailNickName",
+        "roleAssignments"
+      ],
+      "properties": {
+        "displayName": {
+          "description": "Display name of the Microsoft Entra security group.",
+          "type": "string",
+          "minLength": 1
+        },
+        "mailNickName": {
+          "description": "Mail nickname (alias) of the security group.",
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "description": "Optional description of the security group.",
+          "type": "string"
+        },
+        "roleAssignments": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/roleAssignment"
+          }
+        }
+      }
+    },
+    "userAssignedIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "federatedCredential",
+        "roleAssignments"
+      ],
+      "properties": {
+        "name": {
+          "description": "Name of the user-assigned managed identity.",
+          "type": "string",
+          "minLength": 1
+        },
+        "federatedCredential": {
+          "$ref": "#/definitions/federatedCredential"
+        },
+        "roleAssignments": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/roleAssignment"
+          }
+        }
+      }
+    },
+    "federatedCredential": {
+      "description": "Federated identity credential (OIDC trust) configured on the user-assigned managed identity. The subject claim is not stored here; it is computed by the deployment command from the live GitHub repository ID.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "issuer",
+        "subjectType",
+        "audiences"
+      ],
+      "properties": {
+        "name": {
+          "description": "Name of the federated credential.",
+          "type": "string",
+          "minLength": 1
+        },
+        "issuer": {
+          "description": "OIDC issuer URL.",
+          "type": "string",
+          "examples": [
+            "https://token.actions.githubusercontent.com"
+          ]
+        },
+        "subjectType": {
+          "description": "The kind of GitHub OIDC subject claim to bind the trust to. The command resolves this to the immutable subject at runtime.",
+          "type": "string",
+          "enum": [
+            "environment",
+            "branch",
+            "pull_request"
+          ]
+        },
+        "audiences": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "roleAssignment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "role",
+        "scope"
+      ],
+      "properties": {
+        "role": {
+          "description": "Azure RBAC role name.",
+          "type": "string",
+          "minLength": 1
+        },
+        "scope": {
+          "description": "Azure resource ID scope the role is assigned at.",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "githubEnvironment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "secrets",
+        "variables"
+      ],
+      "properties": {
+        "name": {
+          "description": "Name of the GitHub environment.",
+          "type": "string",
+          "minLength": 1
+        },
+        "protectionRules": {
+          "$ref": "#/definitions/protectionRules"
+        },
+        "secrets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/keyValue"
+          }
+        },
+        "variables": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/keyValue"
+          }
+        }
+      }
+    },
+    "protectionRules": {
+      "description": "GitHub environment protection rules.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "requiredReviewers": {
+          "description": "GitHub usernames or team slugs required to approve deployments to this environment.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "waitTimerMinutes": {
+          "description": "Minutes to wait before allowing deployments to proceed.",
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "keyValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "value"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "value": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

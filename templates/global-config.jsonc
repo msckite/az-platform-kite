@@ -1,0 +1,16 @@
+{
+  "$schema": "https://raw.githubusercontent.com/msckite/az-platform-kite/refs/heads/main/schemas/global-config.schema.json",
+  "tenantId": "",
+  "subscriptionId": "",
+  "uniqueId": "",
+  "serviceShort": "",
+  "displayName": "",
+  "location": "westeurope",
+  "regionCode": "weu",
+  "sourceControl": {
+    "tool": "github",
+    "owner": "",
+    "repository": "",
+    "branchStrategy": "github" // Default "github"
+  }
+}
