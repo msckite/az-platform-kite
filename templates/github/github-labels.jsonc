@@ -9,6 +9,16 @@
             "description": "Something isn't working"
         },
         {
+            "name": "chore :wrench:",
+            "color": "#6e9c94",
+            "description": "Routine tasks and maintenance"
+        },
+        {
+            "name": "completed :white_check_mark:",
+            "color": "#e8e8e8",
+            "description": "This item has been completed"
+        },
+        {
             "name": "documentation :page_facing_up:",
             "color": "#0075ca",
             "description": "Improvements or additions to documentation"
@@ -20,7 +30,7 @@
         },
         {
             "name": "enhancement :sparkles:",
-            "color": "#a2eeef",
+            "color": "#99c58f",
             "description": "New feature or request"
         },
         {
@@ -67,6 +77,11 @@
             "name": "question :question:",
             "color": "#fbca04",
             "description": "Further information is requested"
+        },
+        {
+            "name": "todo :construction_worker:",
+            "color": "#e8e8e8",
+            "description": "A task that needs to be done"
         },
         {
             "name": "wontfix :-1:",
