@@ -12,11 +12,48 @@ on:
       - 'platyps.ps1'
       - '.github/workflows/ci.yaml'
       - '.github/workflows/cd.yaml'
+  workflow_call:
+    inputs:
+      configuration:
+        description: Build configuration
+        required: false
+        type: string
+        default: Debug
+      tag_name:
+        description: Release tag used to stamp the module manifest
+        required: false
+        type: string
+        default: ''
+      upload_artifact:
+        description: Upload the tested module for a calling workflow
+        required: false
+        type: boolean
+        default: false
   workflow_dispatch:
+    inputs:
+      configuration:
+        description: Build configuration
+        required: false
+        type: choice
+        options:
+          - Debug
+          - Release
+        default: Debug
+      tag_name:
+        description: Optional release tag used to stamp the module manifest
+        required: false
+        type: string
+        default: ''
+      upload_artifact:
+        description: Upload the tested module
+        required: false
+        type: boolean
+        default: false
 
 env:
   MODULE_NAME: MSCKite.Azure.Platform
-  CONFIGURATION: Debug
+  CONFIGURATION: ${{ inputs.configuration || 'Debug' }}
+  TAG_NAME: ${{ inputs.tag_name || '' }}
 
 jobs:
   build-test:
@@ -41,6 +78,12 @@ jobs:
           Install-Module -Name Az.Accounts, Az.Resources -Force -AllowClobber -Scope CurrentUser -Repository PSGallery
           Install-Module -Name Pester -MinimumVersion 5.5.0 -Force -SkipPublisherCheck -Scope CurrentUser -Repository PSGallery
           Install-Module -Name Microsoft.PowerShell.PlatyPS -Force -AllowClobber -Scope CurrentUser -Repository PSGallery
+          Install-Module -Name psake -Force -SkipPublisherCheck -Scope CurrentUser -Repository PSGallery
+
+      - name: Update module manifest
+        if: env.TAG_NAME != ''
+        shell: pwsh
+        run: Invoke-PSake ./build.ps1 -TaskList UpdateManifest
 
       - name: Build module
         shell: pwsh
@@ -75,6 +118,32 @@ jobs:
           $configuration.TestResult.OutputFormat = 'NUnitXml'
 
           Invoke-Pester -Configuration $configuration
+
+      - name: Verify module version
+        if: env.TAG_NAME != ''
+        shell: pwsh
+        run: |
+          $tag = $env:TAG_NAME.TrimStart('v')
+          $manifestPath = "src/bin/$env:CONFIGURATION/netstandard2.0/$env:MODULE_NAME/$env:MODULE_NAME.psd1"
+          $manifest = Test-ModuleManifest -Path $manifestPath
+          $fullModuleVersion = $manifest.Version.ToString()
+
+          if ($manifest.PrivateData.PSData.Prerelease) {
+              $fullModuleVersion = "$fullModuleVersion-$($manifest.PrivateData.PSData.Prerelease)"
+          }
+
+          if ($fullModuleVersion -ne $tag) {
+              Write-Error "Module version '$fullModuleVersion' does not match release tag '$tag'"
+              exit 1
+          }
+
+      - name: Upload tested module
+        if: inputs.upload_artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: powershell-module
+          path: src/bin/${{ env.CONFIGURATION }}/netstandard2.0/${{ env.MODULE_NAME }}
+          if-no-files-found: error
 
       - name: Upload Pester test results
         uses: actions/upload-artifact@v6
