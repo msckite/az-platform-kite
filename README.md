@@ -2,13 +2,13 @@
 # Azure Platform Kite
 
 [![github-latest](https://img.shields.io/github/v/release/msckite/az-platform-kite?include_prereleases&color=blue&logo=github&label=release)](https://github.com/msckite/az-platform-kite/releases)
-[![ps-gallery-downloads](https://img.shields.io/powershellgallery/dt/MSCKite.Azure.Platform.svg)](https://www.powershellgallery.com/packages/MSCKite.Azure.Platform)
+[![ps-gallery-downloads](https://img.shields.io/powershellgallery/dt/MSCKite.Azure.Platform.svg?color=blue)](https://www.powershellgallery.com/packages/MSCKite.Azure.Platform)
 [![github-issues](https://img.shields.io/github/issues/msckite/az-platform-kite?logo=github)](https://github.com/msckite/az-platform-kite/issues)
 
 </br>
 
 <!-- markdownlint-disable-next-line MD033 -->
-<p><img src=".assets/msckite-logo-s.png" alt="Logo" width="auto" height="80"></p>
+<p><img src=".assets/msckite-logo-xsmall.png" alt="Logo" width="auto" height="120"></p>
 
 By **MSCKite™**  
 _Lighter Work. Higher Impact._
@@ -16,7 +16,7 @@ _Lighter Work. Higher Impact._
 </br>
 
 > [!IMPORTANT]
-> This module is intended primarily for personal use and is under active development.
+> This module is intended primarily for personal use and is currently under active development.
 
 <!-- omit from toc -->
 ## Table of Contents
@@ -196,7 +196,7 @@ sponsorship. Any use of third-party trademarks or logos are subject to those thi
 </br>
 
 <!-- markdownlint-disable-next-line MD033 -->
-<p><img src=".assets/msckite-line.png" alt="Logo" width="auto" height="6"></p>
+<p><img src=".assets/msckite-line-xsmall.png" alt="Logo" width="auto" height="auto"></p>
 
 **MSCKite™**  
 _Lighter Work. Higher Impact._
