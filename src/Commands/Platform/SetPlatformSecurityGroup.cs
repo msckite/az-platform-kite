@@ -98,32 +98,12 @@ namespace MSCKite.Azure.Platform.Commands.Platform
         // Builds a map of resourceGroupId -> ARM resource ID, verifying every referenced resource group already exists (phase 1 must have run)
         private Dictionary<string, string> ResolveResourceGroupScopes(List<PlatformResourceGroupConfig> resourceGroupConfigs, Dictionary<string, string> placeholders)
         {
+            var resourceGroupsById = PlatformResourceGroupResolver.Resolve(this, resourceGroupConfigs, placeholders, "PlatformSecurityGroupResourceGroupMissing");
+
             var scopesById = new Dictionary<string, string>(StringComparer.Ordinal);
-
-            foreach (var config in resourceGroupConfigs)
+            foreach (var entry in resourceGroupsById)
             {
-                string name;
-                try
-                {
-                    name = PlatformConfigLoader.ResolvePlaceholders(config.Name, placeholders);
-                }
-                catch (InvalidOperationException ex)
-                {
-                    WriteError(new ErrorRecord(ex, "PlatformSecurityGroupUnresolvedPlaceholder", ErrorCategory.InvalidData, config.Id));
-                    continue;
-                }
-
-                var resourceGroup = AzureResourceGroupHelper.Get(this, name);
-                if (resourceGroup == null)
-                {
-                    WriteError(new ErrorRecord(
-                        new InvalidOperationException($"Resource group '{name}' (id '{config.Id}') does not exist. Run Set-PlatformResourceGroup first."),
-                        "PlatformSecurityGroupResourceGroupMissing", ErrorCategory.ObjectNotFound, config.Id));
-                    continue;
-                }
-
-                WriteVerbose($"Resolved resource group id '{config.Id}' to scope '{resourceGroup.ResourceId}'.");
-                scopesById[config.Id] = resourceGroup.ResourceId;
+                scopesById[entry.Key] = entry.Value.ResourceId;
             }
 
             return scopesById;
