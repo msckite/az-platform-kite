@@ -9,7 +9,7 @@ namespace MSCKite.Azure.Platform.Internal.GitHub
     internal static class GitHubCliRunner
     {
         // Runs `gh` with the given arguments, quoting each one; never throws (missing gh surfaces as a non-zero exit code)
-        internal static string Run(string[] arguments, out int exitCode, out string stdError)
+        internal static string Run(string[] arguments, out int exitCode, out string stdError, string standardInput = null)
         {
             try
             {
@@ -21,12 +21,20 @@ namespace MSCKite.Azure.Platform.Internal.GitHub
                         Arguments = string.Join(" ", QuoteAll(arguments)),
                         RedirectStandardOutput = true,
                         RedirectStandardError = true,
+                        RedirectStandardInput = standardInput != null,
                         UseShellExecute = false,
                         CreateNoWindow = true
                     }
                 })
                 {
                     process.Start();
+
+                    if (standardInput != null)
+                    {
+                        process.StandardInput.Write(standardInput);
+                        process.StandardInput.Close();
+                    }
+
                     var output = process.StandardOutput.ReadToEnd();
                     stdError = process.StandardError.ReadToEnd();
                     process.WaitForExit();
