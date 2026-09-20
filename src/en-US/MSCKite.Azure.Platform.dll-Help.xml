@@ -1815,6 +1815,693 @@ listed in the file untouched instead of removing them.</maml:para>
   </command:command>
   <command:command>
     <command:details>
+      <command:name>Set-PlatformEnvironmentIdentity</command:name>
+      <maml:description>
+        <maml:para>Creates the federated user-assigned managed identity for each environment declared in
+platform-config.jsonc, and assigns its RBAC roles against the resource groups from phase 1.</maml:para>
+      </maml:description>
+      <command:verb>Set</command:verb>
+      <command:noun>PlatformEnvironmentIdentity</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>Phase 3 of the platform-config.jsonc provisioning workflow.
+For each entry in the `environments`
+array, resolves `${placeholder}` tokens (including the environment's own `${environmentCode}` and
+`${tool}`) and creates the user-assigned managed identity in its resource group if it doesn't
+exist yet, waiting for its principal to become readable before it's used further. It then creates
+or updates the identity's federated credential using an immutable GitHub Actions OIDC subject
+computed from the live repository (the owner's and repository's numeric ids, per GitHub's
+immutable subject claim format), and finally assigns any role from `roleAssignments` that the
+identity doesn't already hold; existing role assignments outside this list are never removed.
+
+Every `resourceGroupId` referenced by a role assignment must already exist, so
+`Set-PlatformResourceGroup` must be run first. Reading the live repository requires the GitHub CLI
+(`gh`) to be installed and signed in.
+
+This cmdlet supports `-WhatIf`/`-Confirm` and requires the `Az.Resources` and
+`Az.ManagedServiceIdentity` modules, signed in via `Connect-AzAccount` with permission to create
+managed identities, federated credentials, and RBAC role assignments.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Set-PlatformEnvironmentIdentity</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="0" aliases="none">
+          <maml:name>GlobalConfigPath</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="1" aliases="none">
+          <maml:name>PlatformConfigPath</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>WhatIf</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>Confirm</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="cf">
+        <maml:name>Confirm</maml:name>
+        <maml:description>
+          <maml:para>Prompts you for confirmation before running the cmdlet.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="true (ByPropertyName)" position="0" aliases="none">
+        <maml:name>GlobalConfigPath</maml:name>
+        <maml:description>
+          <maml:para>Path to the global-config.jsonc file whose values resolve `${placeholder}` tokens in
+platform-config.jsonc.
+Defaults to `config/global-config.jsonc`.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="true (ByPropertyName)" position="1" aliases="none">
+        <maml:name>PlatformConfigPath</maml:name>
+        <maml:description>
+          <maml:para>Path to the platform-config.jsonc file whose `environments` array is provisioned.
+Defaults to
+`config/platform-config.jsonc`.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="wi">
+        <maml:name>WhatIf</maml:name>
+        <maml:description>
+          <maml:para>Runs the command in a mode that only reports what would happen without performing the actions.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>You can pipe the global config path or platform config path to this cmdlet by property name.</maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>MSCKite.Azure.Platform.Models.PlatformEnvironmentIdentitySyncResult</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>The EnvironmentCode, IdentityName, PrincipalId, ClientId, and Action (`Created` or `Unchanged`) of
+each identity; the FederatedCredentialAction (`Created`, `Updated`, or `Unchanged`); and the Role,
+Scope, and Action of every role assignment synced.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>This cmdlet requires the `Az.Resources` and `Az.ManagedServiceIdentity` modules, an active Azure
+sign-in (`Connect-AzAccount`) with permission to create managed identities and federated
+credentials and assign RBAC roles, and the GitHub CLI (`gh`) signed in with read access to the
+repository configured in `sourceControl`.</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>--------- Example 1 - Sync environment identities using the default config paths ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Set-PlatformEnvironmentIdentity
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Creates or updates the identity, federated credential, and role assignments for every environment
+declared in `config/global-config.jsonc` and `config/platform-config.jsonc`.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 2 - Preview changes without applying them ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Set-PlatformEnvironmentIdentity -GlobalConfigPath ./config/global-config.jsonc -PlatformConfigPath ./config/platform-config.jsonc -WhatIf
+```</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version</maml:linkText>
+        <maml:uri />
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Set-PlatformSecurityGroup</maml:linkText>
+        <maml:uri>https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Set-PlatformSecurityGroup.md</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Set-PlatformGitHubEnvironment</maml:linkText>
+        <maml:uri>https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Set-PlatformGitHubEnvironment.md</maml:uri>
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command>
+    <command:details>
+      <command:name>Set-PlatformGitHubEnvironment</command:name>
+      <maml:description>
+        <maml:para>Creates or updates each environment's GitHub deployment environment declared in
+platform-config.jsonc, including its protection rules, secrets, and variables.</maml:para>
+      </maml:description>
+      <command:verb>Set</command:verb>
+      <command:noun>PlatformGitHubEnvironment</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>Phase 4 (final) of the platform-config.jsonc provisioning workflow.
+For each entry in the
+`environments` array, resolves `${clientId}` by reading the identity created in phase 3, then
+creates or updates the GitHub deployment environment's protection rules (wait timer and required
+reviewers, resolved to their live GitHub user or team id), sets its `secrets` (always re-applied,
+since GitHub never exposes secret values so they can't be diffed), and syncs its `variables`
+(only values that have actually drifted are re-applied).
+
+The identity referenced by each environment must already exist, so
+`Set-PlatformEnvironmentIdentity` must be run first.
+
+This cmdlet supports `-WhatIf`/`-Confirm` and requires the `Az.Resources` and
+`Az.ManagedServiceIdentity` modules, signed in via `Connect-AzAccount`, and the GitHub CLI (`gh`)
+signed in with permission to manage environments, secrets, and variables on the target repository.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Set-PlatformGitHubEnvironment</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="0" aliases="none">
+          <maml:name>GlobalConfigPath</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="1" aliases="none">
+          <maml:name>PlatformConfigPath</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>WhatIf</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>Confirm</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="cf">
+        <maml:name>Confirm</maml:name>
+        <maml:description>
+          <maml:para>Prompts you for confirmation before running the cmdlet.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="true (ByPropertyName)" position="0" aliases="none">
+        <maml:name>GlobalConfigPath</maml:name>
+        <maml:description>
+          <maml:para>Path to the global-config.jsonc file whose values resolve `${placeholder}` tokens in
+platform-config.jsonc.
+Defaults to `config/global-config.jsonc`.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="true (ByPropertyName)" position="1" aliases="none">
+        <maml:name>PlatformConfigPath</maml:name>
+        <maml:description>
+          <maml:para>Path to the platform-config.jsonc file whose `environments` array is provisioned.
+Defaults to
+`config/platform-config.jsonc`.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="wi">
+        <maml:name>WhatIf</maml:name>
+        <maml:description>
+          <maml:para>Runs the command in a mode that only reports what would happen without performing the actions.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>You can pipe the global config path or platform config path to this cmdlet by property name.</maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>MSCKite.Azure.Platform.Models.PlatformGitHubEnvironmentSyncResult</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>The EnvironmentCode, Name, and Action (`Created` or `Updated`) of each GitHub environment, and the
+Name and Action of every secret and variable synced.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>This cmdlet requires the `Az.Resources` and `Az.ManagedServiceIdentity` modules, an active Azure
+sign-in (`Connect-AzAccount`) to read the identity created by `Set-PlatformEnvironmentIdentity`,
+and the GitHub CLI (`gh`) signed in with permission to manage environments, secrets, and variables
+on the target repository.</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>--------- Example 1 - Sync GitHub environments using the default config paths ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Set-PlatformGitHubEnvironment
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Creates or updates the GitHub deployment environment, secrets, and variables for every environment
+declared in `config/global-config.jsonc` and `config/platform-config.jsonc`.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 2 - Preview changes without applying them ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Set-PlatformGitHubEnvironment -GlobalConfigPath ./config/global-config.jsonc -PlatformConfigPath ./config/platform-config.jsonc -WhatIf
+```</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version</maml:linkText>
+        <maml:uri />
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Set-PlatformEnvironmentIdentity</maml:linkText>
+        <maml:uri>https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Set-PlatformEnvironmentIdentity.md</maml:uri>
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command>
+    <command:details>
+      <command:name>Set-PlatformResourceGroup</command:name>
+      <maml:description>
+        <maml:para>Creates or updates the Azure resource groups declared in platform-config.jsonc.</maml:para>
+      </maml:description>
+      <command:verb>Set</command:verb>
+      <command:noun>PlatformResourceGroup</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>Phase 1 of the platform-config.jsonc provisioning workflow.
+Reads the `resourceGroups` array,
+resolves `${placeholder}` tokens against global-config.jsonc, and creates any resource group that
+doesn't exist yet or updates its tags if they've drifted from the configured values. A resource
+group's location cannot be changed after creation, so a configured location that no longer
+matches the live resource group only produces a warning.
+
+This cmdlet supports `-WhatIf`/`-Confirm` and requires the `Az.Resources` module, signed in via
+`Connect-AzAccount` with permission to create and tag resource groups in the target subscription.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Set-PlatformResourceGroup</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="0" aliases="none">
+          <maml:name>GlobalConfigPath</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="1" aliases="none">
+          <maml:name>PlatformConfigPath</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>WhatIf</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>Confirm</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="cf">
+        <maml:name>Confirm</maml:name>
+        <maml:description>
+          <maml:para>Prompts you for confirmation before running the cmdlet.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="true (ByPropertyName)" position="0" aliases="none">
+        <maml:name>GlobalConfigPath</maml:name>
+        <maml:description>
+          <maml:para>Path to the global-config.jsonc file whose values resolve `${placeholder}` tokens in
+platform-config.jsonc.
+Defaults to `config/global-config.jsonc`.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="true (ByPropertyName)" position="1" aliases="none">
+        <maml:name>PlatformConfigPath</maml:name>
+        <maml:description>
+          <maml:para>Path to the platform-config.jsonc file whose `resourceGroups` array is provisioned.
+Defaults to
+`config/platform-config.jsonc`.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="wi">
+        <maml:name>WhatIf</maml:name>
+        <maml:description>
+          <maml:para>Runs the command in a mode that only reports what would happen without performing the actions.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>You can pipe the global config path or platform config path to this cmdlet by property name.</maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>MSCKite.Azure.Platform.Models.PlatformResourceGroupSyncResult</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>The Id, Name, Location, and Action (`Created`, `Updated`, or `Unchanged`) of each resource group
+processed.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>This cmdlet requires the `Az.Resources` module and an active Azure sign-in
+(`Connect-AzAccount`) with permission to create and tag resource groups in the target
+subscription.</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>--------- Example 1 - Sync resource groups using the default config paths ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Set-PlatformResourceGroup
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Creates or updates the resource groups declared in `config/global-config.jsonc` and
+`config/platform-config.jsonc`.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 2 - Preview changes without applying them ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Set-PlatformResourceGroup -GlobalConfigPath ./config/global-config.jsonc -PlatformConfigPath ./config/platform-config.jsonc -WhatIf
+```</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version</maml:linkText>
+        <maml:uri />
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Set-PlatformSecurityGroup</maml:linkText>
+        <maml:uri>https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Set-PlatformSecurityGroup.md</maml:uri>
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command>
+    <command:details>
+      <command:name>Set-PlatformSecurityGroup</command:name>
+      <maml:description>
+        <maml:para>Creates or updates the Microsoft Entra security groups declared in platform-config.jsonc, and
+assigns their RBAC roles against the resource groups from phase 1.</maml:para>
+      </maml:description>
+      <command:verb>Set</command:verb>
+      <command:noun>PlatformSecurityGroup</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>Phase 2 of the platform-config.jsonc provisioning workflow.
+Reads the `securityGroups` array,
+resolves `${placeholder}` tokens against global-config.jsonc, and creates any security group
+(matched by `mailNickName`) that doesn't exist yet, or updates its display name/description if
+they've drifted. A newly created group is not used until its principal is confirmed readable, to
+absorb Microsoft Entra's directory propagation delay. Each group's `roleAssignments` are then
+resolved against the resource groups created in phase 1 and any role the group doesn't already
+hold is assigned; existing role assignments outside this list are never removed.
+
+Every `resourceGroupId` referenced by a role assignment must already exist, so
+`Set-PlatformResourceGroup` must be run first.
+
+This cmdlet supports `-WhatIf`/`-Confirm` and requires the `Az.Resources` module, signed in via
+`Connect-AzAccount` with permission to manage Microsoft Entra security groups and assign RBAC
+roles.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Set-PlatformSecurityGroup</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="0" aliases="none">
+          <maml:name>GlobalConfigPath</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="1" aliases="none">
+          <maml:name>PlatformConfigPath</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>WhatIf</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>Confirm</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="cf">
+        <maml:name>Confirm</maml:name>
+        <maml:description>
+          <maml:para>Prompts you for confirmation before running the cmdlet.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="true (ByPropertyName)" position="0" aliases="none">
+        <maml:name>GlobalConfigPath</maml:name>
+        <maml:description>
+          <maml:para>Path to the global-config.jsonc file whose values resolve `${placeholder}` tokens in
+platform-config.jsonc.
+Defaults to `config/global-config.jsonc`.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="true (ByPropertyName)" position="1" aliases="none">
+        <maml:name>PlatformConfigPath</maml:name>
+        <maml:description>
+          <maml:para>Path to the platform-config.jsonc file whose `securityGroups` array is provisioned.
+Defaults to
+`config/platform-config.jsonc`.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="wi">
+        <maml:name>WhatIf</maml:name>
+        <maml:description>
+          <maml:para>Runs the command in a mode that only reports what would happen without performing the actions.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>You can pipe the global config path or platform config path to this cmdlet by property name.</maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>MSCKite.Azure.Platform.Models.PlatformSecurityGroupSyncResult</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>The DisplayName, MailNickName, ObjectId, and Action (`Created`, `Updated`, or `Unchanged`) of each
+security group, and the Role, Scope, and Action (`Added` or `Unchanged`) of every role assignment
+synced.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>This cmdlet requires the `Az.Resources` module and an active Azure sign-in
+(`Connect-AzAccount`) with permission to create Microsoft Entra security groups and assign RBAC
+roles on the target resource groups. Role assignment creation automatically retries to absorb the
+propagation delay between a newly created group and RBAC accepting its principal.</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>--------- Example 1 - Sync security groups using the default config paths ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Set-PlatformSecurityGroup
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Creates or updates the security groups declared in `config/global-config.jsonc` and
+`config/platform-config.jsonc`, and assigns their configured RBAC roles.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 2 - Preview changes without applying them ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Set-PlatformSecurityGroup -GlobalConfigPath ./config/global-config.jsonc -PlatformConfigPath ./config/platform-config.jsonc -WhatIf
+```</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version</maml:linkText>
+        <maml:uri />
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Set-PlatformResourceGroup</maml:linkText>
+        <maml:uri>https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Set-PlatformResourceGroup.md</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Set-PlatformEnvironmentIdentity</maml:linkText>
+        <maml:uri>https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Set-PlatformEnvironmentIdentity.md</maml:uri>
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command>
+    <command:details>
       <command:name>Test-PlatformTemplate</command:name>
       <maml:description>
         <maml:para>Reports template and schema version compatibility and whether a newer template is available.</maml:para>
