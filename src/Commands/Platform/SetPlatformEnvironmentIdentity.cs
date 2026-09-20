@@ -203,7 +203,7 @@ namespace MSCKite.Azure.Platform.Commands.Platform
             {
                 credentialName = PlatformConfigLoader.ResolvePlaceholders(federatedConfig.Name, placeholders);
                 issuer = PlatformConfigLoader.ResolvePlaceholders(federatedConfig.Issuer, placeholders);
-                githubEnvironmentName = PlatformConfigLoader.ResolvePlaceholders(config.GitHubEnvironmentName, placeholders);
+                githubEnvironmentName = PlatformConfigLoader.ResolvePlaceholders(config.GitHubEnvironment.Name, placeholders);
                 audiences = federatedConfig.Audiences.Select(a => PlatformConfigLoader.ResolvePlaceholders(a, placeholders)).ToArray();
             }
             catch (InvalidOperationException ex)
