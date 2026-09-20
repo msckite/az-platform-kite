@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
-using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using MSCKite.Azure.Platform.Internal.Common;
@@ -94,7 +91,7 @@ namespace MSCKite.Azure.Platform.Internal.GitHub
         // Retrieves all labels currently defined on the repository; returns null and sets error on failure
         internal static List<GitHubLabel> GetRemoteLabels(string owner, string repository, out string error)
         {
-            var output = RunGh(
+            var output = GitHubCliRunner.Run(
                 new[] { "api", $"repos/{owner}/{repository}/labels", "--paginate" },
                 out var exitCode,
                 out var stdError);
@@ -136,7 +133,7 @@ namespace MSCKite.Azure.Platform.Internal.GitHub
         // Creates a label that doesn't yet exist on the repository
         internal static bool CreateLabel(string owner, string repository, GitHubLabel label, out string error)
         {
-            RunGh(
+            GitHubCliRunner.Run(
                 new[]
                 {
                     "api", $"repos/{owner}/{repository}/labels",
@@ -155,7 +152,7 @@ namespace MSCKite.Azure.Platform.Internal.GitHub
         // Updates the color/description of an existing label, matched by its current name
         internal static bool UpdateLabel(string owner, string repository, GitHubLabel label, out string error)
         {
-            RunGh(
+            GitHubCliRunner.Run(
                 new[]
                 {
                     "api", $"repos/{owner}/{repository}/labels/{Uri.EscapeDataString(label.Name)}",
@@ -174,7 +171,7 @@ namespace MSCKite.Azure.Platform.Internal.GitHub
         // Deletes a label by name
         internal static bool DeleteLabel(string owner, string repository, string name, out string error)
         {
-            RunGh(
+            GitHubCliRunner.Run(
                 new[]
                 {
                     "api", $"repos/{owner}/{repository}/labels/{Uri.EscapeDataString(name)}",
@@ -185,61 +182,6 @@ namespace MSCKite.Azure.Platform.Internal.GitHub
 
             error = exitCode == 0 ? null : stdError;
             return exitCode == 0;
-        }
-
-        // Runs `gh` with the given arguments, quoting each one; never throws (missing gh surfaces as a non-zero exit code)
-        private static string RunGh(string[] arguments, out int exitCode, out string stdError)
-        {
-            try
-            {
-                using (var process = new Process
-                {
-                    StartInfo = new ProcessStartInfo
-                    {
-                        FileName = "gh",
-                        Arguments = string.Join(" ", QuoteAll(arguments)),
-                        RedirectStandardOutput = true,
-                        RedirectStandardError = true,
-                        UseShellExecute = false,
-                        CreateNoWindow = true
-                    }
-                })
-                {
-                    process.Start();
-                    var output = process.StandardOutput.ReadToEnd();
-                    stdError = process.StandardError.ReadToEnd();
-                    process.WaitForExit();
-                    exitCode = process.ExitCode;
-                    return output;
-                }
-            }
-            catch (Win32Exception)
-            {
-                exitCode = -1;
-                stdError = "GitHub CLI ('gh') was not found on PATH. Install it, then run gh auth login.";
-                return null;
-            }
-        }
-
-        private static IEnumerable<string> QuoteAll(string[] arguments)
-        {
-            foreach (var argument in arguments)
-            {
-                yield return QuoteArgument(argument);
-            }
-        }
-
-        private static string QuoteArgument(string argument)
-        {
-            if (argument.Length > 0 && argument.IndexOfAny(new[] { ' ', '"', '\t', '\n' }) < 0)
-            {
-                return argument;
-            }
-
-            var builder = new StringBuilder("\"");
-            builder.Append(argument.Replace("\"", "\\\""));
-            builder.Append('"');
-            return builder.ToString();
         }
     }
 }

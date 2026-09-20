@@ -39,6 +39,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform
             {
                 map["owner"] = SourceControl.Owner;
                 map["repository"] = SourceControl.Repository;
+                map["tool"] = SourceControl.Tool;
             }
 
             return map;

@@ -194,6 +194,143 @@ namespace MSCKite.Azure.Platform.Internal.Platform
             }
         }
 
+        internal static List<PlatformEnvironmentConfig> LoadEnvironments(string path)
+        {
+            if (!File.Exists(path))
+            {
+                throw new FileNotFoundException($"Platform config file not found: {path}", path);
+            }
+
+            TemplateVersionHelper.ReadVersion(path, "templateVersion");
+
+            using (var document = JsonDocument.Parse(File.ReadAllText(path), DocumentOptions))
+            {
+                var root = document.RootElement;
+                if (root.ValueKind != JsonValueKind.Object ||
+                    !root.TryGetProperty("environments", out var arrayElement) ||
+                    arrayElement.ValueKind != JsonValueKind.Array)
+                {
+                    throw new InvalidOperationException($"'{path}' must contain an \"environments\" array.");
+                }
+
+                var environments = new List<PlatformEnvironmentConfig>();
+
+                foreach (var element in arrayElement.EnumerateArray())
+                {
+                    var environmentCode = GetString(element, "environmentCode");
+                    if (string.IsNullOrWhiteSpace(environmentCode))
+                    {
+                        throw new InvalidOperationException("Each environment must have a non-empty \"environmentCode\".");
+                    }
+
+                    var resourceGroupId = GetString(element, "resourceGroupId");
+                    if (string.IsNullOrWhiteSpace(resourceGroupId))
+                    {
+                        throw new InvalidOperationException($"Environment '{environmentCode}' must have a non-empty \"resourceGroupId\".");
+                    }
+
+                    if (!element.TryGetProperty("userAssignedIdentity", out var identityElement) || identityElement.ValueKind != JsonValueKind.Object)
+                    {
+                        throw new InvalidOperationException($"Environment '{environmentCode}' must have a \"userAssignedIdentity\" object.");
+                    }
+
+                    if (!element.TryGetProperty("githubEnvironment", out var githubElement) || githubElement.ValueKind != JsonValueKind.Object)
+                    {
+                        throw new InvalidOperationException($"Environment '{environmentCode}' must have a \"githubEnvironment\" object.");
+                    }
+
+                    environments.Add(new PlatformEnvironmentConfig
+                    {
+                        DisplayName = GetString(element, "displayName"),
+                        EnvironmentCode = environmentCode,
+                        ResourceGroupId = resourceGroupId,
+                        UserAssignedIdentity = ParseUserAssignedIdentity(identityElement, environmentCode),
+                        GitHubEnvironmentName = GetString(githubElement, "name")
+                    });
+                }
+
+                return environments;
+            }
+        }
+
+        private static PlatformUserAssignedIdentityConfig ParseUserAssignedIdentity(JsonElement element, string environmentCode)
+        {
+            var name = GetString(element, "name");
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new InvalidOperationException($"Environment '{environmentCode}' userAssignedIdentity must have a non-empty \"name\".");
+            }
+
+            if (!element.TryGetProperty("federatedCredential", out var federatedElement) || federatedElement.ValueKind != JsonValueKind.Object)
+            {
+                throw new InvalidOperationException($"Environment '{environmentCode}' userAssignedIdentity must have a \"federatedCredential\" object.");
+            }
+
+            var identity = new PlatformUserAssignedIdentityConfig
+            {
+                Name = name,
+                FederatedCredential = ParseFederatedCredential(federatedElement, environmentCode)
+            };
+
+            if (!element.TryGetProperty("roleAssignments", out var roleAssignmentsElement) ||
+                roleAssignmentsElement.ValueKind != JsonValueKind.Array ||
+                roleAssignmentsElement.GetArrayLength() == 0)
+            {
+                throw new InvalidOperationException($"Environment '{environmentCode}' userAssignedIdentity must have a non-empty \"roleAssignments\" array.");
+            }
+
+            foreach (var roleElement in roleAssignmentsElement.EnumerateArray())
+            {
+                var role = GetString(roleElement, "role");
+                var resourceGroupId = GetString(roleElement, "resourceGroupId");
+
+                if (string.IsNullOrWhiteSpace(role) || string.IsNullOrWhiteSpace(resourceGroupId))
+                {
+                    throw new InvalidOperationException($"Environment '{environmentCode}' has a role assignment missing \"role\" or \"resourceGroupId\".");
+                }
+
+                identity.RoleAssignments.Add(new PlatformRoleAssignmentConfig { Role = role, ResourceGroupId = resourceGroupId });
+            }
+
+            return identity;
+        }
+
+        private static PlatformFederatedCredentialConfig ParseFederatedCredential(JsonElement element, string environmentCode)
+        {
+            var name = GetString(element, "name");
+            var issuer = GetString(element, "issuer");
+            var subjectType = GetString(element, "subjectType");
+
+            if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(issuer) || string.IsNullOrWhiteSpace(subjectType))
+            {
+                throw new InvalidOperationException($"Environment '{environmentCode}' federatedCredential must have a non-empty \"name\", \"issuer\", and \"subjectType\".");
+            }
+
+            var federatedCredential = new PlatformFederatedCredentialConfig
+            {
+                Name = name,
+                Issuer = issuer,
+                SubjectType = subjectType
+            };
+
+            if (!element.TryGetProperty("audiences", out var audiencesElement) ||
+                audiencesElement.ValueKind != JsonValueKind.Array ||
+                audiencesElement.GetArrayLength() == 0)
+            {
+                throw new InvalidOperationException($"Environment '{environmentCode}' federatedCredential must have a non-empty \"audiences\" array.");
+            }
+
+            foreach (var audienceElement in audiencesElement.EnumerateArray())
+            {
+                if (audienceElement.ValueKind == JsonValueKind.String)
+                {
+                    federatedCredential.Audiences.Add(audienceElement.GetString());
+                }
+            }
+
+            return federatedCredential;
+        }
+
         // Replaces every ${key} token in the template with its value from the placeholder map; throws if a token has no known value
         internal static string ResolvePlaceholders(string template, IDictionary<string, string> placeholders)
         {
