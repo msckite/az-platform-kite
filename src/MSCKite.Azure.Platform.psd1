@@ -9,9 +9,10 @@
     PowerShellVersion = '7.0'
     RequiredModules   = @(
         @{ ModuleName = 'Az.Accounts'; ModuleVersion = '5.5' },
-        @{ ModuleName = 'Az.Resources'; ModuleVersion = '10.1' }
+        @{ ModuleName = 'Az.Resources'; ModuleVersion = '10.1' },
+        @{ ModuleName = 'Az.ManagedServiceIdentity'; ModuleVersion = '2.0' }
     )
-    CmdletsToExport   = @('Connect-AdoOrganization', 'Disconnect-AdoOrganization', 'Disconnect-PlatformContext', 'Get-AdoDefault', 'Get-GitHubDefault', 'Get-PlatformContext', 'Get-PlatformTemplate', 'New-PlatformConfigStructure', 'New-RandomPassword', 'New-RandomUniqueId', 'Set-AdoDefault', 'Set-GitHubDefault', 'Set-GitHubLabels', 'Test-PlatformTemplate')
+    CmdletsToExport   = @('Connect-AdoOrganization', 'Disconnect-AdoOrganization', 'Disconnect-PlatformContext', 'Get-AdoDefault', 'Get-GitHubDefault', 'Get-PlatformContext', 'Get-PlatformTemplate', 'New-PlatformConfigStructure', 'New-RandomPassword', 'New-RandomUniqueId', 'Set-AdoDefault', 'Set-GitHubDefault', 'Set-GitHubLabels', 'Set-PlatformEnvironmentIdentity', 'Set-PlatformGitHubEnvironment', 'Set-PlatformResourceGroup', 'Set-PlatformSecurityGroup', 'Test-PlatformTemplate')
     PrivateData       = @{
         PSData = @{
             Tags       = @('Az', 'Azure', 'Platform', 'Engineering', 'DevOps', 'GitHub', 'Kite', 'MSC')
