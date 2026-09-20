@@ -13,8 +13,29 @@ namespace MSCKite.Azure.Platform.Internal.Platform
 
         internal PlatformUserAssignedIdentityConfig UserAssignedIdentity { get; set; }
 
-        // Only the "name" is needed by phase 3 (to compute the federated credential subject); the rest of githubEnvironment is parsed in phase 4
-        internal string GitHubEnvironmentName { get; set; }
+        internal PlatformGitHubEnvironmentConfig GitHubEnvironment { get; set; }
+    }
+
+    // Raw (unresolved) representation of an environment's "githubEnvironment"
+    internal class PlatformGitHubEnvironmentConfig
+    {
+        internal string Name { get; set; }
+
+        internal List<string> RequiredReviewers { get; } = new List<string>();
+
+        internal int WaitTimerMinutes { get; set; }
+
+        internal List<PlatformKeyValueConfig> Secrets { get; } = new List<PlatformKeyValueConfig>();
+
+        internal List<PlatformKeyValueConfig> Variables { get; } = new List<PlatformKeyValueConfig>();
+    }
+
+    // Raw (unresolved) name/value pair, used for both githubEnvironment secrets and variables
+    internal class PlatformKeyValueConfig
+    {
+        internal string Name { get; set; }
+
+        internal string Value { get; set; }
     }
 
     // Raw (unresolved) representation of an environment's "userAssignedIdentity"
