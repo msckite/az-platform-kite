@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://raw.githubusercontent.com/msckite/az-platform-kite/refs/heads/main/schemas/platform-config.schema.json",
-  "schemaVersion": "2.0.0",
+  "schemaVersion": "1.0.0",
   "title": "Platform Config Schema",
   "description": "Per-service configuration describing the Azure and GitHub environments to provision for a repository.",
   "type": "object",
@@ -9,6 +9,7 @@
   "required": [
     "templateVersion",
     "resourceGroups",
+    "securityGroups",
     "environments"
   ],
   "properties": {
@@ -18,18 +19,26 @@
     },
     "templateVersion": {
       "description": "Version of the template contract.",
-      "const": "2.0.0"
+      "const": "1.0.0"
     },
     "resourceGroups": {
-      "description": "Azure resource groups to create first, ahead of any environment, security group, identity, or GitHub environment resources. Each represents a stage in the deployment (e.g. dev, stg, prd).",
+      "description": "Azure resource groups to create first, ahead of any security group, environment, identity, or GitHub environment resources. Each represents a stage in the deployment (e.g. dev, stg, prd).",
       "type": "array",
       "minItems": 1,
       "items": {
         "$ref": "#/definitions/resourceGroup"
       }
     },
+    "securityGroups": {
+      "description": "Microsoft Entra security groups to create once RBAC roles are assigned against the resource groups created above. Created as phase 2, ahead of any per-environment identity or GitHub environment resources.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/securityGroup"
+      }
+    },
     "environments": {
-      "description": "The environments (e.g. dev, prd) to provision Entra security groups, a federated user-assigned identity, and a GitHub environment for. Each environment references a resource group created in the top-level 'resourceGroups' array.",
+      "description": "The environments (e.g. dev, prd) to provision a federated user-assigned identity and a GitHub environment for. Each environment references a resource group created in the top-level 'resourceGroups' array.",
       "type": "array",
       "minItems": 1,
       "items": {
@@ -45,7 +54,6 @@
         "displayName",
         "environmentCode",
         "resourceGroupId",
-        "securityGroups",
         "userAssignedIdentity",
         "githubEnvironment"
       ],
@@ -72,14 +80,6 @@
           "description": "Id of the resource group (from the top-level 'resourceGroups' array) this environment deploys into.",
           "type": "string",
           "minLength": 1
-        },
-        "securityGroups": {
-          "description": "Microsoft Entra security groups to create and assign RBAC roles to for this environment.",
-          "type": "array",
-          "minItems": 1,
-          "items": {
-            "$ref": "#/definitions/securityGroup"
-          }
         },
         "userAssignedIdentity": {
           "$ref": "#/definitions/userAssignedIdentity"
