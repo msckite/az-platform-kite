@@ -1,24 +1,44 @@
 {
     "$schema": "https://raw.githubusercontent.com/msckite/az-platform-kite/refs/heads/main/schemas/platform-config.schema.json",
-    "templateVersion": "1.0.0",
+    "templateVersion": "2.0.0",
+    // Phase 1: resource groups are created first, independently of environments, security groups, identities, and GitHub environments.
+    "resourceGroups": [
+        {
+            "id": "dev",
+            "name": "rg-${uniqueId}${serviceShort}-dev-${regionCode}",
+            "location": "${location}",
+            "tags": {
+                "service": "${serviceShort}",
+                "environment": "development",
+                "location": "${location}",
+                "owner": "engineering-team",
+                "criticality": "low",
+                "cost-center": "engineering",
+                "public": "true"
+            }
+        },
+        {
+            "id": "prd",
+            "name": "rg-${uniqueId}${serviceShort}-prd-${regionCode}",
+            "location": "${location}",
+            "tags": {
+                "service": "${serviceShort}",
+                "environment": "production",
+                "location": "${location}",
+                "owner": "engineering-team",
+                "criticality": "high",
+                "cost-center": "engineering",
+                "public": "false"
+            }
+        }
+    ],
+    // Phase 2: Entra security groups (RBAC scoped to the resource groups above), Phase 3: federated user-assigned identity, Phase 4: GitHub environment.
     "environments": [
         {
             "displayName": "Development",
             "environmentCode": "dev",
             "description": "Development environment for the ${displayName} service",
-            "resourceGroup": {
-                "name": "rg-${uniqueId}${serviceShort}-${environmentCode}-${regionCode}",
-                "location": "${location}",
-                "tags": {
-                    "service": "${serviceShort}",
-                    "environment": "development",
-                    "location": "${location}",
-                    "owner": "engineering-team",
-                    "criticality": "low",
-                    "cost-center": "engineering",
-                    "public": "true"
-                }
-            },
+            "resourceGroupId": "dev",
             "securityGroups": [
                 {
                     "displayName": "SG ${displayName} - Developers",
@@ -27,7 +47,7 @@
                     "roleAssignments": [
                         {
                             "role": "Contributor",
-                            "scope": "/subscriptions/${subscriptionId}/resourceGroups/rg-${uniqueId}${serviceShort}-${environmentCode}-${regionCode}"
+                            "resourceGroupId": "dev"
                         }
                     ]
                 },
@@ -38,7 +58,7 @@
                     "roleAssignments": [
                         {
                             "role": "Owner",
-                            "scope": "/subscriptions/${subscriptionId}/resourceGroups/rg-${uniqueId}${serviceShort}-${environmentCode}-${regionCode}"
+                            "resourceGroupId": "dev"
                         }
                     ]
                 },
@@ -49,7 +69,7 @@
                     "roleAssignments": [
                         {
                             "role": "Reader",
-                            "scope": "/subscriptions/${subscriptionId}/resourceGroups/rg-${uniqueId}${serviceShort}-${environmentCode}-${regionCode}"
+                            "resourceGroupId": "dev"
                         }
                     ]
                 }
@@ -67,15 +87,15 @@
                 "roleAssignments": [
                     {
                         "role": "Contributor",
-                        "scope": "/subscriptions/${subscriptionId}/resourceGroups/rg-${uniqueId}${serviceShort}-${environmentCode}-${regionCode}"
+                        "resourceGroupId": "dev"
                     },
                     {
-                        "role": "Contributor", // cross-environment contributor role assignment
-                        "scope": "/subscriptions/${subscriptionId}/resourceGroups/rg-${uniqueId}${serviceShort}-prd-${regionCode}"
+                        "role": "Contributor", // cross-environment contributor role assignment, resolved via the "prd" resourceGroupId (no duplicated naming logic)
+                        "resourceGroupId": "prd"
                     },
                     {
                         "role": "Azure Deployment Stack Contributor",
-                        "scope": "/subscriptions/${subscriptionId}/resourceGroups/rg-${uniqueId}${serviceShort}-${environmentCode}-${regionCode}"
+                        "resourceGroupId": "dev"
                     }
                 ]
             },
@@ -88,7 +108,7 @@
                 "secrets": [
                     {
                         "name": "AZURE_CLIENT_ID",
-                        "value": "${clientId}"
+                        "value": "${clientId}" // populated from the clientId of the userAssignedIdentity created above, once it exists
                     },
                     {
                         "name": "AZURE_SUBSCRIPTION_ID",
