@@ -1,13 +1,14 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://raw.githubusercontent.com/msckite/az-platform-kite/refs/heads/main/schemas/platform-config.schema.json",
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "2.0.0",
   "title": "Platform Config Schema",
   "description": "Per-service configuration describing the Azure and GitHub environments to provision for a repository.",
   "type": "object",
   "additionalProperties": false,
   "required": [
     "templateVersion",
+    "resourceGroups",
     "environments"
   ],
   "properties": {
@@ -17,10 +18,18 @@
     },
     "templateVersion": {
       "description": "Version of the template contract.",
-      "const": "1.0.0"
+      "const": "2.0.0"
+    },
+    "resourceGroups": {
+      "description": "Azure resource groups to create first, ahead of any environment, security group, identity, or GitHub environment resources. Each represents a stage in the deployment (e.g. dev, stg, prd).",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/resourceGroup"
+      }
     },
     "environments": {
-      "description": "The environments (e.g. dev, prd) to provision resources and RBAC for.",
+      "description": "The environments (e.g. dev, prd) to provision Entra security groups, a federated user-assigned identity, and a GitHub environment for. Each environment references a resource group created in the top-level 'resourceGroups' array.",
       "type": "array",
       "minItems": 1,
       "items": {
@@ -35,7 +44,7 @@
       "required": [
         "displayName",
         "environmentCode",
-        "resourceGroup",
+        "resourceGroupId",
         "securityGroups",
         "userAssignedIdentity",
         "githubEnvironment"
@@ -59,8 +68,10 @@
           "description": "Optional description of the environment.",
           "type": "string"
         },
-        "resourceGroup": {
-          "$ref": "#/definitions/resourceGroup"
+        "resourceGroupId": {
+          "description": "Id of the resource group (from the top-level 'resourceGroups' array) this environment deploys into.",
+          "type": "string",
+          "minLength": 1
         },
         "securityGroups": {
           "description": "Microsoft Entra security groups to create and assign RBAC roles to for this environment.",
@@ -82,10 +93,16 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
+        "id",
         "name",
         "location"
       ],
       "properties": {
+        "id": {
+          "description": "Local id used to reference this resource group from 'environmentConfig.resourceGroupId' and 'roleAssignment.resourceGroupId'. Not an Azure identifier.",
+          "type": "string",
+          "minLength": 1
+        },
         "name": {
           "description": "Azure resource group name.",
           "type": "string",
@@ -209,7 +226,7 @@
       "additionalProperties": false,
       "required": [
         "role",
-        "scope"
+        "resourceGroupId"
       ],
       "properties": {
         "role": {
@@ -217,8 +234,8 @@
           "type": "string",
           "minLength": 1
         },
-        "scope": {
-          "description": "Azure resource ID scope the role is assigned at.",
+        "resourceGroupId": {
+          "description": "Id of the resource group (from the top-level 'resourceGroups' array) this role is scoped to. The command resolves this to the resource group's full Azure resource ID, which allows cross-environment role assignments without duplicating naming logic.",
           "type": "string",
           "minLength": 1
         }
