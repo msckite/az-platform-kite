@@ -5,7 +5,7 @@
     "resourceGroups": [
         {
             "id": "dev",
-            "name": "rg-${uniqueId}${serviceShort}-dev-${regionCode}",
+            "name": "rg-${serviceShort}${uniqueId}-dev-${regionCode}",
             "location": "${location}",
             "tags": {
                 "service": "${serviceShort}",
@@ -19,7 +19,7 @@
         },
         {
             "id": "prd",
-            "name": "rg-${uniqueId}${serviceShort}-prd-${regionCode}",
+            "name": "rg-${serviceShort}${uniqueId}-prd-${regionCode}",
             "location": "${location}",
             "tags": {
                 "service": "${serviceShort}",
@@ -36,7 +36,7 @@
     "securityGroups": [
         {
             "displayName": "SG ${displayName} - Developers",
-            "mailNickName": "sg-${uniqueId}${serviceShort}-devs",
+            "mailNickName": "sg-${serviceShort}${uniqueId}-devs",
             "description": "Security group for users with developer access to the Azure environments",
             "roleAssignments": [
                 {
@@ -51,7 +51,7 @@
         },
         {
             "displayName": "SG ${displayName} - Administrators",
-            "mailNickName": "sg-${uniqueId}${serviceShort}-admins",
+            "mailNickName": "sg-${serviceShort}${uniqueId}-admins",
             "description": "Security group for users with administrative access to the Azure environments",
             "roleAssignments": [
                 {
@@ -66,7 +66,7 @@
         },
         {
             "displayName": "SG ${displayName} - Stakeholders",
-            "mailNickName": "sg-${uniqueId}${serviceShort}-stakeholders",
+            "mailNickName": "sg-${serviceShort}${uniqueId}-stakeholders",
             "description": "Security group for users with read-only access to the Azure environments",
             "roleAssignments": [
                 {
@@ -88,9 +88,9 @@
             "description": "Development environment for the ${displayName} service",
             "resourceGroupId": "dev",
             "userAssignedIdentity": {
-                "name": "id-${uniqueId}${serviceShort}-${tool}-${environmentCode}",
+                "name": "id-${serviceShort}${uniqueId}-${tool}-${environmentCode}",
                 "federatedCredential": {
-                    "name": "fic-${uniqueId}${serviceShort}-${tool}-${environmentCode}",
+                    "name": "fic-${serviceShort}${uniqueId}-${tool}-${environmentCode}",
                     "issuer": "https://token.actions.githubusercontent.com",
                     "subjectType": "environment",
                     "audiences": [
@@ -139,11 +139,11 @@
                     },
                     {
                         "name": "RESOURCE_GROUP_NAME",
-                        "value": "rg-${uniqueId}${serviceShort}-${environmentCode}-${regionCode}"
+                        "value": "rg-${serviceShort}${uniqueId}-${environmentCode}-${regionCode}"
                     },
                     {
                         "name": "DEPLOYMENT_STACK_NAME",
-                        "value": "rgds-${uniqueId}${serviceShort}-${environmentCode}-${regionCode}"
+                        "value": "rgds-${serviceShort}${uniqueId}-${environmentCode}-${regionCode}"
                     }
                 ]
             }
