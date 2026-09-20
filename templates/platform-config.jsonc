@@ -1,7 +1,7 @@
 {
     "$schema": "https://raw.githubusercontent.com/msckite/az-platform-kite/refs/heads/main/schemas/platform-config.schema.json",
-    "templateVersion": "2.0.0",
-    // Phase 1: resource groups are created first, independently of environments, security groups, identities, and GitHub environments.
+    "templateVersion": "1.0.0",
+    // Phase 1: Azure resource groups are created first, independently of security groups, environments, identities, and GitHub environments.
     "resourceGroups": [
         {
             "id": "dev",
@@ -32,48 +32,61 @@
             }
         }
     ],
-    // Phase 2: Entra security groups (RBAC scoped to the resource groups above), Phase 3: federated user-assigned identity, Phase 4: GitHub environment.
+    // Phase 2: Entra security groups, created once and assigned RBAC roles against every resource group created above.
+    "securityGroups": [
+        {
+            "displayName": "SG ${displayName} - Developers",
+            "mailNickName": "sg-${uniqueId}${serviceShort}-devs",
+            "description": "Security group for users with developer access to the Azure environments",
+            "roleAssignments": [
+                {
+                    "role": "Contributor",
+                    "resourceGroupId": "dev"
+                },
+                {
+                    "role": "Reader",
+                    "resourceGroupId": "prd"
+                }
+            ]
+        },
+        {
+            "displayName": "SG ${displayName} - Administrators",
+            "mailNickName": "sg-${uniqueId}${serviceShort}-admins",
+            "description": "Security group for users with administrative access to the Azure environments",
+            "roleAssignments": [
+                {
+                    "role": "Owner",
+                    "resourceGroupId": "dev"
+                },
+                {
+                    "role": "Owner",
+                    "resourceGroupId": "prd"
+                }
+            ]
+        },
+        {
+            "displayName": "SG ${displayName} - Stakeholders",
+            "mailNickName": "sg-${uniqueId}${serviceShort}-stakeholders",
+            "description": "Security group for users with read-only access to the Azure environments",
+            "roleAssignments": [
+                {
+                    "role": "Reader",
+                    "resourceGroupId": "dev"
+                },
+                {
+                    "role": "Reader",
+                    "resourceGroupId": "prd"
+                }
+            ]
+        }
+    ],
+    // Phase 3: Entra federated user-assigned identity, Phase 4: GitHub environment (both per-environment).
     "environments": [
         {
             "displayName": "Development",
             "environmentCode": "dev",
             "description": "Development environment for the ${displayName} service",
             "resourceGroupId": "dev",
-            "securityGroups": [
-                {
-                    "displayName": "SG ${displayName} - Developers",
-                    "mailNickName": "sg-${uniqueId}${serviceShort}-${environmentCode}-devs",
-                    "description": "Security group for users with developer access to the Azure environment",
-                    "roleAssignments": [
-                        {
-                            "role": "Contributor",
-                            "resourceGroupId": "dev"
-                        }
-                    ]
-                },
-                {
-                    "displayName": "SG ${displayName} - Administrators",
-                    "mailNickName": "sg-${uniqueId}${serviceShort}-${environmentCode}-admins",
-                    "description": "Security group for users with administrative access to the Azure environment",
-                    "roleAssignments": [
-                        {
-                            "role": "Owner",
-                            "resourceGroupId": "dev"
-                        }
-                    ]
-                },
-                {
-                    "displayName": "SG ${displayName} - Stakeholders",
-                    "mailNickName": "sg-${uniqueId}${serviceShort}-${environmentCode}-stakeholders",
-                    "description": "Security group for users with read-only access to the Azure environment",
-                    "roleAssignments": [
-                        {
-                            "role": "Reader",
-                            "resourceGroupId": "dev"
-                        }
-                    ]
-                }
-            ],
             "userAssignedIdentity": {
                 "name": "id-${uniqueId}${serviceShort}-${tool}-${environmentCode}",
                 "federatedCredential": {
