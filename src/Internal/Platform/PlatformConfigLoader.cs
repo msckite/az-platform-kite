@@ -245,12 +245,71 @@ namespace MSCKite.Azure.Platform.Internal.Platform
                         EnvironmentCode = environmentCode,
                         ResourceGroupId = resourceGroupId,
                         UserAssignedIdentity = ParseUserAssignedIdentity(identityElement, environmentCode),
-                        GitHubEnvironmentName = GetString(githubElement, "name")
+                        GitHubEnvironment = ParseGitHubEnvironment(githubElement, environmentCode)
                     });
                 }
 
                 return environments;
             }
+        }
+
+        private static PlatformGitHubEnvironmentConfig ParseGitHubEnvironment(JsonElement element, string environmentCode)
+        {
+            var name = GetString(element, "name");
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new InvalidOperationException($"Environment '{environmentCode}' githubEnvironment must have a non-empty \"name\".");
+            }
+
+            var githubEnvironment = new PlatformGitHubEnvironmentConfig { Name = name };
+
+            if (element.TryGetProperty("protectionRules", out var protectionRulesElement) && protectionRulesElement.ValueKind == JsonValueKind.Object)
+            {
+                if (protectionRulesElement.TryGetProperty("requiredReviewers", out var reviewersElement) && reviewersElement.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var reviewerElement in reviewersElement.EnumerateArray())
+                    {
+                        if (reviewerElement.ValueKind == JsonValueKind.String)
+                        {
+                            githubEnvironment.RequiredReviewers.Add(reviewerElement.GetString());
+                        }
+                    }
+                }
+
+                if (protectionRulesElement.TryGetProperty("waitTimerMinutes", out var waitTimerElement) && waitTimerElement.ValueKind == JsonValueKind.Number)
+                {
+                    githubEnvironment.WaitTimerMinutes = waitTimerElement.GetInt32();
+                }
+            }
+
+            if (element.TryGetProperty("secrets", out var secretsElement) && secretsElement.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var secretElement in secretsElement.EnumerateArray())
+                {
+                    githubEnvironment.Secrets.Add(ParseKeyValue(secretElement, environmentCode, "secret"));
+                }
+            }
+
+            if (element.TryGetProperty("variables", out var variablesElement) && variablesElement.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var variableElement in variablesElement.EnumerateArray())
+                {
+                    githubEnvironment.Variables.Add(ParseKeyValue(variableElement, environmentCode, "variable"));
+                }
+            }
+
+            return githubEnvironment;
+        }
+
+        private static PlatformKeyValueConfig ParseKeyValue(JsonElement element, string environmentCode, string kind)
+        {
+            var name = GetString(element, "name");
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new InvalidOperationException($"Environment '{environmentCode}' has a {kind} entry missing \"name\".");
+            }
+
+            return new PlatformKeyValueConfig { Name = name, Value = GetString(element, "value") ?? string.Empty };
         }
 
         private static PlatformUserAssignedIdentityConfig ParseUserAssignedIdentity(JsonElement element, string environmentCode)
