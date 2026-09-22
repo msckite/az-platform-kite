@@ -35,7 +35,7 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          Install-Module -Name Az.Accounts, Az.Resources -Force -AllowClobber -Scope CurrentUser -Repository PSGallery
+          Install-Module -Name Az.Accounts, Az.Resources, Az.ManagedServiceIdentity -Force -AllowClobber -Scope CurrentUser -Repository PSGallery
 
       - name: Publish module
         shell: pwsh
