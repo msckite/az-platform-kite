@@ -114,13 +114,27 @@ so `dev` and `stg` are always provisioned first.
    `Set-PlatformEnvironmentIdentity`, `Set-PlatformGitHubEnvironment`). The workflows authenticate
    with the federated identity that phase 3 creates and the environment secrets that phase 4 sets,
    so the very first run has to happen from a workstation.
-2. Confirm every environment in `platform-config.jsonc` has a matching GitHub environment holding
+2. Grant that identity the Microsoft Graph application permission it needs to read (and, if you
+   want CI to manage groups outside `-WhatIf`, create) Entra security groups in phase 2. This is a
+   one-time, manual step, not something the phases do automatically: assigning Microsoft Graph app
+   roles requires the Application Administrator, Privileged Role Administrator, or Global
+   Administrator directory role, and the automated identity must never hold that role permanently.
+   Using the `PrincipalId` from phase 3's output:
+
+   ```powershell
+   Grant-PlatformGraphPermission -PrincipalId '<principalId-from-phase-3>' -Permission 'Group.Read.All'
+   ```
+
+   Add `'Group.ReadWrite.All'` to `-Permission` if CI is ever expected to create or update groups
+   outside `-WhatIf`. Without this grant, `Set-PlatformSecurityGroup` fails, or in CI's
+   `-ErrorAction SilentlyContinue` lookup path, misreports existing groups as missing.
+3. Confirm every environment in `platform-config.jsonc` has a matching GitHub environment holding
    `AZURE_CLIENT_ID`, `AZURE_TENANT_ID` and `AZURE_SUBSCRIPTION_ID`. Phase 4 writes these.
-3. Add a repository or environment secret named `PLATFORM_GITHUB_TOKEN`, a fine-grained personal
+4. Add a repository or environment secret named `PLATFORM_GITHUB_TOKEN`, a fine-grained personal
    access token or GitHub App token with administration, environment, secret and variable write
    access on the repository. The built-in `GITHUB_TOKEN` cannot manage environment secrets, so
    phase 4 fails without it.
-4. The federated credential uses `subjectType: environment`, so every job that signs in to Azure
+5. The federated credential uses `subjectType: environment`, so every job that signs in to Azure
    declares `environment:`. Keep it that way, otherwise the OIDC subject claim no longer matches.
 
 ## Why the environment input is a gate, not a scope
