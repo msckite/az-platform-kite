@@ -73,7 +73,6 @@ Azure Platform Kite transforms knowledge, experience, and AI-assisted engineerin
 > [!TIP]
 > Explore all available cmdlets in the [help documentation](docs/MSCKite.Azure.Platform/MSCKite.Azure.Platform.md), including detailed usage, parameters, and examples.
 
-<!-- omit from toc -->
 ### Quickstart
 
 <!-- omit from toc -->
@@ -112,12 +111,6 @@ Get-PlatformContext
     "SubscriptionId": "00000000-0000-0000-0000-000000000000",
     "SubscriptionName": "sub-contoso-workloads",
     "Environment": "AzureCloud",
-    "IsSignedIn": true
-  },
-  "DevOps": {
-    "Account": "user@contoso.com",
-    "Organization": "contoso",
-    "CollectionUri": "https://dev.azure.com/contoso",
     "IsSignedIn": true
   },
   "GitHub": {
@@ -159,6 +152,44 @@ Set-GitHubDefault $null
 
 > [!TIP]
 > The same pattern applies to Azure DevOps, using `Set-AdoDefault` and `Get-AdoDefault` to manage your default organization/project instead.
+
+### Staged platform setup
+
+Working from your local repository, download the templates, scaffold the configuration folder from them, and fill in `global-config.jsonc` and `platform-config.jsonc`:
+
+```powershell
+Get-PlatformTemplate -IncludedFolders 'templates' -OutputFolder ./.downloads
+New-PlatformConfigStructure -InputFolder ./.downloads/templates -OutputFolder ./config
+Copy-Item ./.downloads/templates/platform-config.jsonc ./config
+```
+
+`Get-PlatformTemplate` downloads the latest `global-config.jsonc` and other available templates, into `.downloads`. `New-PlatformConfigStructure` seeds your repository's `config` folder with the downloaded `global-config.jsonc`, so nothing you edit later is ever overwritten by a new download.
+
+<br/>
+
+> [!IMPORTANT]
+> Leave the `${placeholder}` tokens in `platform-config.jsonc` intact: they are resolved at runtime against `global-config.jsonc` and the environment being provisioned, which is what keeps names, tags and secrets consistent across every phase. Replacing them with literal values breaks that single source of truth.
+
+<br/>
+
+Then run the four provisioning phases in order:
+
+```powershell
+Set-PlatformResourceGroup       # Phase 1: Azure resource groups
+Set-PlatformSecurityGroup       # Phase 2: Entra security groups and their RBAC roles
+Set-PlatformEnvironmentIdentity # Phase 3: federated user-assigned identities and their RBAC roles
+Set-PlatformGitHubEnvironment   # Phase 4: GitHub environments, secrets and variables
+```
+
+Every phase is idempotent, so you can safely rerun the whole sequence after changing the configuration. Add `-WhatIf` to any command to preview the changes first.
+
+Once the first run has completed, hand the recurring runs over to GitHub Actions:
+
+```powershell
+New-PlatformWorkflow
+```
+
+`New-PlatformWorkflow` reads the workflow manifest from `.downloads/templates` and copies the [workflow templates](templates/github/workflows/README.md) for your `sourceControl.branchStrategy` into `.github` of your repository. That ships a CI/CD pipeline staged across `dev`/`prd` (`github`) or `dev`/`stg`/`prd` (`release`), running the same four phases in dependency order. Existing files are left untouched unless you pass `-Force`.
 
 ## License
 

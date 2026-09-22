@@ -1,6 +1,12 @@
 <!-- omit from toc -->
 # Templates
 
+## Workflow templates
+
+`github/workflows` holds ready-to-copy GitHub Actions workflows that provision `platform-config.jsonc`
+in phase order, one set per `sourceControl.branchStrategy` value. See
+[github/workflows/README.md](github/workflows/README.md).
+
 ## Template versioning
 
 Every shipped JSON template has a required `templateVersion` and every matching JSON Schema has a `schemaVersion`. Both use `Major.Minor.Patch` SemVer and the versions must match exactly for a template/schema pair to be compatible. The schemas also require the matching template version, so standard JSON Schema validators reject an incompatible template.
