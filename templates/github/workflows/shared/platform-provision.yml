@@ -1,0 +1,204 @@
+name: platform-provision
+
+# Reusable job set: runs the four platform-config.jsonc provisioning phases in dependency order.
+#
+#   phase 1  resource-groups         Azure resource groups                      (no dependencies)
+#   phase 2  security-groups         Entra groups + RBAC on the resource groups (needs phase 1)
+#   phase 3  environment-identities  Federated user-assigned identities + RBAC  (needs phase 1)
+#   phase 4  github-environments     GitHub environments, secrets, variables    (needs phase 3)
+#
+# Phases 2 and 3 are independent of each other and run in parallel.
+#
+# Each cmdlet reconciles the *whole* configuration file, not a single environment. The
+# `environment` input therefore acts as the deployment gate: it selects the GitHub environment
+# whose federated credential is used to sign in to Azure, and whose protection rules (required
+# reviewers, wait timer) must be satisfied before the phases start.
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: GitHub environment used as the deployment gate and OIDC federated credential subject.
+        type: string
+        required: true
+      global-config-path:
+        description: Path to global-config.jsonc.
+        type: string
+        required: false
+        default: config/global-config.jsonc
+      platform-config-path:
+        description: Path to platform-config.jsonc.
+        type: string
+        required: false
+        default: config/platform-config.jsonc
+      what-if:
+        description: Run every phase with -WhatIf so nothing is changed.
+        type: boolean
+        required: false
+        default: false
+      module-version:
+        description: Exact version of MSCKite.Azure.Platform to install. Installs the latest version when empty.
+        type: string
+        required: false
+        default: ''
+      allow-prerelease:
+        description: Allow a prerelease version of MSCKite.Azure.Platform to be installed.
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  GLOBAL_CONFIG_PATH: ${{ inputs.global-config-path }}
+  PLATFORM_CONFIG_PATH: ${{ inputs.platform-config-path }}
+  WHAT_IF: ${{ inputs.what-if }}
+
+jobs:
+  resource-groups:
+    name: Phase 1 - Resource groups
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Platform Kite
+        uses: ./.github/actions/setup-platform-kite
+        with:
+          module-version: ${{ inputs.module-version }}
+          allow-prerelease: ${{ inputs.allow-prerelease }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Sync resource groups
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $parameters = @{
+            GlobalConfigPath   = $env:GLOBAL_CONFIG_PATH
+            PlatformConfigPath = $env:PLATFORM_CONFIG_PATH
+            Verbose            = $true
+          }
+          if ($env:WHAT_IF -eq 'true') { $parameters.WhatIf = $true }
+
+          Set-PlatformResourceGroup @parameters | Format-List | Out-String | Write-Host
+
+  security-groups:
+    name: Phase 2 - Security groups
+    needs: resource-groups
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Platform Kite
+        uses: ./.github/actions/setup-platform-kite
+        with:
+          module-version: ${{ inputs.module-version }}
+          allow-prerelease: ${{ inputs.allow-prerelease }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Sync security groups and role assignments
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $parameters = @{
+            GlobalConfigPath   = $env:GLOBAL_CONFIG_PATH
+            PlatformConfigPath = $env:PLATFORM_CONFIG_PATH
+            Verbose            = $true
+          }
+          if ($env:WHAT_IF -eq 'true') { $parameters.WhatIf = $true }
+
+          Set-PlatformSecurityGroup @parameters | Format-List | Out-String | Write-Host
+
+  environment-identities:
+    name: Phase 3 - Environment identities
+    needs: resource-groups
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Platform Kite
+        uses: ./.github/actions/setup-platform-kite
+        with:
+          module-version: ${{ inputs.module-version }}
+          allow-prerelease: ${{ inputs.allow-prerelease }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Sync identities, federated credentials and role assignments
+        shell: pwsh
+        env:
+          # Reads the live repository to compute the immutable OIDC subject claim.
+          GH_TOKEN: ${{ secrets.PLATFORM_GITHUB_TOKEN || github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $parameters = @{
+            GlobalConfigPath   = $env:GLOBAL_CONFIG_PATH
+            PlatformConfigPath = $env:PLATFORM_CONFIG_PATH
+            Verbose            = $true
+          }
+          if ($env:WHAT_IF -eq 'true') { $parameters.WhatIf = $true }
+
+          Set-PlatformEnvironmentIdentity @parameters | Format-List | Out-String | Write-Host
+
+  github-environments:
+    name: Phase 4 - GitHub environments
+    needs: environment-identities
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Platform Kite
+        uses: ./.github/actions/setup-platform-kite
+        with:
+          module-version: ${{ inputs.module-version }}
+          allow-prerelease: ${{ inputs.allow-prerelease }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Sync GitHub environments, secrets and variables
+        shell: pwsh
+        env:
+          # Managing environments, secrets and variables needs administration rights, which the
+          # built-in GITHUB_TOKEN does not grant. Supply a fine-grained PAT or GitHub App token.
+          GH_TOKEN: ${{ secrets.PLATFORM_GITHUB_TOKEN }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ([string]::IsNullOrWhiteSpace($env:GH_TOKEN)) {
+            throw "Secret 'PLATFORM_GITHUB_TOKEN' is required to manage GitHub environments, secrets and variables."
+          }
+
+          $parameters = @{
+            GlobalConfigPath   = $env:GLOBAL_CONFIG_PATH
+            PlatformConfigPath = $env:PLATFORM_CONFIG_PATH
+            Verbose            = $true
+          }
+          if ($env:WHAT_IF -eq 'true') { $parameters.WhatIf = $true }
+
+          Set-PlatformGitHubEnvironment @parameters | Format-List | Out-String | Write-Host

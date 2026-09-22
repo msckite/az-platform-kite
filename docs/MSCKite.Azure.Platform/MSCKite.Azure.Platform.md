@@ -50,6 +50,10 @@ Downloads one or more folders (with their subfolders and files) from the Azure P
 
 Scaffolds the platform configuration folder, creating a `global-config.jsonc` file either from a default template or copied from an existing input folder.
 
+### [New-PlatformWorkflow](New-PlatformWorkflow.md)
+
+Copies the GitHub Actions workflow templates for the configured branch strategy into the repository.
+
 ### [New-RandomPassword](New-RandomPassword.md)
 
 Generates cryptographically secure random passwords with configurable complexity, length, and output formats.
@@ -69,6 +73,22 @@ Sets the default GitHub owner and repository used by other GitHub commands.
 ### [Set-GitHubLabels](Set-GitHubLabels.md)
 
 Creates, updates, and removes GitHub repository labels to match a labels definition file.
+
+### [Set-PlatformEnvironmentIdentity](Set-PlatformEnvironmentIdentity.md)
+
+Creates the federated user-assigned managed identity for each environment declared in platform-config.jsonc, and assigns its RBAC roles against the resource groups from phase 1.
+
+### [Set-PlatformGitHubEnvironment](Set-PlatformGitHubEnvironment.md)
+
+Creates or updates each environment's GitHub deployment environment declared in platform-config.jsonc, including its protection rules, secrets, and variables.
+
+### [Set-PlatformResourceGroup](Set-PlatformResourceGroup.md)
+
+Creates or updates the Azure resource groups declared in platform-config.jsonc.
+
+### [Set-PlatformSecurityGroup](Set-PlatformSecurityGroup.md)
+
+Creates or updates the Microsoft Entra security groups declared in platform-config.jsonc, and assigns their RBAC roles against the resource groups from phase 1.
 
 ### [Test-PlatformTemplate](Test-PlatformTemplate.md)
 

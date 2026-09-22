@@ -887,6 +887,242 @@ New-PlatformConfigStructure -OutputFolder ./config -Force
   </command:command>
   <command:command>
     <command:details>
+      <command:name>New-PlatformWorkflow</command:name>
+      <maml:description>
+        <maml:para>Copies the GitHub Actions workflow templates for the configured branch strategy into the
+repository.</maml:para>
+      </maml:description>
+      <command:verb>New</command:verb>
+      <command:noun>PlatformWorkflow</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>Reads `github/workflows/manifest.jsonc` from a downloaded templates folder and copies the shared
+workflow templates, plus the ones belonging to the selected branch strategy, to their destination
+in the repository. The manifest maps every template to a fixed path under `.github`, because
+reusable workflows referenced as `./.github/workflows/&lt;name&gt;.yml` must sit directly in
+`.github/workflows`.
+
+The branch strategy is read from `sourceControl.branchStrategy` in global-config.jsonc unless
+`-BranchStrategy` is specified. Files that already exist at the destination are reported and left
+untouched unless `-Force` is specified, so local edits are never lost by accident.
+
+Run `Get-PlatformTemplate` first to download the templates. This cmdlet only copies files, so it
+needs no Azure or GitHub sign-in.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>New-PlatformWorkflow</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="0" aliases="none">
+          <maml:name>InputFolder</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="1" aliases="none">
+          <maml:name>OutputFolder</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>BranchStrategy</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>GlobalConfigPath</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>Force</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>WhatIf</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>Confirm</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="true (ByPropertyName)" position="Named" aliases="none">
+        <maml:name>BranchStrategy</maml:name>
+        <maml:description>
+          <maml:para>The branch strategy whose workflow templates are installed, matching a strategy declared in the
+manifest (`github` or `release`).
+Defaults to `sourceControl.branchStrategy` in global-config.jsonc.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="cf">
+        <maml:name>Confirm</maml:name>
+        <maml:description>
+          <maml:para>Prompts you for confirmation before running the cmdlet.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>Force</maml:name>
+        <maml:description>
+          <maml:para>Overwrites workflow files that already exist at the destination instead of skipping them.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="true (ByPropertyName)" position="Named" aliases="none">
+        <maml:name>GlobalConfigPath</maml:name>
+        <maml:description>
+          <maml:para>Path to the global-config.jsonc file the branch strategy is read from when `-BranchStrategy` is
+omitted.
+Defaults to `config/global-config.jsonc`.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="true (ByPropertyName)" position="0" aliases="none">
+        <maml:name>InputFolder</maml:name>
+        <maml:description>
+          <maml:para>Path to the downloaded templates folder containing `github/workflows/manifest.jsonc`.
+Defaults to
+`.downloads/templates`, the location `Get-PlatformTemplate` writes to.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="true (ByPropertyName)" position="1" aliases="none">
+        <maml:name>OutputFolder</maml:name>
+        <maml:description>
+          <maml:para>Path to the repository root the `.github` folder is created in.
+Defaults to the current folder.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="wi">
+        <maml:name>WhatIf</maml:name>
+        <maml:description>
+          <maml:para>Runs the command in a mode that only reports what would happen without performing the actions.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>You can pipe the template folder, repository root, branch strategy, or global config path by
+property name.</maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>MSCKite.Azure.Platform.Models.PlatformWorkflowResult</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>The resolved branch strategy and its environments, the manifest used, the files copied, the files
+skipped because they already existed, and whether the installation succeeded.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para />
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>--------- Example 1 - Install the workflows for the configured branch strategy ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Get-PlatformTemplate -IncludedFolders 'templates' -OutputFolder ./.downloads
+New-PlatformWorkflow
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Copies the shared templates and the ones for the branch strategy declared in
+`config/global-config.jsonc` into `.github` of the current repository.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 2 - Install a specific strategy and overwrite existing files ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+New-PlatformWorkflow -InputFolder ./.downloads/templates -OutputFolder . -BranchStrategy release -Force
+```</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 3 - Preview which files would be copied ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+New-PlatformWorkflow -BranchStrategy github -WhatIf
+```</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version</maml:linkText>
+        <maml:uri />
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Get-PlatformTemplate</maml:linkText>
+        <maml:uri>https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Get-PlatformTemplate.md</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>New-PlatformConfigStructure</maml:linkText>
+        <maml:uri>https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/New-PlatformConfigStructure.md</maml:uri>
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command>
+    <command:details>
       <command:name>New-RandomPassword</command:name>
       <maml:description>
         <maml:para>Generates cryptographically secure random passwords with configurable complexity, length, and output formats.</maml:para>

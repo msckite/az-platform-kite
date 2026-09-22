@@ -1,0 +1,116 @@
+name: platform-validate
+
+# Reusable job: verifies that config/global-config.jsonc and config/platform-config.jsonc are
+# compatible with the schemas they declare, and reports whether a newer template is published.
+# Runs without any Azure or GitHub credentials, so it is safe to run on pull requests from forks.
+
+on:
+  workflow_call:
+    inputs:
+      global-config-path:
+        description: Path to global-config.jsonc.
+        type: string
+        required: false
+        default: config/global-config.jsonc
+      platform-config-path:
+        description: Path to platform-config.jsonc.
+        type: string
+        required: false
+        default: config/platform-config.jsonc
+      template-branch:
+        description: Branch of the az-platform-kite repository to compare schemas and templates against.
+        type: string
+        required: false
+        default: main
+      module-version:
+        description: Exact version of MSCKite.Azure.Platform to install. Installs the latest version when empty.
+        type: string
+        required: false
+        default: ''
+      allow-prerelease:
+        description: Allow a prerelease version of MSCKite.Azure.Platform to be installed.
+        type: boolean
+        required: false
+        default: false
+      fail-on-update-available:
+        description: Fail the job when a newer template version is published upstream.
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate configuration
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Platform Kite
+        uses: ./.github/actions/setup-platform-kite
+        with:
+          module-version: ${{ inputs.module-version }}
+          allow-prerelease: ${{ inputs.allow-prerelease }}
+          azure-login: 'false'
+
+      - name: Download upstream schemas and templates
+        shell: pwsh
+        env:
+          TEMPLATE_BRANCH: ${{ inputs.template-branch }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Get-PlatformTemplate -IncludedFolders 'schemas', 'templates' -OutputFolder '.downloads' -Branch $env:TEMPLATE_BRANCH -Force
+
+      - name: Validate template and schema versions
+        shell: pwsh
+        env:
+          GLOBAL_CONFIG_PATH: ${{ inputs.global-config-path }}
+          PLATFORM_CONFIG_PATH: ${{ inputs.platform-config-path }}
+          FAIL_ON_UPDATE: ${{ inputs.fail-on-update-available }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          $pairs = @(
+            @{
+              Template = $env:GLOBAL_CONFIG_PATH
+              Schema   = '.downloads/schemas/global-config.schema.json'
+              Latest   = '.downloads/templates/global-config.jsonc'
+            }
+            @{
+              Template = $env:PLATFORM_CONFIG_PATH
+              Schema   = '.downloads/schemas/platform-config.schema.json'
+              Latest   = '.downloads/templates/platform-config.jsonc'
+            }
+          )
+
+          $results = foreach ($pair in $pairs) {
+            Test-PlatformTemplate -TemplatePath $pair.Template -SchemaPath $pair.Schema -LatestTemplatePath $pair.Latest
+          }
+
+          $results | Format-List | Out-String | Write-Host
+
+          $summary = $results | Select-Object -Property TemplatePath, TemplateVersion, SchemaVersion, LatestTemplateVersion, IsCompatible, IsUpdateAvailable
+          "## Platform configuration validation`n" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+          ($summary | ConvertTo-Html -As Table -Fragment) | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+
+          $incompatible = $results | Where-Object { -not $_.IsCompatible }
+          if ($incompatible) {
+            foreach ($result in $incompatible) {
+              Write-Host "::error file=$($result.TemplatePath)::$($result.CompatibilityMessage)"
+            }
+            throw 'One or more configuration files are incompatible with their schema.'
+          }
+
+          $outdated = $results | Where-Object { $_.IsUpdateAvailable }
+          foreach ($result in $outdated) {
+            Write-Host "::warning file=$($result.TemplatePath)::A newer template version ($($result.LatestTemplateVersion)) is available."
+          }
+
+          if ($outdated -and $env:FAIL_ON_UPDATE -eq 'true') {
+            throw 'A newer template version is available and fail-on-update-available is enabled.'
+          }

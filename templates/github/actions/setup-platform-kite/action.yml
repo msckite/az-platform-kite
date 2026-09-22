@@ -1,0 +1,69 @@
+name: Setup Platform Kite
+description: Installs the MSCKite.Azure.Platform module and optionally signs in to Azure with OIDC federated credentials.
+
+inputs:
+  module-version:
+    description: Exact version of MSCKite.Azure.Platform to install. Installs the latest version when empty.
+    required: false
+    default: ''
+  allow-prerelease:
+    description: Allow a prerelease version of MSCKite.Azure.Platform to be installed.
+    required: false
+    default: 'false'
+  azure-login:
+    description: Sign in to Azure with OIDC. Set to 'false' for jobs that only validate templates.
+    required: false
+    default: 'true'
+  client-id:
+    description: Client id of the user-assigned managed identity holding the federated credential.
+    required: false
+    default: ''
+  tenant-id:
+    description: Microsoft Entra tenant id.
+    required: false
+    default: ''
+  subscription-id:
+    description: Azure subscription id.
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: Cache PowerShell modules
+      uses: actions/cache@v4
+      with:
+        path: ~/.local/share/powershell/Modules
+        key: psmodules-${{ runner.os }}-msckite-${{ inputs.module-version || 'latest' }}-${{ inputs.allow-prerelease }}
+        restore-keys: |
+          psmodules-${{ runner.os }}-msckite-
+
+    - name: Install MSCKite.Azure.Platform
+      shell: pwsh
+      env:
+        MODULE_VERSION: ${{ inputs.module-version }}
+        ALLOW_PRERELEASE: ${{ inputs.allow-prerelease }}
+      run: |
+        $ErrorActionPreference = 'Stop'
+        $parameters = @{
+          Name          = 'MSCKite.Azure.Platform'
+          Scope         = 'CurrentUser'
+          Repository    = 'PSGallery'
+          Force         = $true
+          AcceptLicense = $true
+        }
+        if (-not [string]::IsNullOrWhiteSpace($env:MODULE_VERSION)) { $parameters.RequiredVersion = $env:MODULE_VERSION }
+        if ($env:ALLOW_PRERELEASE -eq 'true') { $parameters.AllowPrerelease = $true }
+
+        Install-Module @parameters
+        Import-Module -Name 'MSCKite.Azure.Platform' -Force
+        Get-Module -Name 'MSCKite.Azure.Platform' | Select-Object -Property Name, Version | Format-Table | Out-String | Write-Host
+
+    - name: Sign in to Azure
+      if: inputs.azure-login == 'true'
+      uses: azure/login@v2
+      with:
+        client-id: ${{ inputs.client-id }}
+        tenant-id: ${{ inputs.tenant-id }}
+        subscription-id: ${{ inputs.subscription-id }}
+        enable-AzPSSession: true

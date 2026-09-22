@@ -1,0 +1,60 @@
+{
+    "templateVersion": "1.0.0",
+    // Consumed by the (future) workflow install command: for the selected branchStrategy, copy the
+    // shared files plus that strategy's files to their destination in the target repository.
+    "shared": [
+        {
+            "source": "github/actions/setup-platform-kite/action.yml",
+            "destination": ".github/actions/setup-platform-kite/action.yml"
+        },
+        {
+            "source": "github/workflows/shared/platform-validate.yml",
+            "destination": ".github/workflows/platform-validate.yml"
+        },
+        {
+            "source": "github/workflows/shared/platform-provision.yml",
+            "destination": ".github/workflows/platform-provision.yml"
+        }
+    ],
+    "strategies": {
+        // GitHub Flow: CI on feature/fix branches and pull requests, CD on merge to main (dev then prd).
+        "github": {
+            "environments": [
+                "dev",
+                "prd"
+            ],
+            "files": [
+                {
+                    "source": "github/workflows/github/platform-ci.yml",
+                    "destination": ".github/workflows/platform-ci.yml"
+                },
+                {
+                    "source": "github/workflows/github/platform-cd.yml",
+                    "destination": ".github/workflows/platform-cd.yml"
+                }
+            ]
+        },
+        // Release flow: CI on feature/fix branches and pull requests, CD on merge to main (dev then stg), prd on release publish.
+        "release": {
+            "environments": [
+                "dev",
+                "stg",
+                "prd"
+            ],
+            "files": [
+                {
+                    "source": "github/workflows/release/platform-ci.yml",
+                    "destination": ".github/workflows/platform-ci.yml"
+                },
+                {
+                    "source": "github/workflows/release/platform-cd.yml",
+                    "destination": ".github/workflows/platform-cd.yml"
+                },
+                {
+                    "source": "github/workflows/release/platform-release.yml",
+                    "destination": ".github/workflows/platform-release.yml"
+                }
+            ]
+        }
+    }
+}
