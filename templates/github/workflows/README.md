@@ -2,7 +2,8 @@
 # Platform workflow templates
 
 Ready-to-copy GitHub Actions workflows that provision `config/platform-config.jsonc` end to end.
-Pick the folder matching the `sourceControl.branchStrategy` value in your `config/global-config.jsonc`.
+Pick the `github-flow` or `release-flow` folder for the `sourceControl.branchStrategy` value in your
+`config/global-config.jsonc`.
 
 <!-- omit from toc -->
 ## Table of Contents
@@ -26,10 +27,10 @@ templates/github/
     shared/
       platform-validate.yml          Reusable: template and schema version validation
       platform-provision.yml         Reusable: the four provisioning phases, correctly chained
-    github/
+    github-flow/
       platform-ci.yml                CI: feature/fix branches and pull requests to main
       platform-cd.yml                CD: push to main, dev then prd
-    release/
+    release-flow/
       platform-ci.yml                CI: feature/fix/release branches and pull requests to main
       platform-cd.yml                CD: push to main, dev then stg
       platform-release.yml           Release published, prd
@@ -48,10 +49,10 @@ Copy the `shared` files plus the files for your strategy into the target reposit
 | `github/actions/setup-platform-kite/action.yml`     | `.github/actions/setup-platform-kite/action.yml`     |
 | `github/workflows/shared/platform-validate.yml`     | `.github/workflows/platform-validate.yml`            |
 | `github/workflows/shared/platform-provision.yml`    | `.github/workflows/platform-provision.yml`           |
-| `github/workflows/<strategy>/platform-*.yml`        | `.github/workflows/platform-*.yml`                   |
+| `github/workflows/<strategy>-flow/platform-*.yml`   | `.github/workflows/platform-*.yml`                   |
 
 Reusable workflows referenced with `./.github/workflows/...` must live directly in
-`.github/workflows`, which is why the `shared` and `<strategy>` folders flatten on copy.
+`.github/workflows`, which is why the `shared` and `<strategy>-flow` folders flatten on copy.
 
 ## Provisioning phases and dependencies
 

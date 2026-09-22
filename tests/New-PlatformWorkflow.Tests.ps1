@@ -28,13 +28,13 @@ Describe 'New-PlatformWorkflow' {
     "github": {
       "environments": [ "dev", "prd" ],
       "files": [
-        { "source": "github/workflows/github/platform-cd.yml", "destination": ".github/workflows/platform-cd.yml" }
+        { "source": "github/workflows/github-flow/platform-cd.yml", "destination": ".github/workflows/platform-cd.yml" }
       ]
     },
     "release": {
       "environments": [ "dev", "stg", "prd" ],
       "files": [
-        { "source": "github/workflows/release/platform-release.yml", "destination": ".github/workflows/platform-release.yml" }
+        { "source": "github/workflows/release-flow/platform-release.yml", "destination": ".github/workflows/platform-release.yml" }
       ]
     }
   }
@@ -45,8 +45,8 @@ Describe 'New-PlatformWorkflow' {
             $files = @(
                 'github/actions/setup-platform-kite/action.yml'
                 'github/workflows/shared/platform-provision.yml'
-                'github/workflows/github/platform-cd.yml'
-                'github/workflows/release/platform-release.yml'
+                'github/workflows/github-flow/platform-cd.yml'
+                'github/workflows/release-flow/platform-release.yml'
             )
 
             foreach ($file in $files) {
@@ -162,7 +162,7 @@ Describe 'New-PlatformWorkflow' {
     "github": {
       "environments": [ "dev" ],
       "files": [
-        { "source": "github/workflows/github/platform-cd.yml", "destination": "../outside/platform-cd.yml" }
+        { "source": "github/workflows/github-flow/platform-cd.yml", "destination": "../outside/platform-cd.yml" }
       ]
     }
   }

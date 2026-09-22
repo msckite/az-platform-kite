@@ -1,0 +1,60 @@
+name: platform-ci
+
+# Release flow (branchStrategy: "release").
+#
+# CI runs on every push to a short-lived feature or fix branch, on every pull request that targets
+# main, and on maintenance branches. It validates the configuration and then runs all four
+# provisioning phases against the dev environment with -WhatIf, so nothing is applied.
+#
+# Make this workflow a required status check on main so a pull request cannot be merged until it
+# has succeeded on the feature or fix branch.
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+      - 'feat/**'
+      - 'fix/**'
+      - 'hotfix/**'
+      - 'release/**'
+    paths:
+      - 'config/**'
+      - '.github/workflows/platform-*.yml'
+      - '.github/actions/setup-platform-kite/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'config/**'
+      - '.github/workflows/platform-*.yml'
+      - '.github/actions/setup-platform-kite/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: platform-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate
+    uses: ./.github/workflows/platform-validate.yml
+    permissions:
+      contents: read
+    with:
+      global-config-path: config/global-config.jsonc
+      platform-config-path: config/platform-config.jsonc
+
+  plan-dev:
+    name: Plan (dev)
+    needs: validate
+    uses: ./.github/workflows/platform-provision.yml
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      environment: dev
+      what-if: true
+    secrets: inherit

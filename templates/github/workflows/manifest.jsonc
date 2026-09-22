@@ -25,11 +25,11 @@
             ],
             "files": [
                 {
-                    "source": "github/workflows/github/platform-ci.yml",
+                    "source": "github/workflows/github-flow/platform-ci.yml",
                     "destination": ".github/workflows/platform-ci.yml"
                 },
                 {
-                    "source": "github/workflows/github/platform-cd.yml",
+                    "source": "github/workflows/github-flow/platform-cd.yml",
                     "destination": ".github/workflows/platform-cd.yml"
                 }
             ]
@@ -43,15 +43,15 @@
             ],
             "files": [
                 {
-                    "source": "github/workflows/release/platform-ci.yml",
+                    "source": "github/workflows/release-flow/platform-ci.yml",
                     "destination": ".github/workflows/platform-ci.yml"
                 },
                 {
-                    "source": "github/workflows/release/platform-cd.yml",
+                    "source": "github/workflows/release-flow/platform-cd.yml",
                     "destination": ".github/workflows/platform-cd.yml"
                 },
                 {
-                    "source": "github/workflows/release/platform-release.yml",
+                    "source": "github/workflows/release-flow/platform-release.yml",
                     "destination": ".github/workflows/platform-release.yml"
                 }
             ]
