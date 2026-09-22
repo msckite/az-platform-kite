@@ -37,14 +37,28 @@ so run the **build** task (see [CONTRIBUTING.md](../CONTRIBUTING.md#building-and
 Follow this sequence whenever a cmdlet is added or changed:
 
 ```powershell
-dotnet build src/MSCKite.Azure.Platform.csproj                       # 1. Build the module
-Import-Module ./src/bin/Debug/netstandard2.0/MSCKite.Azure.Platform.dll -Force  # 2. Load it
-./platyps.ps1 -Mode New                    # 3. Only for brand-new cmdlets
-./platyps.ps1 -Mode Update                 # 4. Refresh Markdown for changed cmdlets
+# 1. Build the module
+dotnet build src/MSCKite.Azure.Platform.csproj
+
+# 2. Load it
+Import-Module ./src/bin/Debug/netstandard2.0/MSCKite.Azure.Platform.dll -Force
+
+# 3. Only for brand-new cmdlets
+./platyps.ps1 -Mode New
+
+# 4. Refresh Markdown for changed cmdlets
+./platyps.ps1 -Mode Update
+
 # 5. Ask Copilot (or edit manually) to fill in any {{ }} placeholders flagged by step 4
-./platyps.ps1 -Mode Test                   # 6. Validate before publishing
-./platyps.ps1 -Mode Publish                # 7. Generate en-US\MSCKite.Azure.Platform.dll-Help.xml
-dotnet build src/MSCKite.Azure.Platform.csproj                       # 8. Copy the published help into the build output
+
+# 6. Validate before publishing
+./platyps.ps1 -Mode Test
+
+# 7. Generate en-US\MSCKite.Azure.Platform.dll-Help.xml
+./platyps.ps1 -Mode Publish
+
+# 8. Copy the published help into the build output
+dotnet build src/MSCKite.Azure.Platform.csproj
 ```
 
 ## Placeholders
