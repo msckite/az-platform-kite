@@ -14,9 +14,11 @@ namespace MSCKite.Azure.Platform.Internal.GitHub
     // Creates, updates, and reads a repository's deployment environment (protection rules only; secrets/variables are separate APIs)
     internal static class GitHubEnvironmentHelper
     {
-        internal static bool Exists(string owner, string repository, string name)
+        // Returns whether the environment exists; error is only populated on failure, so a permission/auth problem isn't silently mistaken for a real 404
+        internal static bool Exists(string owner, string repository, string name, out string error)
         {
-            GitHubCliRunner.Run(new[] { "api", $"repos/{owner}/{repository}/environments/{Uri.EscapeDataString(name)}" }, out var exitCode, out _);
+            GitHubCliRunner.Run(new[] { "api", $"repos/{owner}/{repository}/environments/{Uri.EscapeDataString(name)}" }, out var exitCode, out var stdError);
+            error = exitCode == 0 ? null : stdError;
             return exitCode == 0;
         }
 

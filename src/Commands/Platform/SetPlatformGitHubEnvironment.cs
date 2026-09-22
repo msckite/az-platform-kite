@@ -156,7 +156,11 @@ namespace MSCKite.Azure.Platform.Commands.Platform
             }
 
             WriteVerbose($"GitHub environment '{name}': checking whether it already exists.");
-            var existed = GitHubEnvironmentHelper.Exists(owner, repository, name);
+            var existed = GitHubEnvironmentHelper.Exists(owner, repository, name, out var existsError);
+            if (!existed && existsError != null && !existsError.Contains("HTTP 404"))
+            {
+                WriteWarning($"Could not confirm whether GitHub environment '{name}' already exists ({existsError.Trim()}); treating it as missing. If it actually exists, PLATFORM_GITHUB_TOKEN likely lacks the 'Environments' read permission.");
+            }
 
             var reviewers = new List<GitHubReviewer>();
             foreach (var reviewer in githubConfig.RequiredReviewers)
