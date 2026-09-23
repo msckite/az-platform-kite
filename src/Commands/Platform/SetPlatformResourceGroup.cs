@@ -62,12 +62,13 @@ namespace MSCKite.Azure.Platform.Commands.Platform
 
             WriteVerbose($"Found {resourceGroups.Count} resource group(s) in platform config.");
 
-            var azureContext = AzureContextHelper.GetContext(this, out var azureMessage);
-            if (!azureContext.IsSignedIn)
+            if (!AzureContextHelper.TryGetConfiguredContext(this, globalConfig, out var azureContext, out var azureMessage))
             {
                 ThrowTerminatingError(new ErrorRecord(
                     new InvalidOperationException(azureMessage),
-                    "PlatformResourceGroupNotSignedIn", ErrorCategory.AuthenticationError, null));
+                    azureContext.IsSignedIn ? "PlatformResourceGroupContextMismatch" : "PlatformResourceGroupNotSignedIn",
+                    azureContext.IsSignedIn ? ErrorCategory.SecurityError : ErrorCategory.AuthenticationError,
+                    null));
                 return;
             }
 

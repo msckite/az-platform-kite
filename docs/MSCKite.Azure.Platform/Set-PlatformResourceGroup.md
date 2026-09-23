@@ -37,6 +37,8 @@ matches the live resource group only produces a warning.
 
 This cmdlet supports `-WhatIf`/`-Confirm` and requires the `Az.Resources` module, signed in via
 `Connect-AzAccount` with permission to create and tag resource groups in the target subscription.
+The active Az context tenant and subscription must match the `tenantId` and `subscriptionId` in
+global-config.jsonc before processing begins.
 By default, each resource group's result is emitted once processing finishes; under `-WhatIf`,
 `Action` reports `WouldCreate` or `WouldUpdate` instead of applying a mutation. Pass
 `-AsHashtable` to collect every result and get a single summary object instead.

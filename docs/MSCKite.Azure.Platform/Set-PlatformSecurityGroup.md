@@ -43,7 +43,10 @@ Every `resourceGroupId` referenced by a role assignment must already exist, so
 
 This cmdlet supports `-WhatIf`/`-Confirm` and requires the `Az.Resources` module, signed in via
 `Connect-AzAccount` with permission to manage Microsoft Entra security groups and assign RBAC
-roles. By default, each security group's result is emitted once processing finishes; under
+roles. The active Az context tenant and subscription must match the `tenantId` and `subscriptionId`
+in global-config.jsonc before processing begins.
+
+By default, each security group's result is emitted once processing finishes; under
 `-WhatIf`, `Action` reports actions that would happen instead of applying a mutation. Pass
 `-AsHashtable` to collect every result and get a single summary object instead.
 

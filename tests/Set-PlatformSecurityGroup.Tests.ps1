@@ -81,7 +81,7 @@ Describe 'Set-PlatformSecurityGroup' {
         $script:ValidGlobalConfig | Set-Content -Path $global
         '{"templateVersion":"1.0.0","resourceGroups":[],"securityGroups":[{"displayName":"SG ${bogus}","mailNickName":"sg-devs","roleAssignments":[{"role":"Contributor","resourceGroupId":"dev"}]}]}' | Set-Content -Path $platform
 
-        { Set-PlatformSecurityGroup -GlobalConfigPath $global -PlatformConfigPath $platform -ErrorAction Stop } | Should -Throw "*Unresolved placeholder*bogus*"
+        { Set-PlatformSecurityGroup -GlobalConfigPath $global -PlatformConfigPath $platform -ErrorAction Stop } | Should -Throw '*Unresolved placeholder*bogus*'
     }
 
     It 'reports a role assignment referencing a resource group that does not exist' {
@@ -101,5 +101,23 @@ Describe 'Set-PlatformSecurityGroup' {
 '@ | Set-Content -Path $platform
 
         { Set-PlatformSecurityGroup -GlobalConfigPath $global -PlatformConfigPath $platform -ErrorAction Stop } | Should -Throw '*does not exist. Run Set-PlatformResourceGroup first*'
+    }
+
+    It 'throws when the active Azure tenant differs from global config' {
+        $global = Join-Path $TestDrive 'global-tenant-mismatch.jsonc'
+        $platform = Join-Path $TestDrive 'platform.jsonc'
+        ($script:ValidGlobalConfig -replace '"tenantId": "[^"]+"', '"tenantId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"') | Set-Content -Path $global
+        '{"templateVersion":"1.0.0","resourceGroups":[],"securityGroups":[]}' | Set-Content -Path $platform
+
+        { Set-PlatformSecurityGroup -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*active Azure tenant*does not match*'
+    }
+
+    It 'throws when the active Azure subscription differs from global config' {
+        $global = Join-Path $TestDrive 'global-subscription-mismatch.jsonc'
+        $platform = Join-Path $TestDrive 'platform.jsonc'
+        ($script:ValidGlobalConfig -replace '"subscriptionId": "[^"]+"', '"subscriptionId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"') | Set-Content -Path $global
+        '{"templateVersion":"1.0.0","resourceGroups":[],"securityGroups":[]}' | Set-Content -Path $platform
+
+        { Set-PlatformSecurityGroup -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*active Azure subscription*does not match*'
     }
 }

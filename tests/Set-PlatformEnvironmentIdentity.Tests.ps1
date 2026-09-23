@@ -194,4 +194,22 @@ Describe 'Set-PlatformEnvironmentIdentity' {
 
     { Set-PlatformEnvironmentIdentity -GlobalConfigPath $global -PlatformConfigPath $platform -ErrorAction Stop } | Should -Throw '*does not exist. Run Set-PlatformResourceGroup first*'
   }
+
+  It 'throws when the active Azure tenant differs from global config' {
+    $global = Join-Path $TestDrive 'global-tenant-mismatch.jsonc'
+    $platform = Join-Path $TestDrive 'platform.jsonc'
+    ($script:ValidGlobalConfig -replace '"tenantId": "[^"]+"', '"tenantId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"') | Set-Content -Path $global
+    '{"templateVersion":"1.0.0","resourceGroups":[],"environments":[]}' | Set-Content -Path $platform
+
+    { Set-PlatformEnvironmentIdentity -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*active Azure tenant*does not match*'
+  }
+
+  It 'throws when the active Azure subscription differs from global config' {
+    $global = Join-Path $TestDrive 'global-subscription-mismatch.jsonc'
+    $platform = Join-Path $TestDrive 'platform.jsonc'
+    ($script:ValidGlobalConfig -replace '"subscriptionId": "[^"]+"', '"subscriptionId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"') | Set-Content -Path $global
+    '{"templateVersion":"1.0.0","resourceGroups":[],"environments":[]}' | Set-Content -Path $platform
+
+    { Set-PlatformEnvironmentIdentity -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*active Azure subscription*does not match*'
+  }
 }

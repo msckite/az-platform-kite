@@ -75,12 +75,13 @@ namespace MSCKite.Azure.Platform.Commands.Platform
                 return;
             }
 
-            var azureContext = AzureContextHelper.GetContext(this, out var azureMessage);
-            if (!azureContext.IsSignedIn)
+            if (!AzureContextHelper.TryGetConfiguredContext(this, globalConfig, out var azureContext, out var azureMessage))
             {
                 ThrowTerminatingError(new ErrorRecord(
                     new InvalidOperationException(azureMessage),
-                    "PlatformGitHubEnvironmentNotSignedIn", ErrorCategory.AuthenticationError, null));
+                    azureContext.IsSignedIn ? "PlatformGitHubEnvironmentContextMismatch" : "PlatformGitHubEnvironmentNotSignedIn",
+                    azureContext.IsSignedIn ? ErrorCategory.SecurityError : ErrorCategory.AuthenticationError,
+                    null));
                 return;
             }
 

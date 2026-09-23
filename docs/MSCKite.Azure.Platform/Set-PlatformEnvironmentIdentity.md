@@ -45,8 +45,11 @@ Every `resourceGroupId` referenced by a role assignment must already exist, so
 
 This cmdlet supports `-WhatIf`/`-Confirm` and requires the `Az.Resources` and
 `Az.ManagedServiceIdentity` modules, signed in via `Connect-AzAccount` with permission to create
-managed identities, federated credentials, and RBAC role assignments. By default, each
-environment's result is emitted once processing finishes; under `-WhatIf`,
+managed identities, federated credentials, and RBAC role assignments. The active Az context
+tenant and subscription must match the `tenantId` and `subscriptionId` in global-config.jsonc
+before processing begins.
+
+By default, each environment's result is emitted once processing finishes; under `-WhatIf`,
 `Action` reports actions that would happen instead of applying a mutation. Pass `-AsHashtable` to collect
 every result and get a single summary object instead.
 

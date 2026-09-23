@@ -138,4 +138,31 @@ Describe 'Set-PlatformResourceGroup' {
 
         { Set-PlatformResourceGroup -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*Not signed in to Azure*'
     }
+
+    It 'throws when global config tenantId is empty' {
+        $global = Join-Path $TestDrive 'global-empty-tenant.jsonc'
+        $platform = Join-Path $TestDrive 'platform.jsonc'
+        ($script:ValidGlobalConfig -replace '"tenantId": "[^"]+"', '"tenantId": ""') | Set-Content -Path $global
+        '{"templateVersion":"1.0.0","resourceGroups":[]}' | Set-Content -Path $platform
+
+        { Set-PlatformResourceGroup -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*non-empty "tenantId"*'
+    }
+
+    It 'throws when the active Azure tenant differs from global config' {
+        $global = Join-Path $TestDrive 'global-tenant-mismatch.jsonc'
+        $platform = Join-Path $TestDrive 'platform.jsonc'
+        ($script:ValidGlobalConfig -replace '"tenantId": "[^"]+"', '"tenantId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"') | Set-Content -Path $global
+        '{"templateVersion":"1.0.0","resourceGroups":[]}' | Set-Content -Path $platform
+
+        { Set-PlatformResourceGroup -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*active Azure tenant*does not match*'
+    }
+
+    It 'throws when the active Azure subscription differs from global config' {
+        $global = Join-Path $TestDrive 'global-subscription-mismatch.jsonc'
+        $platform = Join-Path $TestDrive 'platform.jsonc'
+        ($script:ValidGlobalConfig -replace '"subscriptionId": "[^"]+"', '"subscriptionId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"') | Set-Content -Path $global
+        '{"templateVersion":"1.0.0","resourceGroups":[]}' | Set-Content -Path $platform
+
+        { Set-PlatformResourceGroup -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*active Azure subscription*does not match*'
+    }
 }

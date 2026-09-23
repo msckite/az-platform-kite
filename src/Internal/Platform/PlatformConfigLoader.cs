@@ -53,6 +53,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform
                     };
                 }
 
+                ValidateGlobalConfig(config);
                 return config;
             }
         }
@@ -250,6 +251,35 @@ namespace MSCKite.Azure.Platform.Internal.Platform
                 }
 
                 return environments;
+            }
+        }
+
+        private static void ValidateGlobalConfig(GlobalConfig config)
+        {
+            RequireGlobalConfigValue(config.TenantId, "tenantId");
+            RequireGlobalConfigValue(config.SubscriptionId, "subscriptionId");
+            RequireGlobalConfigValue(config.UniqueId, "uniqueId");
+            RequireGlobalConfigValue(config.ServiceShort, "serviceShort");
+            RequireGlobalConfigValue(config.DisplayName, "displayName");
+            RequireGlobalConfigValue(config.Location, "location");
+            RequireGlobalConfigValue(config.RegionCode, "regionCode");
+
+            if (config.SourceControl == null)
+            {
+                throw new InvalidOperationException("global-config.jsonc must have a \"sourceControl\" object.");
+            }
+
+            RequireGlobalConfigValue(config.SourceControl.Tool, "sourceControl.tool");
+            RequireGlobalConfigValue(config.SourceControl.Owner, "sourceControl.owner");
+            RequireGlobalConfigValue(config.SourceControl.Repository, "sourceControl.repository");
+            RequireGlobalConfigValue(config.SourceControl.BranchStrategy, "sourceControl.branchStrategy");
+        }
+
+        private static void RequireGlobalConfigValue(string value, string propertyName)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                throw new InvalidOperationException($"global-config.jsonc must have a non-empty \"{propertyName}\".");
             }
         }
 

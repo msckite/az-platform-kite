@@ -63,12 +63,13 @@ namespace MSCKite.Azure.Platform.Commands.Platform
 
             WriteVerbose($"Found {securityGroupConfigs.Count} security group(s) in platform config.");
 
-            var azureContext = AzureContextHelper.GetContext(this, out var azureMessage);
-            if (!azureContext.IsSignedIn)
+            if (!AzureContextHelper.TryGetConfiguredContext(this, globalConfig, out var azureContext, out var azureMessage))
             {
                 ThrowTerminatingError(new ErrorRecord(
                     new InvalidOperationException(azureMessage),
-                    "PlatformSecurityGroupNotSignedIn", ErrorCategory.AuthenticationError, null));
+                    azureContext.IsSignedIn ? "PlatformSecurityGroupContextMismatch" : "PlatformSecurityGroupNotSignedIn",
+                    azureContext.IsSignedIn ? ErrorCategory.SecurityError : ErrorCategory.AuthenticationError,
+                    null));
                 return;
             }
 

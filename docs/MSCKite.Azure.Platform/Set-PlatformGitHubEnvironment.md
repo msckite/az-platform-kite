@@ -43,6 +43,8 @@ The identity referenced by each environment must already exist, so
 This cmdlet supports `-WhatIf`/`-Confirm` and requires the `Az.Resources` and
 `Az.ManagedServiceIdentity` modules, signed in via `Connect-AzAccount`, and the GitHub CLI (`gh`)
 signed in with permission to manage environments, secrets, and variables on the target repository.
+The active Az context tenant and subscription must match the `tenantId` and `subscriptionId` in
+global-config.jsonc before processing begins.
 By default, each environment's result is emitted once processing finishes; under
 `-WhatIf`, `Action` reports actions that would happen instead of applying a mutation. Pass `-AsHashtable` to
 collect every result and get a single summary object instead.

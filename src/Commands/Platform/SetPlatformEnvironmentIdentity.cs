@@ -66,12 +66,13 @@ namespace MSCKite.Azure.Platform.Commands.Platform
 
             WriteVerbose($"Found {environmentConfigs.Count} environment(s) in platform config.");
 
-            var azureContext = AzureContextHelper.GetContext(this, out var azureMessage);
-            if (!azureContext.IsSignedIn)
+            if (!AzureContextHelper.TryGetConfiguredContext(this, globalConfig, out var azureContext, out var azureMessage))
             {
                 ThrowTerminatingError(new ErrorRecord(
                     new InvalidOperationException(azureMessage),
-                    "PlatformEnvironmentIdentityNotSignedIn", ErrorCategory.AuthenticationError, null));
+                    azureContext.IsSignedIn ? "PlatformEnvironmentIdentityContextMismatch" : "PlatformEnvironmentIdentityNotSignedIn",
+                    azureContext.IsSignedIn ? ErrorCategory.SecurityError : ErrorCategory.AuthenticationError,
+                    null));
                 return;
             }
 
