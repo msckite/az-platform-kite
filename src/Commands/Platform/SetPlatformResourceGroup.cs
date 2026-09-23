@@ -57,7 +57,10 @@ namespace MSCKite.Azure.Platform.Commands.Platform
             WriteVerbose($"Found {resourceGroups.Count} resource group(s) in platform config.");
 
             var placeholders = globalConfig.ToPlaceholderMap();
-            var result = new PlatformResourceGroupSyncResult();
+            var result = new PlatformResourceGroupSyncResult
+            {
+                IsWhatIf = MyInvocation.BoundParameters.ContainsKey("WhatIf")
+            };
 
             foreach (var config in resourceGroups)
             {
@@ -86,6 +89,13 @@ namespace MSCKite.Azure.Platform.Commands.Platform
                     WriteVerbose($"Resource group '{name}' does not exist yet.");
                     if (!ShouldProcess(name, "Create resource group"))
                     {
+                        result.ResourceGroups.Add(new PlatformResourceGroupActionResult
+                        {
+                            Id = config.Id,
+                            Name = name,
+                            Location = location,
+                            Action = "PlannedCreate"
+                        });
                         continue;
                     }
 
@@ -133,6 +143,13 @@ namespace MSCKite.Azure.Platform.Commands.Platform
                 WriteVerbose($"Resource group '{name}' tags have drifted from the configured values.");
                 if (!ShouldProcess(name, "Update resource group tags"))
                 {
+                    result.ResourceGroups.Add(new PlatformResourceGroupActionResult
+                    {
+                        Id = config.Id,
+                        Name = existing.Name,
+                        Location = existing.Location,
+                        Action = "PlannedUpdate"
+                    });
                     continue;
                 }
 

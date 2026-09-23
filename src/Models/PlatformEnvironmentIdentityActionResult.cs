@@ -12,10 +12,10 @@ namespace MSCKite.Azure.Platform.Models
 
         public string ClientId { get; set; }
 
-        // "Created" or "Unchanged"
+        // "Created", "Unchanged", or "PlannedCreate"
         public string Action { get; set; }
 
-        // "Created", "Updated", or "Unchanged"
+        // "Created", "Updated", "Unchanged", "PlannedCreate", or "PlannedUpdate"
         public string FederatedCredentialAction { get; set; }
 
         public List<PlatformRoleAssignmentActionResult> RoleAssignments { get; } = new List<PlatformRoleAssignmentActionResult>();

@@ -6,7 +6,7 @@ namespace MSCKite.Azure.Platform.Models
 
         public string Scope { get; set; }
 
-        // "Added" or "Unchanged"
+        // "Added", "Unchanged", or "PlannedAdd"
         public string Action { get; set; }
     }
 }

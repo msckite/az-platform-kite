@@ -43,6 +43,8 @@ The identity referenced by each environment must already exist, so
 This cmdlet supports `-WhatIf`/`-Confirm` and requires the `Az.Resources` and
 `Az.ManagedServiceIdentity` modules, signed in via `Connect-AzAccount`, and the GitHub CLI (`gh`)
 signed in with permission to manage environments, secrets, and variables on the target repository.
+With `-WhatIf`, the result has `IsWhatIf` set to `True` and reports intended mutations as planned
+actions.
 
 ## EXAMPLES
 
@@ -170,8 +172,10 @@ You can pipe the global config path or platform config path to this cmdlet by pr
 
 ### MSCKite.Azure.Platform.Models.PlatformGitHubEnvironmentSyncResult
 
-The EnvironmentCode, Name, and Action (`Created` or `Updated`) of each GitHub environment, and the
-Name and Action of every secret and variable synced.
+The `IsWhatIf` mode flag, plus the EnvironmentCode, Name, and Action of each GitHub environment,
+and the Name and Action of every secret and variable synced. Environment actions are `Created` or
+`Updated`; `-WhatIf` returns `PlannedCreate` or `PlannedUpdate`. Secret and variable actions are
+`Created`, `Updated`, or `Unchanged`; `-WhatIf` returns `PlannedCreate` or `PlannedUpdate`.
 
 ## NOTES
 

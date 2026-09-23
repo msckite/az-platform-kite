@@ -10,7 +10,7 @@ namespace MSCKite.Azure.Platform.Models
 
         public string ObjectId { get; set; }
 
-        // "Created", "Updated", or "Unchanged"
+        // "Created", "Updated", "Unchanged", "PlannedCreate", or "PlannedUpdate"
         public string Action { get; set; }
 
         public List<PlatformRoleAssignmentActionResult> RoleAssignments { get; } = new List<PlatformRoleAssignmentActionResult>();

@@ -2076,7 +2076,8 @@ Every `resourceGroupId` referenced by a role assignment must already exist, so
 
 This cmdlet supports `-WhatIf`/`-Confirm` and requires the `Az.Resources` and
 `Az.ManagedServiceIdentity` modules, signed in via `Connect-AzAccount` with permission to create
-managed identities, federated credentials, and RBAC role assignments.</maml:para>
+managed identities, federated credentials, and RBAC role assignments. With `-WhatIf`, the result
+has `IsWhatIf` set to `True` and reports intended mutations as planned actions.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem>
@@ -2173,9 +2174,12 @@ Defaults to
           <maml:name>MSCKite.Azure.Platform.Models.PlatformEnvironmentIdentitySyncResult</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para>The EnvironmentCode, IdentityName, PrincipalId, ClientId, and Action (`Created` or `Unchanged`) of
-each identity; the FederatedCredentialAction (`Created`, `Updated`, or `Unchanged`); and the Role,
-Scope, and Action of every role assignment synced.</maml:para>
+          <maml:para>The `IsWhatIf` mode flag, plus the EnvironmentCode, IdentityName, PrincipalId, ClientId, and
+Action of each identity; the FederatedCredentialAction; and the Role, Scope, and Action of every
+role assignment synced. Identity actions are `Created` or `Unchanged`; `-WhatIf` returns
+`PlannedCreate`. Federated credential actions are `Created`, `Updated`, or `Unchanged`; `-WhatIf`
+returns `PlannedCreate` or `PlannedUpdate`. Role actions are `Added` or `Unchanged`; `-WhatIf`
+returns `PlannedAdd` for an intended assignment.</maml:para>
         </maml:description>
       </command:returnValue>
     </command:returnValues>
@@ -2251,7 +2255,9 @@ The identity referenced by each environment must already exist, so
 
 This cmdlet supports `-WhatIf`/`-Confirm` and requires the `Az.Resources` and
 `Az.ManagedServiceIdentity` modules, signed in via `Connect-AzAccount`, and the GitHub CLI (`gh`)
-signed in with permission to manage environments, secrets, and variables on the target repository.</maml:para>
+signed in with permission to manage environments, secrets, and variables on the target repository.
+With `-WhatIf`, the result has `IsWhatIf` set to `True` and reports intended mutations as planned
+actions.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem>
@@ -2348,8 +2354,10 @@ Defaults to
           <maml:name>MSCKite.Azure.Platform.Models.PlatformGitHubEnvironmentSyncResult</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para>The EnvironmentCode, Name, and Action (`Created` or `Updated`) of each GitHub environment, and the
-Name and Action of every secret and variable synced.</maml:para>
+          <maml:para>The `IsWhatIf` mode flag, plus the EnvironmentCode, Name, and Action of each GitHub environment,
+and the Name and Action of every secret and variable synced. Environment actions are `Created` or
+`Updated`; `-WhatIf` returns `PlannedCreate` or `PlannedUpdate`. Secret and variable actions are
+`Created`, `Updated`, or `Unchanged`; `-WhatIf` returns `PlannedCreate` or `PlannedUpdate`.</maml:para>
         </maml:description>
       </command:returnValue>
     </command:returnValues>
@@ -2415,7 +2423,9 @@ group's location cannot be changed after creation, so a configured location that
 matches the live resource group only produces a warning.
 
 This cmdlet supports `-WhatIf`/`-Confirm` and requires the `Az.Resources` module, signed in via
-`Connect-AzAccount` with permission to create and tag resource groups in the target subscription.</maml:para>
+`Connect-AzAccount` with permission to create and tag resource groups in the target subscription.
+With `-WhatIf`, the result has `IsWhatIf` set to `True` and reports intended mutations as
+`PlannedCreate` or `PlannedUpdate` actions.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem>
@@ -2512,8 +2522,9 @@ Defaults to
           <maml:name>MSCKite.Azure.Platform.Models.PlatformResourceGroupSyncResult</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para>The Id, Name, Location, and Action (`Created`, `Updated`, or `Unchanged`) of each resource group
-processed.</maml:para>
+          <maml:para>The `IsWhatIf` mode flag, plus the Id, Name, Location, and Action of each resource group
+processed. Actions are `Created`, `Updated`, or `Unchanged`; `-WhatIf` returns `PlannedCreate` or
+`PlannedUpdate` instead of applying a mutation.</maml:para>
         </maml:description>
       </command:returnValue>
     </command:returnValues>
@@ -2585,7 +2596,8 @@ Every `resourceGroupId` referenced by a role assignment must already exist, so
 
 This cmdlet supports `-WhatIf`/`-Confirm` and requires the `Az.Resources` module, signed in via
 `Connect-AzAccount` with permission to manage Microsoft Entra security groups and assign RBAC
-roles.</maml:para>
+roles. With `-WhatIf`, the result has `IsWhatIf` set to `True` and reports intended mutations as
+planned actions.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem>
@@ -2682,9 +2694,10 @@ Defaults to
           <maml:name>MSCKite.Azure.Platform.Models.PlatformSecurityGroupSyncResult</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para>The DisplayName, MailNickName, ObjectId, and Action (`Created`, `Updated`, or `Unchanged`) of each
-security group, and the Role, Scope, and Action (`Added` or `Unchanged`) of every role assignment
-synced.</maml:para>
+          <maml:para>The `IsWhatIf` mode flag, plus the DisplayName, MailNickName, ObjectId, and Action of each
+security group, and the Role, Scope, and Action of every role assignment synced. Group actions are
+`Created`, `Updated`, or `Unchanged`; `-WhatIf` returns `PlannedCreate` or `PlannedUpdate`. Role
+actions are `Added` or `Unchanged`; `-WhatIf` returns `PlannedAdd` for an intended assignment.</maml:para>
         </maml:description>
       </command:returnValue>
     </command:returnValues>

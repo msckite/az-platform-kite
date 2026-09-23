@@ -80,7 +80,10 @@ namespace MSCKite.Azure.Platform.Commands.Platform
             var resourceGroupsById = PlatformResourceGroupResolver.Resolve(
                 this, resourceGroupConfigs, globalPlaceholders, "PlatformEnvironmentIdentityResourceGroupMissing");
 
-            var result = new PlatformEnvironmentIdentitySyncResult();
+            var result = new PlatformEnvironmentIdentitySyncResult
+            {
+                IsWhatIf = MyInvocation.BoundParameters.ContainsKey("WhatIf")
+            };
 
             foreach (var config in environmentConfigs)
             {
@@ -138,7 +141,13 @@ namespace MSCKite.Azure.Platform.Commands.Platform
                 WriteVerbose($"Identity '{identityName}' does not exist yet (or its principal isn't readable yet).");
                 if (!ShouldProcess(identityName, "Create user-assigned managed identity"))
                 {
-                    return null;
+                    return new PlatformEnvironmentIdentityActionResult
+                    {
+                        EnvironmentCode = config.EnvironmentCode,
+                        IdentityName = identityName,
+                        Action = "PlannedCreate",
+                        FederatedCredentialAction = "PlannedCreate"
+                    };
                 }
 
                 WriteVerbose($"Creating identity '{identityName}' in resource group '{resourceGroup.Name}'.");
@@ -231,7 +240,7 @@ namespace MSCKite.Azure.Platform.Commands.Platform
                 WriteVerbose($"Federated credential '{credentialName}' does not exist yet.");
                 if (!ShouldProcess(credentialName, "Create federated credential"))
                 {
-                    return null;
+                    return "PlannedCreate";
                 }
 
                 WriteVerbose($"Creating federated credential '{credentialName}' with subject '{subject}'.");
@@ -264,7 +273,7 @@ namespace MSCKite.Azure.Platform.Commands.Platform
             WriteVerbose($"Federated credential '{credentialName}' has drifted from the configured values.");
             if (!ShouldProcess(credentialName, "Update federated credential"))
             {
-                return null;
+                return "PlannedUpdate";
             }
 
             WriteVerbose($"Updating federated credential '{credentialName}'.");
@@ -311,6 +320,12 @@ namespace MSCKite.Azure.Platform.Commands.Platform
 
                 var scope = resourceGroup.ResourceId;
 
+                if (actionResult.Action == "PlannedCreate")
+                {
+                    actionResult.RoleAssignments.Add(new PlatformRoleAssignmentActionResult { Role = role, Scope = scope, Action = "PlannedAdd" });
+                    continue;
+                }
+
                 if (AzureRoleAssignmentHelper.Exists(this, actionResult.PrincipalId, scope, role))
                 {
                     WriteVerbose($"Identity '{actionResult.IdentityName}' already has role '{role}' at scope '{scope}'.");
@@ -320,6 +335,7 @@ namespace MSCKite.Azure.Platform.Commands.Platform
 
                 if (!ShouldProcess(actionResult.IdentityName, $"Assign role '{role}' at scope '{scope}'"))
                 {
+                    actionResult.RoleAssignments.Add(new PlatformRoleAssignmentActionResult { Role = role, Scope = scope, Action = "PlannedAdd" });
                     continue;
                 }
 

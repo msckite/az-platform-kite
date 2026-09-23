@@ -45,7 +45,8 @@ Every `resourceGroupId` referenced by a role assignment must already exist, so
 
 This cmdlet supports `-WhatIf`/`-Confirm` and requires the `Az.Resources` and
 `Az.ManagedServiceIdentity` modules, signed in via `Connect-AzAccount` with permission to create
-managed identities, federated credentials, and RBAC role assignments.
+managed identities, federated credentials, and RBAC role assignments. With `-WhatIf`, the result
+has `IsWhatIf` set to `True` and reports intended mutations as planned actions.
 
 ## EXAMPLES
 
@@ -173,9 +174,12 @@ You can pipe the global config path or platform config path to this cmdlet by pr
 
 ### MSCKite.Azure.Platform.Models.PlatformEnvironmentIdentitySyncResult
 
-The EnvironmentCode, IdentityName, PrincipalId, ClientId, and Action (`Created` or `Unchanged`) of
-each identity; the FederatedCredentialAction (`Created`, `Updated`, or `Unchanged`); and the Role,
-Scope, and Action of every role assignment synced.
+The `IsWhatIf` mode flag, plus the EnvironmentCode, IdentityName, PrincipalId, ClientId, and
+Action of each identity; the FederatedCredentialAction; and the Role, Scope, and Action of every
+role assignment synced. Identity actions are `Created` or `Unchanged`; `-WhatIf` returns
+`PlannedCreate`. Federated credential actions are `Created`, `Updated`, or `Unchanged`; `-WhatIf`
+returns `PlannedCreate` or `PlannedUpdate`. Role actions are `Added` or `Unchanged`; `-WhatIf`
+returns `PlannedAdd` for an intended assignment.
 
 ## NOTES
 

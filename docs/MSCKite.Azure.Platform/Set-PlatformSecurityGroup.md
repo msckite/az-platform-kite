@@ -43,7 +43,8 @@ Every `resourceGroupId` referenced by a role assignment must already exist, so
 
 This cmdlet supports `-WhatIf`/`-Confirm` and requires the `Az.Resources` module, signed in via
 `Connect-AzAccount` with permission to manage Microsoft Entra security groups and assign RBAC
-roles.
+roles. With `-WhatIf`, the result has `IsWhatIf` set to `True` and reports intended mutations as
+planned actions.
 
 ## EXAMPLES
 
@@ -171,9 +172,10 @@ You can pipe the global config path or platform config path to this cmdlet by pr
 
 ### MSCKite.Azure.Platform.Models.PlatformSecurityGroupSyncResult
 
-The DisplayName, MailNickName, ObjectId, and Action (`Created`, `Updated`, or `Unchanged`) of each
-security group, and the Role, Scope, and Action (`Added` or `Unchanged`) of every role assignment
-synced.
+The `IsWhatIf` mode flag, plus the DisplayName, MailNickName, ObjectId, and Action of each
+security group, and the Role, Scope, and Action of every role assignment synced. Group actions are
+`Created`, `Updated`, or `Unchanged`; `-WhatIf` returns `PlannedCreate` or `PlannedUpdate`. Role
+actions are `Added` or `Unchanged`; `-WhatIf` returns `PlannedAdd` for an intended assignment.
 
 ## NOTES
 

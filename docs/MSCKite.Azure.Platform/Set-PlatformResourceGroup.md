@@ -37,6 +37,8 @@ matches the live resource group only produces a warning.
 
 This cmdlet supports `-WhatIf`/`-Confirm` and requires the `Az.Resources` module, signed in via
 `Connect-AzAccount` with permission to create and tag resource groups in the target subscription.
+With `-WhatIf`, the result has `IsWhatIf` set to `True` and reports intended mutations as
+`PlannedCreate` or `PlannedUpdate` actions.
 
 ## EXAMPLES
 
@@ -164,8 +166,9 @@ You can pipe the global config path or platform config path to this cmdlet by pr
 
 ### MSCKite.Azure.Platform.Models.PlatformResourceGroupSyncResult
 
-The Id, Name, Location, and Action (`Created`, `Updated`, or `Unchanged`) of each resource group
-processed.
+The `IsWhatIf` mode flag, plus the Id, Name, Location, and Action of each resource group
+processed. Actions are `Created`, `Updated`, or `Unchanged`; `-WhatIf` returns `PlannedCreate` or
+`PlannedUpdate` instead of applying a mutation.
 
 ## NOTES
 

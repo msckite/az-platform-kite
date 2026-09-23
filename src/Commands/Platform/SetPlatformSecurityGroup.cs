@@ -62,7 +62,10 @@ namespace MSCKite.Azure.Platform.Commands.Platform
             // Resolve every resourceGroupId referenced anywhere in this config up front, so a missing phase-1 resource group fails fast with a clear message
             var scopesById = ResolveResourceGroupScopes(resourceGroupConfigs, placeholders);
 
-            var result = new PlatformSecurityGroupSyncResult();
+            var result = new PlatformSecurityGroupSyncResult
+            {
+                IsWhatIf = MyInvocation.BoundParameters.ContainsKey("WhatIf")
+            };
 
             foreach (var config in securityGroupConfigs)
             {
@@ -120,7 +123,12 @@ namespace MSCKite.Azure.Platform.Commands.Platform
                 WriteVerbose($"Security group '{mailNickName}' does not exist yet.");
                 if (!ShouldProcess(mailNickName, "Create security group"))
                 {
-                    return null;
+                    return new PlatformSecurityGroupActionResult
+                    {
+                        DisplayName = displayName,
+                        MailNickName = mailNickName,
+                        Action = "PlannedCreate"
+                    };
                 }
 
                 WriteVerbose($"Creating security group '{mailNickName}'.");
@@ -175,7 +183,13 @@ namespace MSCKite.Azure.Platform.Commands.Platform
             WriteVerbose($"Security group '{mailNickName}' display name or description has drifted from the configured values.");
             if (!ShouldProcess(mailNickName, "Update security group"))
             {
-                return null;
+                return new PlatformSecurityGroupActionResult
+                {
+                    DisplayName = displayName,
+                    MailNickName = existing.MailNickname,
+                    ObjectId = existing.Id,
+                    Action = "PlannedUpdate"
+                };
             }
 
             WriteVerbose($"Updating security group '{mailNickName}'.");
@@ -216,6 +230,12 @@ namespace MSCKite.Azure.Platform.Commands.Platform
                     continue;
                 }
 
+                if (actionResult.Action == "PlannedCreate")
+                {
+                    actionResult.RoleAssignments.Add(new PlatformRoleAssignmentActionResult { Role = role, Scope = scope, Action = "PlannedAdd" });
+                    continue;
+                }
+
                 if (AzureRoleAssignmentHelper.Exists(this, actionResult.ObjectId, scope, role))
                 {
                     WriteVerbose($"Security group '{actionResult.MailNickName}' already has role '{role}' at scope '{scope}'.");
@@ -225,6 +245,7 @@ namespace MSCKite.Azure.Platform.Commands.Platform
 
                 if (!ShouldProcess(actionResult.MailNickName, $"Assign role '{role}' at scope '{scope}'"))
                 {
+                    actionResult.RoleAssignments.Add(new PlatformRoleAssignmentActionResult { Role = role, Scope = scope, Action = "PlannedAdd" });
                     continue;
                 }
 

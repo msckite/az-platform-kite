@@ -75,7 +75,10 @@ namespace MSCKite.Azure.Platform.Commands.Platform
             var resourceGroupsById = PlatformResourceGroupResolver.Resolve(
                 this, resourceGroupConfigs, globalPlaceholders, "PlatformGitHubEnvironmentResourceGroupMissing");
 
-            var result = new PlatformGitHubEnvironmentSyncResult();
+            var result = new PlatformGitHubEnvironmentSyncResult
+            {
+                IsWhatIf = MyInvocation.BoundParameters.ContainsKey("WhatIf")
+            };
 
             foreach (var config in environmentConfigs)
             {
@@ -177,7 +180,12 @@ namespace MSCKite.Azure.Platform.Commands.Platform
 
             if (!ShouldProcess(name, existed ? "Update GitHub environment" : "Create GitHub environment"))
             {
-                return null;
+                return new PlatformGitHubEnvironmentActionResult
+                {
+                    EnvironmentCode = config.EnvironmentCode,
+                    Name = name,
+                    Action = existed ? "PlannedUpdate" : "PlannedCreate"
+                };
             }
 
             WriteVerbose($"Applying protection rules to GitHub environment '{name}' (wait timer {githubConfig.WaitTimerMinutes}m, {reviewers.Count} reviewer(s)).");
@@ -224,6 +232,7 @@ namespace MSCKite.Azure.Platform.Commands.Platform
 
                 if (!ShouldProcess($"{actionResult.Name}/{name}", "Set secret"))
                 {
+                    actionResult.Secrets.Add(new PlatformKeyValueActionResult { Name = name, Action = existingNames.Contains(name) ? "PlannedUpdate" : "PlannedCreate" });
                     continue;
                 }
 
@@ -274,6 +283,7 @@ namespace MSCKite.Azure.Platform.Commands.Platform
 
                 if (!ShouldProcess($"{actionResult.Name}/{name}", "Set variable"))
                 {
+                    actionResult.Variables.Add(new PlatformKeyValueActionResult { Name = name, Action = existed ? "PlannedUpdate" : "PlannedCreate" });
                     continue;
                 }
 
