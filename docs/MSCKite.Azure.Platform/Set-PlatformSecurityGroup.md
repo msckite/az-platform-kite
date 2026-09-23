@@ -32,7 +32,7 @@ Set-PlatformSecurityGroup [[-GlobalConfigPath] <string>] [[-PlatformConfigPath] 
 Phase 2 of the platform-config.jsonc provisioning workflow.
 Reads the `securityGroups` array,
 resolves `${placeholder}` tokens against global-config.jsonc, and creates any security group
-(matched by `mailNickName`) that doesn't exist yet, or updates its display name/description if
+(matched by `mailNickname`) that doesn't exist yet, or updates its display name/description if
 they've drifted. A newly created group is not used until its principal is confirmed readable, to
 absorb Microsoft Entra's directory propagation delay. Each group's `roleAssignments` are then
 resolved against the resource groups created in phase 1 and any role the group doesn't already
@@ -200,7 +200,7 @@ You can pipe the global config path or platform config path to this cmdlet by pr
 ### MSCKite.Azure.Platform.Models.PlatformSecurityGroupActionResult
 
 Emitted once processing finishes (the default). Has the
-DisplayName, MailNickName, ObjectId, and Action of the security group, and the Role, Scope, and
+DisplayName, MailNickname, ObjectId, and Action of the security group, and the Role, Scope, and
 Action of every role assignment synced. Group actions are `Created`, `Updated`, or `Unchanged`;
 `-WhatIf` returns `WouldCreate` or `WouldUpdate`. Role actions are `Added` or `Unchanged`;
 `-WhatIf` returns `WouldAdd` for an intended assignment.

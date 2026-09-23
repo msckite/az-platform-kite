@@ -6,7 +6,7 @@ namespace MSCKite.Azure.Platform.Models
     {
         public string DisplayName { get; set; }
 
-        public string MailNickName { get; set; }
+        public string MailNickname { get; set; }
 
         public string ObjectId { get; set; }
 

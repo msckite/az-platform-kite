@@ -57,20 +57,20 @@ Describe 'Set-PlatformSecurityGroup' {
         { Set-PlatformSecurityGroup -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*must contain a "securityGroups" array*'
     }
 
-    It 'throws when a security group is missing a mailNickName' {
+    It 'throws when a security group is missing a mailNickname' {
         $global = Join-Path $TestDrive 'global.jsonc'
         $platform = Join-Path $TestDrive 'platform-nomail.jsonc'
         $script:ValidGlobalConfig | Set-Content -Path $global
         '{"templateVersion":"1.0.0","resourceGroups":[],"securityGroups":[{"displayName":"Devs","roleAssignments":[{"role":"Contributor","resourceGroupId":"dev"}]}]}' | Set-Content -Path $platform
 
-        { Set-PlatformSecurityGroup -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*must have a non-empty "mailNickName"*'
+        { Set-PlatformSecurityGroup -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*must have a non-empty "mailNickname"*'
     }
 
     It 'throws when a security group has no roleAssignments' {
         $global = Join-Path $TestDrive 'global.jsonc'
         $platform = Join-Path $TestDrive 'platform-noroles.jsonc'
         $script:ValidGlobalConfig | Set-Content -Path $global
-        '{"templateVersion":"1.0.0","resourceGroups":[],"securityGroups":[{"displayName":"Devs","mailNickName":"sg-devs","roleAssignments":[]}]}' | Set-Content -Path $platform
+        '{"templateVersion":"1.0.0","resourceGroups":[],"securityGroups":[{"displayName":"Devs","mailNickname":"sg-devs","roleAssignments":[]}]}' | Set-Content -Path $platform
 
         { Set-PlatformSecurityGroup -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*must have a non-empty "roleAssignments" array*'
     }
@@ -79,7 +79,7 @@ Describe 'Set-PlatformSecurityGroup' {
         $global = Join-Path $TestDrive 'global.jsonc'
         $platform = Join-Path $TestDrive 'platform-badplaceholder.jsonc'
         $script:ValidGlobalConfig | Set-Content -Path $global
-        '{"templateVersion":"1.0.0","resourceGroups":[],"securityGroups":[{"displayName":"SG ${bogus}","mailNickName":"sg-devs","roleAssignments":[{"role":"Contributor","resourceGroupId":"dev"}]}]}' | Set-Content -Path $platform
+        '{"templateVersion":"1.0.0","resourceGroups":[],"securityGroups":[{"displayName":"SG ${bogus}","mailNickname":"sg-devs","roleAssignments":[{"role":"Contributor","resourceGroupId":"dev"}]}]}' | Set-Content -Path $platform
 
         { Set-PlatformSecurityGroup -GlobalConfigPath $global -PlatformConfigPath $platform -ErrorAction Stop } | Should -Throw '*Unresolved placeholder*bogus*'
     }
@@ -95,7 +95,7 @@ Describe 'Set-PlatformSecurityGroup' {
     { "id": "dev", "name": "rg-does-not-exist-msckite-tests-zzz", "location": "westeurope" }
   ],
   "securityGroups": [
-    { "displayName": "SG Devs", "mailNickName": "sg-msckite-tests-devs", "roleAssignments": [ { "role": "Contributor", "resourceGroupId": "dev" } ] }
+    { "displayName": "SG Devs", "mailNickname": "sg-msckite-tests-devs", "roleAssignments": [ { "role": "Contributor", "resourceGroupId": "dev" } ] }
   ]
 }
 '@ | Set-Content -Path $platform

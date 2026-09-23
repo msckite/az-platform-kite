@@ -34,7 +34,7 @@
           <ListEntry>
             <ListItems>
               <ListItem><PropertyName>DisplayName</PropertyName></ListItem>
-              <ListItem><PropertyName>MailNickName</PropertyName></ListItem>
+              <ListItem><PropertyName>MailNickname</PropertyName></ListItem>
               <ListItem><PropertyName>ObjectId</PropertyName></ListItem>
               <ListItem><PropertyName>Action</PropertyName></ListItem>
               <ListItem><PropertyName>RoleAssignments</PropertyName></ListItem>

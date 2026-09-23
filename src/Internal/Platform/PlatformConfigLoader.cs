@@ -149,22 +149,22 @@ namespace MSCKite.Azure.Platform.Internal.Platform
                 foreach (var element in arrayElement.EnumerateArray())
                 {
                     var displayName = GetString(element, "displayName");
-                    var mailNickName = GetString(element, "mailNickName");
+                    var mailNickname = GetString(element, "mailNickname");
 
                     if (string.IsNullOrWhiteSpace(displayName))
                     {
                         throw new InvalidOperationException("Each security group must have a non-empty \"displayName\".");
                     }
 
-                    if (string.IsNullOrWhiteSpace(mailNickName))
+                    if (string.IsNullOrWhiteSpace(mailNickname))
                     {
-                        throw new InvalidOperationException($"Security group '{displayName}' must have a non-empty \"mailNickName\".");
+                        throw new InvalidOperationException($"Security group '{displayName}' must have a non-empty \"mailNickname\".");
                     }
 
                     var securityGroup = new PlatformSecurityGroupConfig
                     {
                         DisplayName = displayName,
-                        MailNickName = mailNickName,
+                        MailNickname = mailNickname,
                         Description = GetString(element, "description") ?? string.Empty
                     };
 

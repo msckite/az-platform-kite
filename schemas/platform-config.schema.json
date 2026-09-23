@@ -127,7 +127,7 @@
       "additionalProperties": false,
       "required": [
         "displayName",
-        "mailNickName",
+        "mailNickname",
         "roleAssignments"
       ],
       "properties": {
@@ -136,7 +136,7 @@
           "type": "string",
           "minLength": 1
         },
-        "mailNickName": {
+        "mailNickname": {
           "description": "Mail nickname (alias) of the security group.",
           "type": "string",
           "minLength": 1

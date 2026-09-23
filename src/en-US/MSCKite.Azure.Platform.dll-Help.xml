@@ -2832,8 +2832,11 @@ Every `resourceGroupId` referenced by a role assignment must already exist, so
 
 This cmdlet supports `-WhatIf`/`-Confirm` and requires the `Az.Resources` and
 `Az.ManagedServiceIdentity` modules, signed in via `Connect-AzAccount` with permission to create
-managed identities, federated credentials, and RBAC role assignments. By default, each
-environment's result is emitted once processing finishes; under `-WhatIf`,
+managed identities, federated credentials, and RBAC role assignments. The active Az context
+tenant and subscription must match the `tenantId` and `subscriptionId` in global-config.jsonc
+before processing begins.
+
+By default, each environment's result is emitted once processing finishes; under `-WhatIf`,
 `Action` reports actions that would happen instead of applying a mutation. Pass `-AsHashtable` to collect
 every result and get a single summary object instead.</maml:para>
     </maml:description>
@@ -3043,6 +3046,8 @@ The identity referenced by each environment must already exist, so
 This cmdlet supports `-WhatIf`/`-Confirm` and requires the `Az.Resources` and
 `Az.ManagedServiceIdentity` modules, signed in via `Connect-AzAccount`, and the GitHub CLI (`gh`)
 signed in with permission to manage environments, secrets, and variables on the target repository.
+The active Az context tenant and subscription must match the `tenantId` and `subscriptionId` in
+global-config.jsonc before processing begins.
 By default, each environment's result is emitted once processing finishes; under
 `-WhatIf`, `Action` reports actions that would happen instead of applying a mutation. Pass `-AsHashtable` to
 collect every result and get a single summary object instead.</maml:para>
@@ -3241,6 +3246,8 @@ matches the live resource group only produces a warning.
 
 This cmdlet supports `-WhatIf`/`-Confirm` and requires the `Az.Resources` module, signed in via
 `Connect-AzAccount` with permission to create and tag resource groups in the target subscription.
+The active Az context tenant and subscription must match the `tenantId` and `subscriptionId` in
+global-config.jsonc before processing begins.
 By default, each resource group's result is emitted once processing finishes; under `-WhatIf`,
 `Action` reports `WouldCreate` or `WouldUpdate` instead of applying a mutation. Pass
 `-AsHashtable` to collect every result and get a single summary object instead.</maml:para>
@@ -3431,7 +3438,7 @@ assigns their RBAC roles against the resource groups from phase 1.</maml:para>
       <maml:para>Phase 2 of the platform-config.jsonc provisioning workflow.
 Reads the `securityGroups` array,
 resolves `${placeholder}` tokens against global-config.jsonc, and creates any security group
-(matched by `mailNickName`) that doesn't exist yet, or updates its display name/description if
+(matched by `mailNickname`) that doesn't exist yet, or updates its display name/description if
 they've drifted. A newly created group is not used until its principal is confirmed readable, to
 absorb Microsoft Entra's directory propagation delay. Each group's `roleAssignments` are then
 resolved against the resource groups created in phase 1 and any role the group doesn't already
@@ -3442,7 +3449,10 @@ Every `resourceGroupId` referenced by a role assignment must already exist, so
 
 This cmdlet supports `-WhatIf`/`-Confirm` and requires the `Az.Resources` module, signed in via
 `Connect-AzAccount` with permission to manage Microsoft Entra security groups and assign RBAC
-roles. By default, each security group's result is emitted once processing finishes; under
+roles. The active Az context tenant and subscription must match the `tenantId` and `subscriptionId`
+in global-config.jsonc before processing begins.
+
+By default, each security group's result is emitted once processing finishes; under
 `-WhatIf`, `Action` reports actions that would happen instead of applying a mutation. Pass
 `-AsHashtable` to collect every result and get a single summary object instead.</maml:para>
     </maml:description>
@@ -3560,7 +3570,7 @@ Defaults to
         </dev:type>
         <maml:description>
           <maml:para>Emitted once processing finishes (the default). Has the
-DisplayName, MailNickName, ObjectId, and Action of the security group, and the Role, Scope, and
+DisplayName, MailNickname, ObjectId, and Action of the security group, and the Role, Scope, and
 Action of every role assignment synced. Group actions are `Created`, `Updated`, or `Unchanged`;
 `-WhatIf` returns `WouldCreate` or `WouldUpdate`. Role actions are `Added` or `Unchanged`;
 `-WhatIf` returns `WouldAdd` for an intended assignment.</maml:para>
