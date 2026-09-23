@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Management.Automation;
@@ -12,7 +13,8 @@ namespace MSCKite.Azure.Platform.Commands.Platform
 {
     // Phase 2: creates or updates the Microsoft Entra security groups declared in platform-config.jsonc, and assigns their RBAC roles against the resource groups from phase 1
     [Cmdlet(VerbsCommon.Set, "PlatformSecurityGroup", SupportsShouldProcess = true, ConfirmImpact = ConfirmImpact.Medium)]
-    [OutputType(typeof(PlatformSecurityGroupSyncResult))]
+    [OutputType(typeof(PlatformSecurityGroupActionResult))]
+    [OutputType(typeof(Hashtable))]
     public class SetPlatformSecurityGroup : PSCmdlet
     {
         private static readonly PowerShellModule[] RequiredModules = {
@@ -26,6 +28,10 @@ namespace MSCKite.Azure.Platform.Commands.Platform
         [Parameter(Position = 1, ValueFromPipelineByPropertyName = true)]
         [ValidateNotNullOrEmpty]
         public string PlatformConfigPath { get; set; } = Path.Combine("config", "platform-config.jsonc");
+
+        // Collects every result in memory and emits a single summary Hashtable at the end, instead of streaming each result as it's created
+        [Parameter]
+        public SwitchParameter AsHashtable { get; set; }
 
         protected override void BeginProcessing()
         {
@@ -57,15 +63,21 @@ namespace MSCKite.Azure.Platform.Commands.Platform
 
             WriteVerbose($"Found {securityGroupConfigs.Count} security group(s) in platform config.");
 
+            var azureContext = AzureContextHelper.GetContext(this, out var azureMessage);
+            if (!azureContext.IsSignedIn)
+            {
+                ThrowTerminatingError(new ErrorRecord(
+                    new InvalidOperationException(azureMessage),
+                    "PlatformSecurityGroupNotSignedIn", ErrorCategory.AuthenticationError, null));
+                return;
+            }
+
             var placeholders = globalConfig.ToPlaceholderMap();
 
             // Resolve every resourceGroupId referenced anywhere in this config up front, so a missing phase-1 resource group fails fast with a clear message
             var scopesById = ResolveResourceGroupScopes(resourceGroupConfigs, placeholders);
 
-            var result = new PlatformSecurityGroupSyncResult
-            {
-                IsWhatIf = MyInvocation.BoundParameters.ContainsKey("WhatIf")
-            };
+            var items = new List<PlatformSecurityGroupActionResult>();
 
             foreach (var config in securityGroupConfigs)
             {
@@ -91,11 +103,26 @@ namespace MSCKite.Azure.Platform.Commands.Platform
                 }
 
                 SyncRoleAssignments(actionResult, config, scopesById, placeholders);
-                result.SecurityGroups.Add(actionResult);
+                items.Add(actionResult);
             }
 
-            WriteVerbose($"Done. Processed {result.SecurityGroups.Count} of {securityGroupConfigs.Count} security group(s).");
-            WriteObject(result);
+            WriteVerbose($"Done. Processed {items.Count} of {securityGroupConfigs.Count} security group(s).");
+            if (AsHashtable.IsPresent)
+            {
+                WriteObject(new Hashtable
+                {
+                    ["IsWhatIf"] = MyInvocation.BoundParameters.ContainsKey("WhatIf"),
+                    ["Count"] = items.Count,
+                    ["SecurityGroups"] = items
+                });
+            }
+            else
+            {
+                foreach (var item in items)
+                {
+                    WriteObject(item);
+                }
+            }
         }
 
         // Builds a map of resourceGroupId -> ARM resource ID, verifying every referenced resource group already exists (phase 1 must have run)
@@ -127,7 +154,7 @@ namespace MSCKite.Azure.Platform.Commands.Platform
                     {
                         DisplayName = displayName,
                         MailNickName = mailNickName,
-                        Action = "PlannedCreate"
+                        Action = "WouldCreate"
                     };
                 }
 
@@ -188,7 +215,7 @@ namespace MSCKite.Azure.Platform.Commands.Platform
                     DisplayName = displayName,
                     MailNickName = existing.MailNickname,
                     ObjectId = existing.Id,
-                    Action = "PlannedUpdate"
+                    Action = "WouldUpdate"
                 };
             }
 
@@ -230,9 +257,9 @@ namespace MSCKite.Azure.Platform.Commands.Platform
                     continue;
                 }
 
-                if (actionResult.Action == "PlannedCreate")
+                if (actionResult.Action == "WouldCreate")
                 {
-                    actionResult.RoleAssignments.Add(new PlatformRoleAssignmentActionResult { Role = role, Scope = scope, Action = "PlannedAdd" });
+                    actionResult.RoleAssignments.Add(new PlatformRoleAssignmentActionResult { Role = role, Scope = scope, Action = "WouldAdd" });
                     continue;
                 }
 
@@ -245,7 +272,7 @@ namespace MSCKite.Azure.Platform.Commands.Platform
 
                 if (!ShouldProcess(actionResult.MailNickName, $"Assign role '{role}' at scope '{scope}'"))
                 {
-                    actionResult.RoleAssignments.Add(new PlatformRoleAssignmentActionResult { Role = role, Scope = scope, Action = "PlannedAdd" });
+                    actionResult.RoleAssignments.Add(new PlatformRoleAssignmentActionResult { Role = role, Scope = scope, Action = "WouldAdd" });
                     continue;
                 }
 

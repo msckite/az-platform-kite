@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Management.Automation;
@@ -13,7 +14,8 @@ namespace MSCKite.Azure.Platform.Commands.Platform
 {
     // Phase 4: creates or updates each environment's GitHub deployment environment declared in platform-config.jsonc (protection rules, secrets, and variables)
     [Cmdlet(VerbsCommon.Set, "PlatformGitHubEnvironment", SupportsShouldProcess = true, ConfirmImpact = ConfirmImpact.Medium)]
-    [OutputType(typeof(PlatformGitHubEnvironmentSyncResult))]
+    [OutputType(typeof(PlatformGitHubEnvironmentActionResult))]
+    [OutputType(typeof(Hashtable))]
     public class SetPlatformGitHubEnvironment : PSCmdlet
     {
         private static readonly PowerShellModule[] RequiredModules = {
@@ -28,6 +30,10 @@ namespace MSCKite.Azure.Platform.Commands.Platform
         [Parameter(Position = 1, ValueFromPipelineByPropertyName = true)]
         [ValidateNotNullOrEmpty]
         public string PlatformConfigPath { get; set; } = Path.Combine("config", "platform-config.jsonc");
+
+        // Collects every result in memory and emits a single summary Hashtable at the end, instead of streaming each result as it's created
+        [Parameter]
+        public SwitchParameter AsHashtable { get; set; }
 
         protected override void BeginProcessing()
         {
@@ -69,16 +75,22 @@ namespace MSCKite.Azure.Platform.Commands.Platform
                 return;
             }
 
+            var azureContext = AzureContextHelper.GetContext(this, out var azureMessage);
+            if (!azureContext.IsSignedIn)
+            {
+                ThrowTerminatingError(new ErrorRecord(
+                    new InvalidOperationException(azureMessage),
+                    "PlatformGitHubEnvironmentNotSignedIn", ErrorCategory.AuthenticationError, null));
+                return;
+            }
+
             var globalPlaceholders = globalConfig.ToPlaceholderMap();
 
             // Resolve every resourceGroupId referenced anywhere in this config up front, so a missing phase-1 resource group fails fast with a clear message
             var resourceGroupsById = PlatformResourceGroupResolver.Resolve(
                 this, resourceGroupConfigs, globalPlaceholders, "PlatformGitHubEnvironmentResourceGroupMissing");
 
-            var result = new PlatformGitHubEnvironmentSyncResult
-            {
-                IsWhatIf = MyInvocation.BoundParameters.ContainsKey("WhatIf")
-            };
+            var items = new List<PlatformGitHubEnvironmentActionResult>();
 
             foreach (var config in environmentConfigs)
             {
@@ -106,11 +118,26 @@ namespace MSCKite.Azure.Platform.Commands.Platform
 
                 SyncSecrets(actionResult, config.GitHubEnvironment, owner, repository, placeholders);
                 SyncVariables(actionResult, config.GitHubEnvironment, owner, repository, placeholders);
-                result.Environments.Add(actionResult);
+                items.Add(actionResult);
             }
 
-            WriteVerbose($"Done. Processed {result.Environments.Count} of {environmentConfigs.Count} environment(s).");
-            WriteObject(result);
+            WriteVerbose($"Done. Processed {items.Count} of {environmentConfigs.Count} environment(s).");
+            if (AsHashtable.IsPresent)
+            {
+                WriteObject(new Hashtable
+                {
+                    ["IsWhatIf"] = MyInvocation.BoundParameters.ContainsKey("WhatIf"),
+                    ["Count"] = items.Count,
+                    ["Environments"] = items
+                });
+            }
+            else
+            {
+                foreach (var item in items)
+                {
+                    WriteObject(item);
+                }
+            }
         }
 
         // Adds "${clientId}" to the placeholder map by reading the identity created in phase 3; reports a clear error if that phase hasn't run yet
@@ -184,7 +211,7 @@ namespace MSCKite.Azure.Platform.Commands.Platform
                 {
                     EnvironmentCode = config.EnvironmentCode,
                     Name = name,
-                    Action = existed ? "PlannedUpdate" : "PlannedCreate"
+                    Action = existed ? "WouldUpdate" : "WouldCreate"
                 };
             }
 
@@ -232,7 +259,7 @@ namespace MSCKite.Azure.Platform.Commands.Platform
 
                 if (!ShouldProcess($"{actionResult.Name}/{name}", "Set secret"))
                 {
-                    actionResult.Secrets.Add(new PlatformKeyValueActionResult { Name = name, Action = existingNames.Contains(name) ? "PlannedUpdate" : "PlannedCreate" });
+                    actionResult.Secrets.Add(new PlatformKeyValueActionResult { Name = name, Action = existingNames.Contains(name) ? "WouldUpdate" : "WouldCreate" });
                     continue;
                 }
 
@@ -283,7 +310,7 @@ namespace MSCKite.Azure.Platform.Commands.Platform
 
                 if (!ShouldProcess($"{actionResult.Name}/{name}", "Set variable"))
                 {
-                    actionResult.Variables.Add(new PlatformKeyValueActionResult { Name = name, Action = existed ? "PlannedUpdate" : "PlannedCreate" });
+                    actionResult.Variables.Add(new PlatformKeyValueActionResult { Name = name, Action = existed ? "WouldUpdate" : "WouldCreate" });
                     continue;
                 }
 

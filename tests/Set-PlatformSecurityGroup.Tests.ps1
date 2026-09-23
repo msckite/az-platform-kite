@@ -10,6 +10,17 @@ Describe 'Set-PlatformSecurityGroup' {
 
         Import-Module $modulePath -Force
 
+        # Shadows the real Az.Accounts cmdlet so the cmdlet's sign-in check passes without a real Azure login;
+        # the underlying Az.Resources cmdlets still run for real and no-op gracefully when unauthenticated
+        function Get-AzContext {
+            [PSCustomObject]@{
+                Account      = [PSCustomObject]@{ Id = 'tester@example.com' }
+                Tenant       = [PSCustomObject]@{ Id = '11111111-1111-1111-1111-111111111111' }
+                Subscription = [PSCustomObject]@{ Id = '22222222-2222-2222-2222-222222222222'; Name = 'Test Subscription' }
+                Environment  = [PSCustomObject]@{ Name = 'AzureCloud' }
+            }
+        }
+
         $script:ValidGlobalConfig = @'
 {
   "templateVersion": "1.0.0",

@@ -4,7 +4,7 @@ external help file: MSCKite.Azure.Platform.dll-Help.xml
 HelpUri: ''
 Locale: en-NL
 Module Name: MSCKite.Azure.Platform
-ms.date: 09/15/2026
+ms.date: 09/23/2026
 PlatyPS schema version: 2024-05-01
 title: Disconnect-AdoOrganization
 ---
@@ -60,4 +60,3 @@ The context that was disconnected, or `$null` if the session was already disconn
 ## RELATED LINKS
 
 - [Connect-AdoOrganization](https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Connect-AdoOrganization.md)
-

@@ -4,7 +4,7 @@ external help file: MSCKite.Azure.Platform.dll-Help.xml
 HelpUri: ''
 Locale: en-NL
 Module Name: MSCKite.Azure.Platform
-ms.date: 09/15/2026
+ms.date: 09/23/2026
 PlatyPS schema version: 2024-05-01
 title: New-PlatformConfigStructure
 ---
@@ -109,6 +109,48 @@ default `global-config.jsonc` template is generated instead.
 Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
 When omitted, a
 default `global-config.jsonc` template is generated instead.
+Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
+When omitted, a
+default `global-config.jsonc` template is generated instead.
+Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
+When omitted, a
+default `global-config.jsonc` template is generated instead.
+Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
+When omitted, a
+default `global-config.jsonc` template is generated instead.
+Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
+When omitted, a
+default `global-config.jsonc` template is generated instead.
+Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
+When omitted, a
+default `global-config.jsonc` template is generated instead.
+Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
+When omitted, a
+default `global-config.jsonc` template is generated instead.
+Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
+When omitted, a
+default `global-config.jsonc` template is generated instead.
+Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
+When omitted, a
+default `global-config.jsonc` template is generated instead.
+Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
+When omitted, a
+default `global-config.jsonc` template is generated instead.
+Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
+When omitted, a
+default `global-config.jsonc` template is generated instead.
+Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
+When omitted, a
+default `global-config.jsonc` template is generated instead.
+Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
+When omitted, a
+default `global-config.jsonc` template is generated instead.
+Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
+When omitted, a
+default `global-config.jsonc` template is generated instead.
+Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
+When omitted, a
+default `global-config.jsonc` template is generated instead.
 
 ```yaml
 Type: System.String
@@ -130,6 +172,34 @@ HelpMessage: ''
 ### -OutputFolder
 
 Destination folder for the platform configuration structure. Defaults to `config`.
+Destination folder for the platform configuration structure.
+Defaults to `config`.
+Destination folder for the platform configuration structure.
+Defaults to `config`.
+Destination folder for the platform configuration structure.
+Defaults to `config`.
+Destination folder for the platform configuration structure.
+Defaults to `config`.
+Destination folder for the platform configuration structure.
+Defaults to `config`.
+Destination folder for the platform configuration structure.
+Defaults to `config`.
+Destination folder for the platform configuration structure.
+Defaults to `config`.
+Destination folder for the platform configuration structure.
+Defaults to `config`.
+Destination folder for the platform configuration structure.
+Defaults to `config`.
+Destination folder for the platform configuration structure.
+Defaults to `config`.
+Destination folder for the platform configuration structure.
+Defaults to `config`.
+Destination folder for the platform configuration structure.
+Defaults to `config`.
+Destination folder for the platform configuration structure.
+Defaults to `config`.
+Destination folder for the platform configuration structure.
+Defaults to `config`.
 Destination folder for the platform configuration structure.
 Defaults to `config`.
 
@@ -198,4 +268,3 @@ whether scaffolding succeeded.
 
 - [Get-PlatformTemplate](https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Get-PlatformTemplate.md)
 - [Test-PlatformTemplate](https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Test-PlatformTemplate.md)
-

@@ -1,10 +1,10 @@
----
+﻿---
 document type: cmdlet
 external help file: MSCKite.Azure.Platform.dll-Help.xml
 HelpUri: ''
 Locale: en-NL
 Module Name: MSCKite.Azure.Platform
-ms.date: 09/20/2026
+ms.date: 09/23/2026
 PlatyPS schema version: 2024-05-01
 title: Set-PlatformEnvironmentIdentity
 ---
@@ -22,7 +22,7 @@ platform-config.jsonc, and assigns its RBAC roles against the resource groups fr
 
 ```
 Set-PlatformEnvironmentIdentity [[-GlobalConfigPath] <string>] [[-PlatformConfigPath] <string>]
- [-WhatIf] [-Confirm]
+ [-AsHashtable] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## ALIASES
@@ -45,8 +45,10 @@ Every `resourceGroupId` referenced by a role assignment must already exist, so
 
 This cmdlet supports `-WhatIf`/`-Confirm` and requires the `Az.Resources` and
 `Az.ManagedServiceIdentity` modules, signed in via `Connect-AzAccount` with permission to create
-managed identities, federated credentials, and RBAC role assignments. With `-WhatIf`, the result
-has `IsWhatIf` set to `True` and reports intended mutations as planned actions.
+managed identities, federated credentials, and RBAC role assignments. By default, each
+environment's result is emitted once processing finishes; under `-WhatIf`,
+`Action` reports actions that would happen instead of applying a mutation. Pass `-AsHashtable` to collect
+every result and get a single summary object instead.
 
 ## EXAMPLES
 
@@ -66,6 +68,29 @@ Set-PlatformEnvironmentIdentity -GlobalConfigPath ./config/global-config.jsonc -
 ```
 
 ## PARAMETERS
+
+### -AsHashtable
+
+Collects every result in memory instead of streaming it, and emits a single `Hashtable` at the end
+with an `IsWhatIf` key and an `Environments` key holding the list of
+`PlatformEnvironmentIdentityActionResult` objects.
+
+```yaml
+Type: System.Management.Automation.SwitchParameter
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
 
 ### -Confirm
 
@@ -172,14 +197,21 @@ You can pipe the global config path or platform config path to this cmdlet by pr
 
 ## OUTPUTS
 
-### MSCKite.Azure.Platform.Models.PlatformEnvironmentIdentitySyncResult
+### MSCKite.Azure.Platform.Models.PlatformEnvironmentIdentityActionResult
 
-The `IsWhatIf` mode flag, plus the EnvironmentCode, IdentityName, PrincipalId, ClientId, and
-Action of each identity; the FederatedCredentialAction; and the Role, Scope, and Action of every
-role assignment synced. Identity actions are `Created` or `Unchanged`; `-WhatIf` returns
-`PlannedCreate`. Federated credential actions are `Created`, `Updated`, or `Unchanged`; `-WhatIf`
-returns `PlannedCreate` or `PlannedUpdate`. Role actions are `Added` or `Unchanged`; `-WhatIf`
-returns `PlannedAdd` for an intended assignment.
+Emitted once processing finishes (the default). Has the
+EnvironmentCode, IdentityName, PrincipalId, ClientId, and Action of the identity; the
+FederatedCredentialAction; and the Role, Scope, and Action of every role assignment synced.
+Identity actions are `Created` or `Unchanged`; `-WhatIf` returns `WouldCreate`. Federated
+credential actions are `Created`, `Updated`, or `Unchanged`; `-WhatIf` returns `WouldCreate` or
+`WouldUpdate`. Role actions are `Added` or `Unchanged`; `-WhatIf` returns `WouldAdd` for an
+intended assignment.
+
+### System.Collections.Hashtable
+
+Emitted once at the end instead, only when `-AsHashtable` is passed. Has an
+`IsWhatIf` key, a `Count` key, and an `Environments` key holding the list of
+`PlatformEnvironmentIdentityActionResult` objects collected during the run.
 
 ## NOTES
 
@@ -192,4 +224,3 @@ repository configured in `sourceControl`.
 
 - [Set-PlatformSecurityGroup](https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Set-PlatformSecurityGroup.md)
 - [Set-PlatformGitHubEnvironment](https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Set-PlatformGitHubEnvironment.md)
-

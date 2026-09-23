@@ -1,10 +1,10 @@
----
+﻿---
 document type: cmdlet
 external help file: MSCKite.Azure.Platform.dll-Help.xml
 HelpUri: ''
 Locale: en-NL
 Module Name: MSCKite.Azure.Platform
-ms.date: 09/20/2026
+ms.date: 09/23/2026
 PlatyPS schema version: 2024-05-01
 title: Set-PlatformResourceGroup
 ---
@@ -20,8 +20,8 @@ Creates or updates the Azure resource groups declared in platform-config.jsonc.
 ### __AllParameterSets
 
 ```
-Set-PlatformResourceGroup [[-GlobalConfigPath] <string>] [[-PlatformConfigPath] <string>] [-WhatIf]
- [-Confirm]
+Set-PlatformResourceGroup [[-GlobalConfigPath] <string>] [[-PlatformConfigPath] <string>]
+ [-AsHashtable] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## ALIASES
@@ -37,8 +37,9 @@ matches the live resource group only produces a warning.
 
 This cmdlet supports `-WhatIf`/`-Confirm` and requires the `Az.Resources` module, signed in via
 `Connect-AzAccount` with permission to create and tag resource groups in the target subscription.
-With `-WhatIf`, the result has `IsWhatIf` set to `True` and reports intended mutations as
-`PlannedCreate` or `PlannedUpdate` actions.
+By default, each resource group's result is emitted once processing finishes; under `-WhatIf`,
+`Action` reports `WouldCreate` or `WouldUpdate` instead of applying a mutation. Pass
+`-AsHashtable` to collect every result and get a single summary object instead.
 
 ## EXAMPLES
 
@@ -58,6 +59,29 @@ Set-PlatformResourceGroup -GlobalConfigPath ./config/global-config.jsonc -Platfo
 ```
 
 ## PARAMETERS
+
+### -AsHashtable
+
+Collects every result in memory instead of streaming it, and emits a single `Hashtable` at the end
+with an `IsWhatIf` key and a `ResourceGroups` key holding the list of
+`PlatformResourceGroupActionResult` objects.
+
+```yaml
+Type: System.Management.Automation.SwitchParameter
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
 
 ### -Confirm
 
@@ -164,11 +188,17 @@ You can pipe the global config path or platform config path to this cmdlet by pr
 
 ## OUTPUTS
 
-### MSCKite.Azure.Platform.Models.PlatformResourceGroupSyncResult
+### MSCKite.Azure.Platform.Models.PlatformResourceGroupActionResult
 
-The `IsWhatIf` mode flag, plus the Id, Name, Location, and Action of each resource group
-processed. Actions are `Created`, `Updated`, or `Unchanged`; `-WhatIf` returns `PlannedCreate` or
-`PlannedUpdate` instead of applying a mutation.
+Emitted once processing finishes (the default). Has the Id, Name, Location, Tags, and Action of
+the resource group. Actions are `Created`, `Updated`, or `Unchanged`; `-WhatIf` returns
+`WouldCreate` or `WouldUpdate` instead of applying a mutation.
+
+### System.Collections.Hashtable
+
+Emitted once at the end instead, only when `-AsHashtable` is passed. Has an `IsWhatIf` key, a
+`Count` key, and a `ResourceGroups` key holding the list of `PlatformResourceGroupActionResult`
+objects collected during the run.
 
 ## NOTES
 
@@ -179,4 +209,3 @@ subscription.
 ## RELATED LINKS
 
 - [Set-PlatformSecurityGroup](https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Set-PlatformSecurityGroup.md)
-

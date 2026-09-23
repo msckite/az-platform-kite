@@ -10,6 +10,17 @@ Describe 'Set-PlatformResourceGroup' {
 
         Import-Module $modulePath -Force
 
+        # Shadows the real Az.Accounts cmdlet so the cmdlet's sign-in check passes without a real Azure login;
+        # the underlying Az.Resources cmdlets still run for real and no-op gracefully when unauthenticated
+        function Get-AzContext {
+            [PSCustomObject]@{
+                Account      = [PSCustomObject]@{ Id = 'tester@example.com' }
+                Tenant       = [PSCustomObject]@{ Id = '11111111-1111-1111-1111-111111111111' }
+                Subscription = [PSCustomObject]@{ Id = '22222222-2222-2222-2222-222222222222'; Name = 'Test Subscription' }
+                Environment  = [PSCustomObject]@{ Name = 'AzureCloud' }
+            }
+        }
+
         # Minimal, fully valid global-config.jsonc content shared by every test that needs to get past config loading
         $script:ValidGlobalConfig = @'
 {
@@ -114,5 +125,17 @@ Describe 'Set-PlatformResourceGroup' {
         '{"templateVersion":"1.0.0","resourceGroups":[{"id":"dev","name":"rg-${uniqueId}${serviceShort}-dev","location":"${location}","tags":{"service":"${serviceShort}"}}]}' | Set-Content -Path $platform
 
         { Set-PlatformResourceGroup -GlobalConfigPath $global -PlatformConfigPath $platform -WhatIf } | Should -Not -Throw
+    }
+
+    It 'throws when not signed in to Azure' {
+        # Locally shadows the Describe-wide Get-AzContext fake for this test only, simulating no Azure sign-in
+        function Get-AzContext { }
+
+        $global = Join-Path $TestDrive 'global.jsonc'
+        $platform = Join-Path $TestDrive 'platform-notsignedin.jsonc'
+        $script:ValidGlobalConfig | Set-Content -Path $global
+        '{"templateVersion":"1.0.0","resourceGroups":[{"id":"dev","name":"rg-dev","location":"westeurope"}]}' | Set-Content -Path $platform
+
+        { Set-PlatformResourceGroup -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*Not signed in to Azure*'
     }
 }

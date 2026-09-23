@@ -1,10 +1,10 @@
----
+﻿---
 document type: cmdlet
 external help file: MSCKite.Azure.Platform.dll-Help.xml
 HelpUri: ''
 Locale: en-NL
 Module Name: MSCKite.Azure.Platform
-ms.date: 09/20/2026
+ms.date: 09/23/2026
 PlatyPS schema version: 2024-05-01
 title: Set-PlatformSecurityGroup
 ---
@@ -21,8 +21,8 @@ assigns their RBAC roles against the resource groups from phase 1.
 ### __AllParameterSets
 
 ```
-Set-PlatformSecurityGroup [[-GlobalConfigPath] <string>] [[-PlatformConfigPath] <string>] [-WhatIf]
- [-Confirm]
+Set-PlatformSecurityGroup [[-GlobalConfigPath] <string>] [[-PlatformConfigPath] <string>]
+ [-AsHashtable] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## ALIASES
@@ -43,8 +43,9 @@ Every `resourceGroupId` referenced by a role assignment must already exist, so
 
 This cmdlet supports `-WhatIf`/`-Confirm` and requires the `Az.Resources` module, signed in via
 `Connect-AzAccount` with permission to manage Microsoft Entra security groups and assign RBAC
-roles. With `-WhatIf`, the result has `IsWhatIf` set to `True` and reports intended mutations as
-planned actions.
+roles. By default, each security group's result is emitted once processing finishes; under
+`-WhatIf`, `Action` reports actions that would happen instead of applying a mutation. Pass
+`-AsHashtable` to collect every result and get a single summary object instead.
 
 ## EXAMPLES
 
@@ -64,6 +65,29 @@ Set-PlatformSecurityGroup -GlobalConfigPath ./config/global-config.jsonc -Platfo
 ```
 
 ## PARAMETERS
+
+### -AsHashtable
+
+Collects every result in memory instead of streaming it, and emits a single `Hashtable` at the end
+with an `IsWhatIf` key and a `SecurityGroups` key holding the list of
+`PlatformSecurityGroupActionResult` objects.
+
+```yaml
+Type: System.Management.Automation.SwitchParameter
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
 
 ### -Confirm
 
@@ -170,12 +194,19 @@ You can pipe the global config path or platform config path to this cmdlet by pr
 
 ## OUTPUTS
 
-### MSCKite.Azure.Platform.Models.PlatformSecurityGroupSyncResult
+### MSCKite.Azure.Platform.Models.PlatformSecurityGroupActionResult
 
-The `IsWhatIf` mode flag, plus the DisplayName, MailNickName, ObjectId, and Action of each
-security group, and the Role, Scope, and Action of every role assignment synced. Group actions are
-`Created`, `Updated`, or `Unchanged`; `-WhatIf` returns `PlannedCreate` or `PlannedUpdate`. Role
-actions are `Added` or `Unchanged`; `-WhatIf` returns `PlannedAdd` for an intended assignment.
+Emitted once processing finishes (the default). Has the
+DisplayName, MailNickName, ObjectId, and Action of the security group, and the Role, Scope, and
+Action of every role assignment synced. Group actions are `Created`, `Updated`, or `Unchanged`;
+`-WhatIf` returns `WouldCreate` or `WouldUpdate`. Role actions are `Added` or `Unchanged`;
+`-WhatIf` returns `WouldAdd` for an intended assignment.
+
+### System.Collections.Hashtable
+
+Emitted once at the end instead, only when `-AsHashtable` is passed. Has an
+`IsWhatIf` key, a `Count` key, and a `SecurityGroups` key holding the list of
+`PlatformSecurityGroupActionResult` objects collected during the run.
 
 ## NOTES
 
@@ -188,4 +219,3 @@ propagation delay between a newly created group and RBAC accepting its principal
 
 - [Set-PlatformResourceGroup](https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Set-PlatformResourceGroup.md)
 - [Set-PlatformEnvironmentIdentity](https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Set-PlatformEnvironmentIdentity.md)
-

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -14,7 +15,8 @@ namespace MSCKite.Azure.Platform.Commands.Platform
 {
     // Phase 3: creates the federated user-assigned managed identity declared per environment in platform-config.jsonc, and assigns its RBAC roles against the resource groups from phase 1
     [Cmdlet(VerbsCommon.Set, "PlatformEnvironmentIdentity", SupportsShouldProcess = true, ConfirmImpact = ConfirmImpact.Medium)]
-    [OutputType(typeof(PlatformEnvironmentIdentitySyncResult))]
+    [OutputType(typeof(PlatformEnvironmentIdentityActionResult))]
+    [OutputType(typeof(Hashtable))]
     public class SetPlatformEnvironmentIdentity : PSCmdlet
     {
         private static readonly PowerShellModule[] RequiredModules = {
@@ -29,6 +31,10 @@ namespace MSCKite.Azure.Platform.Commands.Platform
         [Parameter(Position = 1, ValueFromPipelineByPropertyName = true)]
         [ValidateNotNullOrEmpty]
         public string PlatformConfigPath { get; set; } = Path.Combine("config", "platform-config.jsonc");
+
+        // Collects every result in memory and emits a single summary Hashtable at the end, instead of streaming each result as it's created
+        [Parameter]
+        public SwitchParameter AsHashtable { get; set; }
 
         protected override void BeginProcessing()
         {
@@ -60,6 +66,15 @@ namespace MSCKite.Azure.Platform.Commands.Platform
 
             WriteVerbose($"Found {environmentConfigs.Count} environment(s) in platform config.");
 
+            var azureContext = AzureContextHelper.GetContext(this, out var azureMessage);
+            if (!azureContext.IsSignedIn)
+            {
+                ThrowTerminatingError(new ErrorRecord(
+                    new InvalidOperationException(azureMessage),
+                    "PlatformEnvironmentIdentityNotSignedIn", ErrorCategory.AuthenticationError, null));
+                return;
+            }
+
             var globalPlaceholders = globalConfig.ToPlaceholderMap();
 
             var owner = globalConfig.SourceControl?.Owner;
@@ -80,10 +95,7 @@ namespace MSCKite.Azure.Platform.Commands.Platform
             var resourceGroupsById = PlatformResourceGroupResolver.Resolve(
                 this, resourceGroupConfigs, globalPlaceholders, "PlatformEnvironmentIdentityResourceGroupMissing");
 
-            var result = new PlatformEnvironmentIdentitySyncResult
-            {
-                IsWhatIf = MyInvocation.BoundParameters.ContainsKey("WhatIf")
-            };
+            var items = new List<PlatformEnvironmentIdentityActionResult>();
 
             foreach (var config in environmentConfigs)
             {
@@ -106,11 +118,26 @@ namespace MSCKite.Azure.Platform.Commands.Platform
                 }
 
                 SyncRoleAssignments(actionResult, config.UserAssignedIdentity, resourceGroupsById, placeholders);
-                result.Environments.Add(actionResult);
+                items.Add(actionResult);
             }
 
-            WriteVerbose($"Done. Processed {result.Environments.Count} of {environmentConfigs.Count} environment(s).");
-            WriteObject(result);
+            WriteVerbose($"Done. Processed {items.Count} of {environmentConfigs.Count} environment(s).");
+            if (AsHashtable.IsPresent)
+            {
+                WriteObject(new Hashtable
+                {
+                    ["IsWhatIf"] = MyInvocation.BoundParameters.ContainsKey("WhatIf"),
+                    ["Count"] = items.Count,
+                    ["Environments"] = items
+                });
+            }
+            else
+            {
+                foreach (var item in items)
+                {
+                    WriteObject(item);
+                }
+            }
         }
 
         // Creates the identity and its federated credential if missing, updating the credential in place if it has drifted; returns null (after recording an error) on failure
@@ -145,8 +172,8 @@ namespace MSCKite.Azure.Platform.Commands.Platform
                     {
                         EnvironmentCode = config.EnvironmentCode,
                         IdentityName = identityName,
-                        Action = "PlannedCreate",
-                        FederatedCredentialAction = "PlannedCreate"
+                        Action = "WouldCreate",
+                        FederatedCredentialAction = "WouldCreate"
                     };
                 }
 
@@ -240,7 +267,7 @@ namespace MSCKite.Azure.Platform.Commands.Platform
                 WriteVerbose($"Federated credential '{credentialName}' does not exist yet.");
                 if (!ShouldProcess(credentialName, "Create federated credential"))
                 {
-                    return "PlannedCreate";
+                    return "WouldCreate";
                 }
 
                 WriteVerbose($"Creating federated credential '{credentialName}' with subject '{subject}'.");
@@ -273,7 +300,7 @@ namespace MSCKite.Azure.Platform.Commands.Platform
             WriteVerbose($"Federated credential '{credentialName}' has drifted from the configured values.");
             if (!ShouldProcess(credentialName, "Update federated credential"))
             {
-                return "PlannedUpdate";
+                return "WouldUpdate";
             }
 
             WriteVerbose($"Updating federated credential '{credentialName}'.");
@@ -320,9 +347,9 @@ namespace MSCKite.Azure.Platform.Commands.Platform
 
                 var scope = resourceGroup.ResourceId;
 
-                if (actionResult.Action == "PlannedCreate")
+                if (actionResult.Action == "WouldCreate")
                 {
-                    actionResult.RoleAssignments.Add(new PlatformRoleAssignmentActionResult { Role = role, Scope = scope, Action = "PlannedAdd" });
+                    actionResult.RoleAssignments.Add(new PlatformRoleAssignmentActionResult { Role = role, Scope = scope, Action = "WouldAdd" });
                     continue;
                 }
 
@@ -335,7 +362,7 @@ namespace MSCKite.Azure.Platform.Commands.Platform
 
                 if (!ShouldProcess(actionResult.IdentityName, $"Assign role '{role}' at scope '{scope}'"))
                 {
-                    actionResult.RoleAssignments.Add(new PlatformRoleAssignmentActionResult { Role = role, Scope = scope, Action = "PlannedAdd" });
+                    actionResult.RoleAssignments.Add(new PlatformRoleAssignmentActionResult { Role = role, Scope = scope, Action = "WouldAdd" });
                     continue;
                 }
 

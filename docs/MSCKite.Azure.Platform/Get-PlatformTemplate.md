@@ -4,7 +4,7 @@ external help file: MSCKite.Azure.Platform.dll-Help.xml
 HelpUri: ''
 Locale: en-NL
 Module Name: MSCKite.Azure.Platform
-ms.date: 09/15/2026
+ms.date: 09/23/2026
 PlatyPS schema version: 2024-05-01
 title: Get-PlatformTemplate
 ---
@@ -65,6 +65,34 @@ New-PlatformConfigStructure -InputFolder ./config-src/templates -OutputFolder ./
 ### -Branch
 
 The repository branch to clone. Defaults to `main`.
+The repository branch to clone.
+Defaults to `main`.
+The repository branch to clone.
+Defaults to `main`.
+The repository branch to clone.
+Defaults to `main`.
+The repository branch to clone.
+Defaults to `main`.
+The repository branch to clone.
+Defaults to `main`.
+The repository branch to clone.
+Defaults to `main`.
+The repository branch to clone.
+Defaults to `main`.
+The repository branch to clone.
+Defaults to `main`.
+The repository branch to clone.
+Defaults to `main`.
+The repository branch to clone.
+Defaults to `main`.
+The repository branch to clone.
+Defaults to `main`.
+The repository branch to clone.
+Defaults to `main`.
+The repository branch to clone.
+Defaults to `main`.
+The repository branch to clone.
+Defaults to `main`.
 The repository branch to clone.
 Defaults to `main`.
 
@@ -157,6 +185,48 @@ separate from any in-use configuration so reruns never overwrite it.
 Local folder to copy the downloaded folder(s) into.
 Defaults to `.downloads`, a dedicated folder
 separate from any in-use configuration so reruns never overwrite it.
+Local folder to copy the downloaded folder(s) into.
+Defaults to `.downloads`, a dedicated folder
+separate from any in-use configuration so reruns never overwrite it.
+Local folder to copy the downloaded folder(s) into.
+Defaults to `.downloads`, a dedicated folder
+separate from any in-use configuration so reruns never overwrite it.
+Local folder to copy the downloaded folder(s) into.
+Defaults to `.downloads`, a dedicated folder
+separate from any in-use configuration so reruns never overwrite it.
+Local folder to copy the downloaded folder(s) into.
+Defaults to `.downloads`, a dedicated folder
+separate from any in-use configuration so reruns never overwrite it.
+Local folder to copy the downloaded folder(s) into.
+Defaults to `.downloads`, a dedicated folder
+separate from any in-use configuration so reruns never overwrite it.
+Local folder to copy the downloaded folder(s) into.
+Defaults to `.downloads`, a dedicated folder
+separate from any in-use configuration so reruns never overwrite it.
+Local folder to copy the downloaded folder(s) into.
+Defaults to `.downloads`, a dedicated folder
+separate from any in-use configuration so reruns never overwrite it.
+Local folder to copy the downloaded folder(s) into.
+Defaults to `.downloads`, a dedicated folder
+separate from any in-use configuration so reruns never overwrite it.
+Local folder to copy the downloaded folder(s) into.
+Defaults to `.downloads`, a dedicated folder
+separate from any in-use configuration so reruns never overwrite it.
+Local folder to copy the downloaded folder(s) into.
+Defaults to `.downloads`, a dedicated folder
+separate from any in-use configuration so reruns never overwrite it.
+Local folder to copy the downloaded folder(s) into.
+Defaults to `.downloads`, a dedicated folder
+separate from any in-use configuration so reruns never overwrite it.
+Local folder to copy the downloaded folder(s) into.
+Defaults to `.downloads`, a dedicated folder
+separate from any in-use configuration so reruns never overwrite it.
+Local folder to copy the downloaded folder(s) into.
+Defaults to `.downloads`, a dedicated folder
+separate from any in-use configuration so reruns never overwrite it.
+Local folder to copy the downloaded folder(s) into.
+Defaults to `.downloads`, a dedicated folder
+separate from any in-use configuration so reruns never overwrite it.
 
 ```yaml
 Type: System.String
@@ -178,6 +248,34 @@ HelpMessage: ''
 ### -RepositoryUrl
 
 The git URL to clone. Defaults to the `az-platform-kite` repository.
+The git URL to clone.
+Defaults to the `az-platform-kite` repository.
+The git URL to clone.
+Defaults to the `az-platform-kite` repository.
+The git URL to clone.
+Defaults to the `az-platform-kite` repository.
+The git URL to clone.
+Defaults to the `az-platform-kite` repository.
+The git URL to clone.
+Defaults to the `az-platform-kite` repository.
+The git URL to clone.
+Defaults to the `az-platform-kite` repository.
+The git URL to clone.
+Defaults to the `az-platform-kite` repository.
+The git URL to clone.
+Defaults to the `az-platform-kite` repository.
+The git URL to clone.
+Defaults to the `az-platform-kite` repository.
+The git URL to clone.
+Defaults to the `az-platform-kite` repository.
+The git URL to clone.
+Defaults to the `az-platform-kite` repository.
+The git URL to clone.
+Defaults to the `az-platform-kite` repository.
+The git URL to clone.
+Defaults to the `az-platform-kite` repository.
+The git URL to clone.
+Defaults to the `az-platform-kite` repository.
 The git URL to clone.
 Defaults to the `az-platform-kite` repository.
 
@@ -252,4 +350,3 @@ Requires the `git` CLI to be installed and available on `PATH`.
 
 - [New-PlatformConfigStructure](https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/New-PlatformConfigStructure.md)
 - [Test-PlatformTemplate](https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Test-PlatformTemplate.md)
-

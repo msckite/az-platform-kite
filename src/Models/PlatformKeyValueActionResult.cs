@@ -4,7 +4,7 @@ namespace MSCKite.Azure.Platform.Models
     {
         public string Name { get; set; }
 
-        // "Created", "Updated", "Unchanged", "Set", "PlannedCreate", or "PlannedUpdate"
+        // "Created", "Updated", "Unchanged", "Set", "WouldCreate", or "WouldUpdate"
         public string Action { get; set; }
     }
 }

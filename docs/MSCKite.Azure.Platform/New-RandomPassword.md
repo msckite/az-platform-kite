@@ -4,7 +4,7 @@ external help file: MSCKite.Azure.Platform.dll-Help.xml
 HelpUri: ''
 Locale: en-NL
 Module Name: MSCKite.Azure.Platform
-ms.date: 09/15/2026
+ms.date: 09/23/2026
 PlatyPS schema version: 2024-05-01
 title: New-RandomPassword
 ---
@@ -22,7 +22,7 @@ Generates cryptographically secure random passwords with configurable complexity
 ```
 New-RandomPassword [-Length <short>] [-Uppercase] [-Lowercase] [-Numbers] [-SpecialCharacters]
  [-SpecialCharacterSet <string>] [-AsSecureString] [-ExcludeCharacters <string>]
- [-NoAmbiguousCharacters] [-Count <int>]
+ [-NoAmbiguousCharacters] [-Count <int>] [<CommonParameters>]
 ```
 
 ## ALIASES
@@ -160,6 +160,34 @@ HelpMessage: ''
 Specifies the password length. The minimum length is 8 and the maximum length is 256.
 Specifies the password length.
 The minimum length is 8 and the maximum length is 256.
+Specifies the password length.
+The minimum length is 8 and the maximum length is 256.
+Specifies the password length.
+The minimum length is 8 and the maximum length is 256.
+Specifies the password length.
+The minimum length is 8 and the maximum length is 256.
+Specifies the password length.
+The minimum length is 8 and the maximum length is 256.
+Specifies the password length.
+The minimum length is 8 and the maximum length is 256.
+Specifies the password length.
+The minimum length is 8 and the maximum length is 256.
+Specifies the password length.
+The minimum length is 8 and the maximum length is 256.
+Specifies the password length.
+The minimum length is 8 and the maximum length is 256.
+Specifies the password length.
+The minimum length is 8 and the maximum length is 256.
+Specifies the password length.
+The minimum length is 8 and the maximum length is 256.
+Specifies the password length.
+The minimum length is 8 and the maximum length is 256.
+Specifies the password length.
+The minimum length is 8 and the maximum length is 256.
+Specifies the password length.
+The minimum length is 8 and the maximum length is 256.
+Specifies the password length.
+The minimum length is 8 and the maximum length is 256.
 
 ```yaml
 Type: System.Int16
@@ -181,6 +209,62 @@ HelpMessage: ''
 ### -Lowercase
 
 Includes lowercase letters from `a` through `z`. This character set is enabled by default. Use
+`-Lowercase:$false` to disable it.
+Includes lowercase letters from `a` through `z`.
+This character set is enabled by default.
+Use
+`-Lowercase:$false` to disable it.
+Includes lowercase letters from `a` through `z`.
+This character set is enabled by default.
+Use
+`-Lowercase:$false` to disable it.
+Includes lowercase letters from `a` through `z`.
+This character set is enabled by default.
+Use
+`-Lowercase:$false` to disable it.
+Includes lowercase letters from `a` through `z`.
+This character set is enabled by default.
+Use
+`-Lowercase:$false` to disable it.
+Includes lowercase letters from `a` through `z`.
+This character set is enabled by default.
+Use
+`-Lowercase:$false` to disable it.
+Includes lowercase letters from `a` through `z`.
+This character set is enabled by default.
+Use
+`-Lowercase:$false` to disable it.
+Includes lowercase letters from `a` through `z`.
+This character set is enabled by default.
+Use
+`-Lowercase:$false` to disable it.
+Includes lowercase letters from `a` through `z`.
+This character set is enabled by default.
+Use
+`-Lowercase:$false` to disable it.
+Includes lowercase letters from `a` through `z`.
+This character set is enabled by default.
+Use
+`-Lowercase:$false` to disable it.
+Includes lowercase letters from `a` through `z`.
+This character set is enabled by default.
+Use
+`-Lowercase:$false` to disable it.
+Includes lowercase letters from `a` through `z`.
+This character set is enabled by default.
+Use
+`-Lowercase:$false` to disable it.
+Includes lowercase letters from `a` through `z`.
+This character set is enabled by default.
+Use
+`-Lowercase:$false` to disable it.
+Includes lowercase letters from `a` through `z`.
+This character set is enabled by default.
+Use
+`-Lowercase:$false` to disable it.
+Includes lowercase letters from `a` through `z`.
+This character set is enabled by default.
+Use
 `-Lowercase:$false` to disable it.
 Includes lowercase letters from `a` through `z`.
 This character set is enabled by default.
@@ -211,6 +295,48 @@ characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, 
 Excludes predefined visually similar characters from every enabled character set.
 The excluded
 characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
+Excludes predefined visually similar characters from every enabled character set.
+The excluded
+characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
+Excludes predefined visually similar characters from every enabled character set.
+The excluded
+characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
+Excludes predefined visually similar characters from every enabled character set.
+The excluded
+characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
+Excludes predefined visually similar characters from every enabled character set.
+The excluded
+characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
+Excludes predefined visually similar characters from every enabled character set.
+The excluded
+characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
+Excludes predefined visually similar characters from every enabled character set.
+The excluded
+characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
+Excludes predefined visually similar characters from every enabled character set.
+The excluded
+characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
+Excludes predefined visually similar characters from every enabled character set.
+The excluded
+characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
+Excludes predefined visually similar characters from every enabled character set.
+The excluded
+characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
+Excludes predefined visually similar characters from every enabled character set.
+The excluded
+characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
+Excludes predefined visually similar characters from every enabled character set.
+The excluded
+characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
+Excludes predefined visually similar characters from every enabled character set.
+The excluded
+characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
+Excludes predefined visually similar characters from every enabled character set.
+The excluded
+characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
+Excludes predefined visually similar characters from every enabled character set.
+The excluded
+characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
@@ -237,6 +363,62 @@ Includes numeric characters from `0` through `9`.
 This character set is enabled by default.
 Use
 `-Numbers:$false` to disable it.
+Includes numeric characters from `0` through `9`.
+This character set is enabled by default.
+Use
+`-Numbers:$false` to disable it.
+Includes numeric characters from `0` through `9`.
+This character set is enabled by default.
+Use
+`-Numbers:$false` to disable it.
+Includes numeric characters from `0` through `9`.
+This character set is enabled by default.
+Use
+`-Numbers:$false` to disable it.
+Includes numeric characters from `0` through `9`.
+This character set is enabled by default.
+Use
+`-Numbers:$false` to disable it.
+Includes numeric characters from `0` through `9`.
+This character set is enabled by default.
+Use
+`-Numbers:$false` to disable it.
+Includes numeric characters from `0` through `9`.
+This character set is enabled by default.
+Use
+`-Numbers:$false` to disable it.
+Includes numeric characters from `0` through `9`.
+This character set is enabled by default.
+Use
+`-Numbers:$false` to disable it.
+Includes numeric characters from `0` through `9`.
+This character set is enabled by default.
+Use
+`-Numbers:$false` to disable it.
+Includes numeric characters from `0` through `9`.
+This character set is enabled by default.
+Use
+`-Numbers:$false` to disable it.
+Includes numeric characters from `0` through `9`.
+This character set is enabled by default.
+Use
+`-Numbers:$false` to disable it.
+Includes numeric characters from `0` through `9`.
+This character set is enabled by default.
+Use
+`-Numbers:$false` to disable it.
+Includes numeric characters from `0` through `9`.
+This character set is enabled by default.
+Use
+`-Numbers:$false` to disable it.
+Includes numeric characters from `0` through `9`.
+This character set is enabled by default.
+Use
+`-Numbers:$false` to disable it.
+Includes numeric characters from `0` through `9`.
+This character set is enabled by default.
+Use
+`-Numbers:$false` to disable it.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
@@ -258,6 +440,62 @@ HelpMessage: ''
 ### -SpecialCharacters
 
 Includes special characters. This character set is enabled by default. Use
+`-SpecialCharacters:$false` to disable it.
+Includes special characters.
+This character set is enabled by default.
+Use
+`-SpecialCharacters:$false` to disable it.
+Includes special characters.
+This character set is enabled by default.
+Use
+`-SpecialCharacters:$false` to disable it.
+Includes special characters.
+This character set is enabled by default.
+Use
+`-SpecialCharacters:$false` to disable it.
+Includes special characters.
+This character set is enabled by default.
+Use
+`-SpecialCharacters:$false` to disable it.
+Includes special characters.
+This character set is enabled by default.
+Use
+`-SpecialCharacters:$false` to disable it.
+Includes special characters.
+This character set is enabled by default.
+Use
+`-SpecialCharacters:$false` to disable it.
+Includes special characters.
+This character set is enabled by default.
+Use
+`-SpecialCharacters:$false` to disable it.
+Includes special characters.
+This character set is enabled by default.
+Use
+`-SpecialCharacters:$false` to disable it.
+Includes special characters.
+This character set is enabled by default.
+Use
+`-SpecialCharacters:$false` to disable it.
+Includes special characters.
+This character set is enabled by default.
+Use
+`-SpecialCharacters:$false` to disable it.
+Includes special characters.
+This character set is enabled by default.
+Use
+`-SpecialCharacters:$false` to disable it.
+Includes special characters.
+This character set is enabled by default.
+Use
+`-SpecialCharacters:$false` to disable it.
+Includes special characters.
+This character set is enabled by default.
+Use
+`-SpecialCharacters:$false` to disable it.
+Includes special characters.
+This character set is enabled by default.
+Use
 `-SpecialCharacters:$false` to disable it.
 Includes special characters.
 This character set is enabled by default.
@@ -310,6 +548,62 @@ Includes uppercase letters from `A` through `Z`.
 This character set is enabled by default.
 Use
 `-Uppercase:$false` to disable it.
+Includes uppercase letters from `A` through `Z`.
+This character set is enabled by default.
+Use
+`-Uppercase:$false` to disable it.
+Includes uppercase letters from `A` through `Z`.
+This character set is enabled by default.
+Use
+`-Uppercase:$false` to disable it.
+Includes uppercase letters from `A` through `Z`.
+This character set is enabled by default.
+Use
+`-Uppercase:$false` to disable it.
+Includes uppercase letters from `A` through `Z`.
+This character set is enabled by default.
+Use
+`-Uppercase:$false` to disable it.
+Includes uppercase letters from `A` through `Z`.
+This character set is enabled by default.
+Use
+`-Uppercase:$false` to disable it.
+Includes uppercase letters from `A` through `Z`.
+This character set is enabled by default.
+Use
+`-Uppercase:$false` to disable it.
+Includes uppercase letters from `A` through `Z`.
+This character set is enabled by default.
+Use
+`-Uppercase:$false` to disable it.
+Includes uppercase letters from `A` through `Z`.
+This character set is enabled by default.
+Use
+`-Uppercase:$false` to disable it.
+Includes uppercase letters from `A` through `Z`.
+This character set is enabled by default.
+Use
+`-Uppercase:$false` to disable it.
+Includes uppercase letters from `A` through `Z`.
+This character set is enabled by default.
+Use
+`-Uppercase:$false` to disable it.
+Includes uppercase letters from `A` through `Z`.
+This character set is enabled by default.
+Use
+`-Uppercase:$false` to disable it.
+Includes uppercase letters from `A` through `Z`.
+This character set is enabled by default.
+Use
+`-Uppercase:$false` to disable it.
+Includes uppercase letters from `A` through `Z`.
+This character set is enabled by default.
+Use
+`-Uppercase:$false` to disable it.
+Includes uppercase letters from `A` through `Z`.
+This character set is enabled by default.
+Use
+`-Uppercase:$false` to disable it.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
@@ -356,4 +650,3 @@ sampling to avoid modulo bias when selecting characters.
 ## RELATED LINKS
 
 - [New-RandomUniqueId](https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/New-RandomUniqueId.md)
-

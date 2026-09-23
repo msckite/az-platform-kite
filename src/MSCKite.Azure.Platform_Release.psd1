@@ -13,6 +13,7 @@
         @{ ModuleName = 'Az.ManagedServiceIdentity'; ModuleVersion = '2.0' }
     )
     CmdletsToExport   = @('Connect-AdoOrganization', 'Disconnect-AdoOrganization', 'Disconnect-PlatformContext', 'Get-AdoDefault', 'Get-GitHubDefault', 'Get-PlatformContext', 'Get-PlatformTemplate', 'Grant-PlatformGraphPermission', 'New-PlatformConfigStructure', 'New-PlatformWorkflow', 'New-RandomPassword', 'New-RandomUniqueId', 'Set-AdoDefault', 'Set-GitHubDefault', 'Set-GitHubLabels', 'Set-PlatformEnvironmentIdentity', 'Set-PlatformGitHubEnvironment', 'Set-PlatformResourceGroup', 'Set-PlatformSecurityGroup', 'Test-PlatformTemplate')
+    FormatsToProcess  = @('MSCKite.Azure.Platform.Format.ps1xml')
     PrivateData       = @{
         PSData = @{
             Tags       = @('Az', 'Azure', 'Platform', 'Engineering', 'DevOps', 'GitHub', 'Kite', 'MSC')

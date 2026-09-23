@@ -540,6 +540,34 @@ destination.</maml:para>
         <maml:description>
           <maml:para>The repository branch to clone. Defaults to `main`.
 The repository branch to clone.
+Defaults to `main`.
+The repository branch to clone.
+Defaults to `main`.
+The repository branch to clone.
+Defaults to `main`.
+The repository branch to clone.
+Defaults to `main`.
+The repository branch to clone.
+Defaults to `main`.
+The repository branch to clone.
+Defaults to `main`.
+The repository branch to clone.
+Defaults to `main`.
+The repository branch to clone.
+Defaults to `main`.
+The repository branch to clone.
+Defaults to `main`.
+The repository branch to clone.
+Defaults to `main`.
+The repository branch to clone.
+Defaults to `main`.
+The repository branch to clone.
+Defaults to `main`.
+The repository branch to clone.
+Defaults to `main`.
+The repository branch to clone.
+Defaults to `main`.
+The repository branch to clone.
 Defaults to `main`.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
@@ -583,6 +611,48 @@ Defaults to `templates`.</maml:para>
 separate from any in-use configuration so reruns never overwrite it.
 Local folder to copy the downloaded folder(s) into.
 Defaults to `.downloads`, a dedicated folder
+separate from any in-use configuration so reruns never overwrite it.
+Local folder to copy the downloaded folder(s) into.
+Defaults to `.downloads`, a dedicated folder
+separate from any in-use configuration so reruns never overwrite it.
+Local folder to copy the downloaded folder(s) into.
+Defaults to `.downloads`, a dedicated folder
+separate from any in-use configuration so reruns never overwrite it.
+Local folder to copy the downloaded folder(s) into.
+Defaults to `.downloads`, a dedicated folder
+separate from any in-use configuration so reruns never overwrite it.
+Local folder to copy the downloaded folder(s) into.
+Defaults to `.downloads`, a dedicated folder
+separate from any in-use configuration so reruns never overwrite it.
+Local folder to copy the downloaded folder(s) into.
+Defaults to `.downloads`, a dedicated folder
+separate from any in-use configuration so reruns never overwrite it.
+Local folder to copy the downloaded folder(s) into.
+Defaults to `.downloads`, a dedicated folder
+separate from any in-use configuration so reruns never overwrite it.
+Local folder to copy the downloaded folder(s) into.
+Defaults to `.downloads`, a dedicated folder
+separate from any in-use configuration so reruns never overwrite it.
+Local folder to copy the downloaded folder(s) into.
+Defaults to `.downloads`, a dedicated folder
+separate from any in-use configuration so reruns never overwrite it.
+Local folder to copy the downloaded folder(s) into.
+Defaults to `.downloads`, a dedicated folder
+separate from any in-use configuration so reruns never overwrite it.
+Local folder to copy the downloaded folder(s) into.
+Defaults to `.downloads`, a dedicated folder
+separate from any in-use configuration so reruns never overwrite it.
+Local folder to copy the downloaded folder(s) into.
+Defaults to `.downloads`, a dedicated folder
+separate from any in-use configuration so reruns never overwrite it.
+Local folder to copy the downloaded folder(s) into.
+Defaults to `.downloads`, a dedicated folder
+separate from any in-use configuration so reruns never overwrite it.
+Local folder to copy the downloaded folder(s) into.
+Defaults to `.downloads`, a dedicated folder
+separate from any in-use configuration so reruns never overwrite it.
+Local folder to copy the downloaded folder(s) into.
+Defaults to `.downloads`, a dedicated folder
 separate from any in-use configuration so reruns never overwrite it.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
@@ -594,6 +664,34 @@ separate from any in-use configuration so reruns never overwrite it.</maml:para>
         <maml:name>RepositoryUrl</maml:name>
         <maml:description>
           <maml:para>The git URL to clone. Defaults to the `az-platform-kite` repository.
+The git URL to clone.
+Defaults to the `az-platform-kite` repository.
+The git URL to clone.
+Defaults to the `az-platform-kite` repository.
+The git URL to clone.
+Defaults to the `az-platform-kite` repository.
+The git URL to clone.
+Defaults to the `az-platform-kite` repository.
+The git URL to clone.
+Defaults to the `az-platform-kite` repository.
+The git URL to clone.
+Defaults to the `az-platform-kite` repository.
+The git URL to clone.
+Defaults to the `az-platform-kite` repository.
+The git URL to clone.
+Defaults to the `az-platform-kite` repository.
+The git URL to clone.
+Defaults to the `az-platform-kite` repository.
+The git URL to clone.
+Defaults to the `az-platform-kite` repository.
+The git URL to clone.
+Defaults to the `az-platform-kite` repository.
+The git URL to clone.
+Defaults to the `az-platform-kite` repository.
+The git URL to clone.
+Defaults to the `az-platform-kite` repository.
+The git URL to clone.
+Defaults to the `az-platform-kite` repository.
 The git URL to clone.
 Defaults to the `az-platform-kite` repository.</maml:para>
         </maml:description>
@@ -782,6 +880,48 @@ is specified to overwrite it.</maml:para>
 default `global-config.jsonc` template is generated instead.
 Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
 When omitted, a
+default `global-config.jsonc` template is generated instead.
+Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
+When omitted, a
+default `global-config.jsonc` template is generated instead.
+Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
+When omitted, a
+default `global-config.jsonc` template is generated instead.
+Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
+When omitted, a
+default `global-config.jsonc` template is generated instead.
+Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
+When omitted, a
+default `global-config.jsonc` template is generated instead.
+Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
+When omitted, a
+default `global-config.jsonc` template is generated instead.
+Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
+When omitted, a
+default `global-config.jsonc` template is generated instead.
+Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
+When omitted, a
+default `global-config.jsonc` template is generated instead.
+Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
+When omitted, a
+default `global-config.jsonc` template is generated instead.
+Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
+When omitted, a
+default `global-config.jsonc` template is generated instead.
+Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
+When omitted, a
+default `global-config.jsonc` template is generated instead.
+Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
+When omitted, a
+default `global-config.jsonc` template is generated instead.
+Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
+When omitted, a
+default `global-config.jsonc` template is generated instead.
+Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
+When omitted, a
+default `global-config.jsonc` template is generated instead.
+Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
+When omitted, a
 default `global-config.jsonc` template is generated instead.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
@@ -793,6 +933,34 @@ default `global-config.jsonc` template is generated instead.</maml:para>
         <maml:name>OutputFolder</maml:name>
         <maml:description>
           <maml:para>Destination folder for the platform configuration structure. Defaults to `config`.
+Destination folder for the platform configuration structure.
+Defaults to `config`.
+Destination folder for the platform configuration structure.
+Defaults to `config`.
+Destination folder for the platform configuration structure.
+Defaults to `config`.
+Destination folder for the platform configuration structure.
+Defaults to `config`.
+Destination folder for the platform configuration structure.
+Defaults to `config`.
+Destination folder for the platform configuration structure.
+Defaults to `config`.
+Destination folder for the platform configuration structure.
+Defaults to `config`.
+Destination folder for the platform configuration structure.
+Defaults to `config`.
+Destination folder for the platform configuration structure.
+Defaults to `config`.
+Destination folder for the platform configuration structure.
+Defaults to `config`.
+Destination folder for the platform configuration structure.
+Defaults to `config`.
+Destination folder for the platform configuration structure.
+Defaults to `config`.
+Destination folder for the platform configuration structure.
+Defaults to `config`.
+Destination folder for the platform configuration structure.
+Defaults to `config`.
 Destination folder for the platform configuration structure.
 Defaults to `config`.</maml:para>
         </maml:description>
@@ -1253,6 +1421,34 @@ Use `-ExcludeCharacters` or `-NoAmbiguousCharacters` for human-readable password
         <maml:description>
           <maml:para>Specifies the password length. The minimum length is 8 and the maximum length is 256.
 Specifies the password length.
+The minimum length is 8 and the maximum length is 256.
+Specifies the password length.
+The minimum length is 8 and the maximum length is 256.
+Specifies the password length.
+The minimum length is 8 and the maximum length is 256.
+Specifies the password length.
+The minimum length is 8 and the maximum length is 256.
+Specifies the password length.
+The minimum length is 8 and the maximum length is 256.
+Specifies the password length.
+The minimum length is 8 and the maximum length is 256.
+Specifies the password length.
+The minimum length is 8 and the maximum length is 256.
+Specifies the password length.
+The minimum length is 8 and the maximum length is 256.
+Specifies the password length.
+The minimum length is 8 and the maximum length is 256.
+Specifies the password length.
+The minimum length is 8 and the maximum length is 256.
+Specifies the password length.
+The minimum length is 8 and the maximum length is 256.
+Specifies the password length.
+The minimum length is 8 and the maximum length is 256.
+Specifies the password length.
+The minimum length is 8 and the maximum length is 256.
+Specifies the password length.
+The minimum length is 8 and the maximum length is 256.
+Specifies the password length.
 The minimum length is 8 and the maximum length is 256.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.Int16</command:parameterValue>
@@ -1264,6 +1460,62 @@ The minimum length is 8 and the maximum length is 256.</maml:para>
         <maml:name>Lowercase</maml:name>
         <maml:description>
           <maml:para>Includes lowercase letters from `a` through `z`. This character set is enabled by default. Use
+`-Lowercase:$false` to disable it.
+Includes lowercase letters from `a` through `z`.
+This character set is enabled by default.
+Use
+`-Lowercase:$false` to disable it.
+Includes lowercase letters from `a` through `z`.
+This character set is enabled by default.
+Use
+`-Lowercase:$false` to disable it.
+Includes lowercase letters from `a` through `z`.
+This character set is enabled by default.
+Use
+`-Lowercase:$false` to disable it.
+Includes lowercase letters from `a` through `z`.
+This character set is enabled by default.
+Use
+`-Lowercase:$false` to disable it.
+Includes lowercase letters from `a` through `z`.
+This character set is enabled by default.
+Use
+`-Lowercase:$false` to disable it.
+Includes lowercase letters from `a` through `z`.
+This character set is enabled by default.
+Use
+`-Lowercase:$false` to disable it.
+Includes lowercase letters from `a` through `z`.
+This character set is enabled by default.
+Use
+`-Lowercase:$false` to disable it.
+Includes lowercase letters from `a` through `z`.
+This character set is enabled by default.
+Use
+`-Lowercase:$false` to disable it.
+Includes lowercase letters from `a` through `z`.
+This character set is enabled by default.
+Use
+`-Lowercase:$false` to disable it.
+Includes lowercase letters from `a` through `z`.
+This character set is enabled by default.
+Use
+`-Lowercase:$false` to disable it.
+Includes lowercase letters from `a` through `z`.
+This character set is enabled by default.
+Use
+`-Lowercase:$false` to disable it.
+Includes lowercase letters from `a` through `z`.
+This character set is enabled by default.
+Use
+`-Lowercase:$false` to disable it.
+Includes lowercase letters from `a` through `z`.
+This character set is enabled by default.
+Use
+`-Lowercase:$false` to disable it.
+Includes lowercase letters from `a` through `z`.
+This character set is enabled by default.
+Use
 `-Lowercase:$false` to disable it.
 Includes lowercase letters from `a` through `z`.
 This character set is enabled by default.
@@ -1281,6 +1533,48 @@ Use
 characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
 Excludes predefined visually similar characters from every enabled character set.
 The excluded
+characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
+Excludes predefined visually similar characters from every enabled character set.
+The excluded
+characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
+Excludes predefined visually similar characters from every enabled character set.
+The excluded
+characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
+Excludes predefined visually similar characters from every enabled character set.
+The excluded
+characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
+Excludes predefined visually similar characters from every enabled character set.
+The excluded
+characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
+Excludes predefined visually similar characters from every enabled character set.
+The excluded
+characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
+Excludes predefined visually similar characters from every enabled character set.
+The excluded
+characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
+Excludes predefined visually similar characters from every enabled character set.
+The excluded
+characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
+Excludes predefined visually similar characters from every enabled character set.
+The excluded
+characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
+Excludes predefined visually similar characters from every enabled character set.
+The excluded
+characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
+Excludes predefined visually similar characters from every enabled character set.
+The excluded
+characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
+Excludes predefined visually similar characters from every enabled character set.
+The excluded
+characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
+Excludes predefined visually similar characters from every enabled character set.
+The excluded
+characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
+Excludes predefined visually similar characters from every enabled character set.
+The excluded
+characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
+Excludes predefined visually similar characters from every enabled character set.
+The excluded
 characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.</maml:para>
         </maml:description>
         <dev:type>
@@ -1295,6 +1589,62 @@ characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, 
 Includes numeric characters from `0` through `9`.
 This character set is enabled by default.
 Use
+`-Numbers:$false` to disable it.
+Includes numeric characters from `0` through `9`.
+This character set is enabled by default.
+Use
+`-Numbers:$false` to disable it.
+Includes numeric characters from `0` through `9`.
+This character set is enabled by default.
+Use
+`-Numbers:$false` to disable it.
+Includes numeric characters from `0` through `9`.
+This character set is enabled by default.
+Use
+`-Numbers:$false` to disable it.
+Includes numeric characters from `0` through `9`.
+This character set is enabled by default.
+Use
+`-Numbers:$false` to disable it.
+Includes numeric characters from `0` through `9`.
+This character set is enabled by default.
+Use
+`-Numbers:$false` to disable it.
+Includes numeric characters from `0` through `9`.
+This character set is enabled by default.
+Use
+`-Numbers:$false` to disable it.
+Includes numeric characters from `0` through `9`.
+This character set is enabled by default.
+Use
+`-Numbers:$false` to disable it.
+Includes numeric characters from `0` through `9`.
+This character set is enabled by default.
+Use
+`-Numbers:$false` to disable it.
+Includes numeric characters from `0` through `9`.
+This character set is enabled by default.
+Use
+`-Numbers:$false` to disable it.
+Includes numeric characters from `0` through `9`.
+This character set is enabled by default.
+Use
+`-Numbers:$false` to disable it.
+Includes numeric characters from `0` through `9`.
+This character set is enabled by default.
+Use
+`-Numbers:$false` to disable it.
+Includes numeric characters from `0` through `9`.
+This character set is enabled by default.
+Use
+`-Numbers:$false` to disable it.
+Includes numeric characters from `0` through `9`.
+This character set is enabled by default.
+Use
+`-Numbers:$false` to disable it.
+Includes numeric characters from `0` through `9`.
+This character set is enabled by default.
+Use
 `-Numbers:$false` to disable it.</maml:para>
         </maml:description>
         <dev:type>
@@ -1305,6 +1655,62 @@ Use
         <maml:name>SpecialCharacters</maml:name>
         <maml:description>
           <maml:para>Includes special characters. This character set is enabled by default. Use
+`-SpecialCharacters:$false` to disable it.
+Includes special characters.
+This character set is enabled by default.
+Use
+`-SpecialCharacters:$false` to disable it.
+Includes special characters.
+This character set is enabled by default.
+Use
+`-SpecialCharacters:$false` to disable it.
+Includes special characters.
+This character set is enabled by default.
+Use
+`-SpecialCharacters:$false` to disable it.
+Includes special characters.
+This character set is enabled by default.
+Use
+`-SpecialCharacters:$false` to disable it.
+Includes special characters.
+This character set is enabled by default.
+Use
+`-SpecialCharacters:$false` to disable it.
+Includes special characters.
+This character set is enabled by default.
+Use
+`-SpecialCharacters:$false` to disable it.
+Includes special characters.
+This character set is enabled by default.
+Use
+`-SpecialCharacters:$false` to disable it.
+Includes special characters.
+This character set is enabled by default.
+Use
+`-SpecialCharacters:$false` to disable it.
+Includes special characters.
+This character set is enabled by default.
+Use
+`-SpecialCharacters:$false` to disable it.
+Includes special characters.
+This character set is enabled by default.
+Use
+`-SpecialCharacters:$false` to disable it.
+Includes special characters.
+This character set is enabled by default.
+Use
+`-SpecialCharacters:$false` to disable it.
+Includes special characters.
+This character set is enabled by default.
+Use
+`-SpecialCharacters:$false` to disable it.
+Includes special characters.
+This character set is enabled by default.
+Use
+`-SpecialCharacters:$false` to disable it.
+Includes special characters.
+This character set is enabled by default.
+Use
 `-SpecialCharacters:$false` to disable it.
 Includes special characters.
 This character set is enabled by default.
@@ -1329,6 +1735,62 @@ Use
         <maml:name>Uppercase</maml:name>
         <maml:description>
           <maml:para>Includes uppercase letters from `A` through `Z`. This character set is enabled by default. Use
+`-Uppercase:$false` to disable it.
+Includes uppercase letters from `A` through `Z`.
+This character set is enabled by default.
+Use
+`-Uppercase:$false` to disable it.
+Includes uppercase letters from `A` through `Z`.
+This character set is enabled by default.
+Use
+`-Uppercase:$false` to disable it.
+Includes uppercase letters from `A` through `Z`.
+This character set is enabled by default.
+Use
+`-Uppercase:$false` to disable it.
+Includes uppercase letters from `A` through `Z`.
+This character set is enabled by default.
+Use
+`-Uppercase:$false` to disable it.
+Includes uppercase letters from `A` through `Z`.
+This character set is enabled by default.
+Use
+`-Uppercase:$false` to disable it.
+Includes uppercase letters from `A` through `Z`.
+This character set is enabled by default.
+Use
+`-Uppercase:$false` to disable it.
+Includes uppercase letters from `A` through `Z`.
+This character set is enabled by default.
+Use
+`-Uppercase:$false` to disable it.
+Includes uppercase letters from `A` through `Z`.
+This character set is enabled by default.
+Use
+`-Uppercase:$false` to disable it.
+Includes uppercase letters from `A` through `Z`.
+This character set is enabled by default.
+Use
+`-Uppercase:$false` to disable it.
+Includes uppercase letters from `A` through `Z`.
+This character set is enabled by default.
+Use
+`-Uppercase:$false` to disable it.
+Includes uppercase letters from `A` through `Z`.
+This character set is enabled by default.
+Use
+`-Uppercase:$false` to disable it.
+Includes uppercase letters from `A` through `Z`.
+This character set is enabled by default.
+Use
+`-Uppercase:$false` to disable it.
+Includes uppercase letters from `A` through `Z`.
+This character set is enabled by default.
+Use
+`-Uppercase:$false` to disable it.
+Includes uppercase letters from `A` through `Z`.
+This character set is enabled by default.
+Use
 `-Uppercase:$false` to disable it.
 Includes uppercase letters from `A` through `Z`.
 This character set is enabled by default.
@@ -1489,6 +1951,48 @@ not contain special characters and is not suitable for passwords, secrets, or se
 length is 8.
 Specifies the identifier length.
 The minimum length is 4, the maximum length is 12, and the default
+length is 8.
+Specifies the identifier length.
+The minimum length is 4, the maximum length is 12, and the default
+length is 8.
+Specifies the identifier length.
+The minimum length is 4, the maximum length is 12, and the default
+length is 8.
+Specifies the identifier length.
+The minimum length is 4, the maximum length is 12, and the default
+length is 8.
+Specifies the identifier length.
+The minimum length is 4, the maximum length is 12, and the default
+length is 8.
+Specifies the identifier length.
+The minimum length is 4, the maximum length is 12, and the default
+length is 8.
+Specifies the identifier length.
+The minimum length is 4, the maximum length is 12, and the default
+length is 8.
+Specifies the identifier length.
+The minimum length is 4, the maximum length is 12, and the default
+length is 8.
+Specifies the identifier length.
+The minimum length is 4, the maximum length is 12, and the default
+length is 8.
+Specifies the identifier length.
+The minimum length is 4, the maximum length is 12, and the default
+length is 8.
+Specifies the identifier length.
+The minimum length is 4, the maximum length is 12, and the default
+length is 8.
+Specifies the identifier length.
+The minimum length is 4, the maximum length is 12, and the default
+length is 8.
+Specifies the identifier length.
+The minimum length is 4, the maximum length is 12, and the default
+length is 8.
+Specifies the identifier length.
+The minimum length is 4, the maximum length is 12, and the default
+length is 8.
+Specifies the identifier length.
+The minimum length is 4, the maximum length is 12, and the default
 length is 8.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.Int16</command:parameterValue>
@@ -1621,6 +2125,62 @@ Pass `$null` to clear it.
 The name of the Azure DevOps organization to use as the default.
 Pass `$null` to clear it.
 The name of the Azure DevOps organization to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps organization to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps organization to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps organization to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps organization to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps organization to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps organization to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps organization to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps organization to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps organization to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps organization to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps organization to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps organization to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps organization to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps organization to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps organization to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps organization to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps organization to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps organization to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps organization to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps organization to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps organization to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps organization to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps organization to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps organization to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps organization to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps organization to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps organization to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps organization to use as the default.
 Pass `$null` to clear it.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
@@ -1632,6 +2192,62 @@ Pass `$null` to clear it.</maml:para>
         <maml:name>Project</maml:name>
         <maml:description>
           <maml:para>The name of the Azure DevOps project to use as the default. Pass `$null` to clear it.
+The name of the Azure DevOps project to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps project to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps project to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps project to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps project to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps project to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps project to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps project to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps project to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps project to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps project to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps project to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps project to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps project to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps project to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps project to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps project to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps project to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps project to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps project to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps project to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps project to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps project to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps project to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps project to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps project to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps project to use as the default.
+Pass `$null` to clear it.
+The name of the Azure DevOps project to use as the default.
+Pass `$null` to clear it.
 The name of the Azure DevOps project to use as the default.
 Pass `$null` to clear it.
 The name of the Azure DevOps project to use as the default.
@@ -1753,6 +2369,90 @@ Pass `$null` to clear
 it.
 The name of the GitHub owner (user or organization) to use as the default.
 Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
 it.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
@@ -1764,6 +2464,62 @@ it.</maml:para>
         <maml:name>Repository</maml:name>
         <maml:description>
           <maml:para>The name of the GitHub repository to use as the default. Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
 The name of the GitHub repository to use as the default.
 Pass `$null` to clear it.
 The name of the GitHub repository to use as the default.
@@ -2076,8 +2832,10 @@ Every `resourceGroupId` referenced by a role assignment must already exist, so
 
 This cmdlet supports `-WhatIf`/`-Confirm` and requires the `Az.Resources` and
 `Az.ManagedServiceIdentity` modules, signed in via `Connect-AzAccount` with permission to create
-managed identities, federated credentials, and RBAC role assignments. With `-WhatIf`, the result
-has `IsWhatIf` set to `True` and reports intended mutations as planned actions.</maml:para>
+managed identities, federated credentials, and RBAC role assignments. By default, each
+environment's result is emitted once processing finishes; under `-WhatIf`,
+`Action` reports actions that would happen instead of applying a mutation. Pass `-AsHashtable` to collect
+every result and get a single summary object instead.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem>
@@ -2099,6 +2857,13 @@ has `IsWhatIf` set to `True` and reports intended mutations as planned actions.<
           </dev:type>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>AsHashtable</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
           <maml:name>WhatIf</maml:name>
           <maml:description />
           <dev:type>
@@ -2115,6 +2880,17 @@ has `IsWhatIf` set to `True` and reports intended mutations as planned actions.<
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>AsHashtable</maml:name>
+        <maml:description>
+          <maml:para>Collects every result in memory instead of streaming it, and emits a single `Hashtable` at the end
+with an `IsWhatIf` key and an `Environments` key holding the list of
+`PlatformEnvironmentIdentityActionResult` objects.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="cf">
         <maml:name>Confirm</maml:name>
         <maml:description>
@@ -2171,15 +2947,26 @@ Defaults to
     <command:returnValues>
       <command:returnValue>
         <dev:type>
-          <maml:name>MSCKite.Azure.Platform.Models.PlatformEnvironmentIdentitySyncResult</maml:name>
+          <maml:name>MSCKite.Azure.Platform.Models.PlatformEnvironmentIdentityActionResult</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para>The `IsWhatIf` mode flag, plus the EnvironmentCode, IdentityName, PrincipalId, ClientId, and
-Action of each identity; the FederatedCredentialAction; and the Role, Scope, and Action of every
-role assignment synced. Identity actions are `Created` or `Unchanged`; `-WhatIf` returns
-`PlannedCreate`. Federated credential actions are `Created`, `Updated`, or `Unchanged`; `-WhatIf`
-returns `PlannedCreate` or `PlannedUpdate`. Role actions are `Added` or `Unchanged`; `-WhatIf`
-returns `PlannedAdd` for an intended assignment.</maml:para>
+          <maml:para>Emitted once processing finishes (the default). Has the
+EnvironmentCode, IdentityName, PrincipalId, ClientId, and Action of the identity; the
+FederatedCredentialAction; and the Role, Scope, and Action of every role assignment synced.
+Identity actions are `Created` or `Unchanged`; `-WhatIf` returns `WouldCreate`. Federated
+credential actions are `Created`, `Updated`, or `Unchanged`; `-WhatIf` returns `WouldCreate` or
+`WouldUpdate`. Role actions are `Added` or `Unchanged`; `-WhatIf` returns `WouldAdd` for an
+intended assignment.</maml:para>
+        </maml:description>
+      </command:returnValue>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>System.Collections.Hashtable</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>Emitted once at the end instead, only when `-AsHashtable` is passed. Has an
+`IsWhatIf` key, a `Count` key, and an `Environments` key holding the list of
+`PlatformEnvironmentIdentityActionResult` objects collected during the run.</maml:para>
         </maml:description>
       </command:returnValue>
     </command:returnValues>
@@ -2256,8 +3043,9 @@ The identity referenced by each environment must already exist, so
 This cmdlet supports `-WhatIf`/`-Confirm` and requires the `Az.Resources` and
 `Az.ManagedServiceIdentity` modules, signed in via `Connect-AzAccount`, and the GitHub CLI (`gh`)
 signed in with permission to manage environments, secrets, and variables on the target repository.
-With `-WhatIf`, the result has `IsWhatIf` set to `True` and reports intended mutations as planned
-actions.</maml:para>
+By default, each environment's result is emitted once processing finishes; under
+`-WhatIf`, `Action` reports actions that would happen instead of applying a mutation. Pass `-AsHashtable` to
+collect every result and get a single summary object instead.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem>
@@ -2279,6 +3067,13 @@ actions.</maml:para>
           </dev:type>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>AsHashtable</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
           <maml:name>WhatIf</maml:name>
           <maml:description />
           <dev:type>
@@ -2295,6 +3090,17 @@ actions.</maml:para>
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>AsHashtable</maml:name>
+        <maml:description>
+          <maml:para>Collects every result in memory instead of streaming it, and emits a single `Hashtable` at the end
+with an `IsWhatIf` key and an `Environments` key holding the list of
+`PlatformGitHubEnvironmentActionResult` objects.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="cf">
         <maml:name>Confirm</maml:name>
         <maml:description>
@@ -2351,13 +3157,24 @@ Defaults to
     <command:returnValues>
       <command:returnValue>
         <dev:type>
-          <maml:name>MSCKite.Azure.Platform.Models.PlatformGitHubEnvironmentSyncResult</maml:name>
+          <maml:name>MSCKite.Azure.Platform.Models.PlatformGitHubEnvironmentActionResult</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para>The `IsWhatIf` mode flag, plus the EnvironmentCode, Name, and Action of each GitHub environment,
-and the Name and Action of every secret and variable synced. Environment actions are `Created` or
-`Updated`; `-WhatIf` returns `PlannedCreate` or `PlannedUpdate`. Secret and variable actions are
-`Created`, `Updated`, or `Unchanged`; `-WhatIf` returns `PlannedCreate` or `PlannedUpdate`.</maml:para>
+          <maml:para>Emitted once processing finishes (the default). Has the
+EnvironmentCode, Name, and Action of the GitHub environment, and the Name and Action of every
+secret and variable synced. Environment actions are `Created` or `Updated`; `-WhatIf` returns
+`WouldCreate` or `WouldUpdate`. Secret and variable actions are `Created`, `Updated`, or
+`Unchanged`; `-WhatIf` returns `WouldCreate` or `WouldUpdate`.</maml:para>
+        </maml:description>
+      </command:returnValue>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>System.Collections.Hashtable</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>Emitted once at the end instead, only when `-AsHashtable` is passed. Has an
+`IsWhatIf` key, a `Count` key, and an `Environments` key holding the list of
+`PlatformGitHubEnvironmentActionResult` objects collected during the run.</maml:para>
         </maml:description>
       </command:returnValue>
     </command:returnValues>
@@ -2424,8 +3241,9 @@ matches the live resource group only produces a warning.
 
 This cmdlet supports `-WhatIf`/`-Confirm` and requires the `Az.Resources` module, signed in via
 `Connect-AzAccount` with permission to create and tag resource groups in the target subscription.
-With `-WhatIf`, the result has `IsWhatIf` set to `True` and reports intended mutations as
-`PlannedCreate` or `PlannedUpdate` actions.</maml:para>
+By default, each resource group's result is emitted once processing finishes; under `-WhatIf`,
+`Action` reports `WouldCreate` or `WouldUpdate` instead of applying a mutation. Pass
+`-AsHashtable` to collect every result and get a single summary object instead.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem>
@@ -2447,6 +3265,13 @@ With `-WhatIf`, the result has `IsWhatIf` set to `True` and reports intended mut
           </dev:type>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>AsHashtable</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
           <maml:name>WhatIf</maml:name>
           <maml:description />
           <dev:type>
@@ -2463,6 +3288,17 @@ With `-WhatIf`, the result has `IsWhatIf` set to `True` and reports intended mut
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>AsHashtable</maml:name>
+        <maml:description>
+          <maml:para>Collects every result in memory instead of streaming it, and emits a single `Hashtable` at the end
+with an `IsWhatIf` key and a `ResourceGroups` key holding the list of
+`PlatformResourceGroupActionResult` objects.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="cf">
         <maml:name>Confirm</maml:name>
         <maml:description>
@@ -2519,12 +3355,22 @@ Defaults to
     <command:returnValues>
       <command:returnValue>
         <dev:type>
-          <maml:name>MSCKite.Azure.Platform.Models.PlatformResourceGroupSyncResult</maml:name>
+          <maml:name>MSCKite.Azure.Platform.Models.PlatformResourceGroupActionResult</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para>The `IsWhatIf` mode flag, plus the Id, Name, Location, and Action of each resource group
-processed. Actions are `Created`, `Updated`, or `Unchanged`; `-WhatIf` returns `PlannedCreate` or
-`PlannedUpdate` instead of applying a mutation.</maml:para>
+          <maml:para>Emitted once processing finishes (the default). Has the Id, Name, Location, Tags, and Action of
+the resource group. Actions are `Created`, `Updated`, or `Unchanged`; `-WhatIf` returns
+`WouldCreate` or `WouldUpdate` instead of applying a mutation.</maml:para>
+        </maml:description>
+      </command:returnValue>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>System.Collections.Hashtable</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>Emitted once at the end instead, only when `-AsHashtable` is passed. Has an `IsWhatIf` key, a
+`Count` key, and a `ResourceGroups` key holding the list of `PlatformResourceGroupActionResult`
+objects collected during the run.</maml:para>
         </maml:description>
       </command:returnValue>
     </command:returnValues>
@@ -2596,8 +3442,9 @@ Every `resourceGroupId` referenced by a role assignment must already exist, so
 
 This cmdlet supports `-WhatIf`/`-Confirm` and requires the `Az.Resources` module, signed in via
 `Connect-AzAccount` with permission to manage Microsoft Entra security groups and assign RBAC
-roles. With `-WhatIf`, the result has `IsWhatIf` set to `True` and reports intended mutations as
-planned actions.</maml:para>
+roles. By default, each security group's result is emitted once processing finishes; under
+`-WhatIf`, `Action` reports actions that would happen instead of applying a mutation. Pass
+`-AsHashtable` to collect every result and get a single summary object instead.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem>
@@ -2619,6 +3466,13 @@ planned actions.</maml:para>
           </dev:type>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>AsHashtable</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
           <maml:name>WhatIf</maml:name>
           <maml:description />
           <dev:type>
@@ -2635,6 +3489,17 @@ planned actions.</maml:para>
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>AsHashtable</maml:name>
+        <maml:description>
+          <maml:para>Collects every result in memory instead of streaming it, and emits a single `Hashtable` at the end
+with an `IsWhatIf` key and a `SecurityGroups` key holding the list of
+`PlatformSecurityGroupActionResult` objects.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="cf">
         <maml:name>Confirm</maml:name>
         <maml:description>
@@ -2691,13 +3556,24 @@ Defaults to
     <command:returnValues>
       <command:returnValue>
         <dev:type>
-          <maml:name>MSCKite.Azure.Platform.Models.PlatformSecurityGroupSyncResult</maml:name>
+          <maml:name>MSCKite.Azure.Platform.Models.PlatformSecurityGroupActionResult</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para>The `IsWhatIf` mode flag, plus the DisplayName, MailNickName, ObjectId, and Action of each
-security group, and the Role, Scope, and Action of every role assignment synced. Group actions are
-`Created`, `Updated`, or `Unchanged`; `-WhatIf` returns `PlannedCreate` or `PlannedUpdate`. Role
-actions are `Added` or `Unchanged`; `-WhatIf` returns `PlannedAdd` for an intended assignment.</maml:para>
+          <maml:para>Emitted once processing finishes (the default). Has the
+DisplayName, MailNickName, ObjectId, and Action of the security group, and the Role, Scope, and
+Action of every role assignment synced. Group actions are `Created`, `Updated`, or `Unchanged`;
+`-WhatIf` returns `WouldCreate` or `WouldUpdate`. Role actions are `Added` or `Unchanged`;
+`-WhatIf` returns `WouldAdd` for an intended assignment.</maml:para>
+        </maml:description>
+      </command:returnValue>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>System.Collections.Hashtable</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>Emitted once at the end instead, only when `-AsHashtable` is passed. Has an
+`IsWhatIf` key, a `Count` key, and a `SecurityGroups` key holding the list of
+`PlatformSecurityGroupActionResult` objects collected during the run.</maml:para>
         </maml:description>
       </command:returnValue>
     </command:returnValues>
@@ -2799,7 +3675,28 @@ without changing either file.</maml:para>
         <maml:name>LatestTemplatePath</maml:name>
         <maml:description>
           <maml:para>Path to a separately downloaded template to compare against `-TemplatePath` for update
-availability. When omitted, no update check is performed.</maml:para>
+availability. When omitted, no update check is performed.
+Path to a separately downloaded template to compare against `-TemplatePath` for update
+availability.
+When omitted, no update check is performed.
+Path to a separately downloaded template to compare against `-TemplatePath` for update
+availability.
+When omitted, no update check is performed.
+Path to a separately downloaded template to compare against `-TemplatePath` for update
+availability.
+When omitted, no update check is performed.
+Path to a separately downloaded template to compare against `-TemplatePath` for update
+availability.
+When omitted, no update check is performed.
+Path to a separately downloaded template to compare against `-TemplatePath` for update
+availability.
+When omitted, no update check is performed.
+Path to a separately downloaded template to compare against `-TemplatePath` for update
+availability.
+When omitted, no update check is performed.
+Path to a separately downloaded template to compare against `-TemplatePath` for update
+availability.
+When omitted, no update check is performed.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
         <dev:type>

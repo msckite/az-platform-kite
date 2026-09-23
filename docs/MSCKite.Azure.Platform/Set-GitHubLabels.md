@@ -4,7 +4,7 @@ external help file: MSCKite.Azure.Platform.dll-Help.xml
 HelpUri: ''
 Locale: en-NL
 Module Name: MSCKite.Azure.Platform
-ms.date: 09/15/2026
+ms.date: 09/23/2026
 PlatyPS schema version: 2024-05-01
 title: Set-GitHubLabels
 ---
@@ -237,4 +237,3 @@ This cmdlet requires the GitHub CLI (`gh`) to be installed and signed in
 ## RELATED LINKS
 
 - [Set-GitHubDefault](https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Set-GitHubDefault.md)
-

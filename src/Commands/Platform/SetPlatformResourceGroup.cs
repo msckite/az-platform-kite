@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,7 +14,8 @@ namespace MSCKite.Azure.Platform.Commands.Platform
 {
     // Phase 1: creates or updates the Azure resource groups declared in platform-config.jsonc, ahead of any security group, identity, or GitHub environment resources
     [Cmdlet(VerbsCommon.Set, "PlatformResourceGroup", SupportsShouldProcess = true, ConfirmImpact = ConfirmImpact.Medium)]
-    [OutputType(typeof(PlatformResourceGroupSyncResult))]
+    [OutputType(typeof(PlatformResourceGroupActionResult))]
+    [OutputType(typeof(Hashtable))]
     public class SetPlatformResourceGroup : PSCmdlet
     {
         private static readonly PowerShellModule[] RequiredModules = {
@@ -27,6 +29,10 @@ namespace MSCKite.Azure.Platform.Commands.Platform
         [Parameter(Position = 1, ValueFromPipelineByPropertyName = true)]
         [ValidateNotNullOrEmpty]
         public string PlatformConfigPath { get; set; } = Path.Combine("config", "platform-config.jsonc");
+
+        // Collects every result in memory and emits a single summary Hashtable at the end, instead of streaming each result as it's created
+        [Parameter]
+        public SwitchParameter AsHashtable { get; set; }
 
         protected override void BeginProcessing()
         {
@@ -56,11 +62,23 @@ namespace MSCKite.Azure.Platform.Commands.Platform
 
             WriteVerbose($"Found {resourceGroups.Count} resource group(s) in platform config.");
 
-            var placeholders = globalConfig.ToPlaceholderMap();
-            var result = new PlatformResourceGroupSyncResult
+            var azureContext = AzureContextHelper.GetContext(this, out var azureMessage);
+            if (!azureContext.IsSignedIn)
             {
-                IsWhatIf = MyInvocation.BoundParameters.ContainsKey("WhatIf")
-            };
+                ThrowTerminatingError(new ErrorRecord(
+                    new InvalidOperationException(azureMessage),
+                    "PlatformResourceGroupNotSignedIn", ErrorCategory.AuthenticationError, null));
+                return;
+            }
+
+            var placeholders = globalConfig.ToPlaceholderMap();
+            var items = new List<PlatformResourceGroupActionResult>();
+
+            // Buffers each result instead of streaming it, so ShouldProcess's "What if:" host messages don't interleave with pipeline output
+            void Emit(PlatformResourceGroupActionResult item)
+            {
+                items.Add(item);
+            }
 
             foreach (var config in resourceGroups)
             {
@@ -89,12 +107,13 @@ namespace MSCKite.Azure.Platform.Commands.Platform
                     WriteVerbose($"Resource group '{name}' does not exist yet.");
                     if (!ShouldProcess(name, "Create resource group"))
                     {
-                        result.ResourceGroups.Add(new PlatformResourceGroupActionResult
+                        Emit(new PlatformResourceGroupActionResult
                         {
                             Id = config.Id,
                             Name = name,
                             Location = location,
-                            Action = "PlannedCreate"
+                            Tags = tags,
+                            Action = "WouldCreate"
                         });
                         continue;
                     }
@@ -110,11 +129,12 @@ namespace MSCKite.Azure.Platform.Commands.Platform
                     }
 
                     WriteVerbose($"Resource group '{name}' created and confirmed readable.");
-                    result.ResourceGroups.Add(new PlatformResourceGroupActionResult
+                    Emit(new PlatformResourceGroupActionResult
                     {
                         Id = config.Id,
                         Name = created.Name,
                         Location = created.Location,
+                        Tags = created.Tags,
                         Action = "Created"
                     });
                     continue;
@@ -130,11 +150,12 @@ namespace MSCKite.Azure.Platform.Commands.Platform
                 if (TagsEqual(existing.Tags, tags))
                 {
                     WriteVerbose($"Resource group '{name}' tags already match the configured values; nothing to do.");
-                    result.ResourceGroups.Add(new PlatformResourceGroupActionResult
+                    Emit(new PlatformResourceGroupActionResult
                     {
                         Id = config.Id,
                         Name = existing.Name,
                         Location = existing.Location,
+                        Tags = existing.Tags,
                         Action = "Unchanged"
                     });
                     continue;
@@ -143,29 +164,46 @@ namespace MSCKite.Azure.Platform.Commands.Platform
                 WriteVerbose($"Resource group '{name}' tags have drifted from the configured values.");
                 if (!ShouldProcess(name, "Update resource group tags"))
                 {
-                    result.ResourceGroups.Add(new PlatformResourceGroupActionResult
+                    Emit(new PlatformResourceGroupActionResult
                     {
                         Id = config.Id,
                         Name = existing.Name,
                         Location = existing.Location,
-                        Action = "PlannedUpdate"
+                        Tags = tags,
+                        Action = "WouldUpdate"
                     });
                     continue;
                 }
 
                 WriteVerbose($"Updating tags on resource group '{name}'.");
                 AzureResourceGroupHelper.UpdateTags(this, name, tags);
-                result.ResourceGroups.Add(new PlatformResourceGroupActionResult
+                Emit(new PlatformResourceGroupActionResult
                 {
                     Id = config.Id,
                     Name = existing.Name,
                     Location = existing.Location,
+                    Tags = tags,
                     Action = "Updated"
                 });
             }
 
-            WriteVerbose($"Done. Processed {result.ResourceGroups.Count} of {resourceGroups.Count} resource group(s).");
-            WriteObject(result);
+            WriteVerbose($"Done. Processed {items.Count} of {resourceGroups.Count} resource group(s).");
+            if (AsHashtable.IsPresent)
+            {
+                WriteObject(new Hashtable
+                {
+                    ["IsWhatIf"] = MyInvocation.BoundParameters.ContainsKey("WhatIf"),
+                    ["Count"] = items.Count,
+                    ["ResourceGroups"] = items
+                });
+            }
+            else
+            {
+                foreach (var item in items)
+                {
+                    WriteObject(item);
+                }
+            }
         }
 
         private static bool TagsEqual(Dictionary<string, string> current, Dictionary<string, string> desired)
