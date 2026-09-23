@@ -47,7 +47,7 @@ needs no Azure or GitHub sign-in.
 ### Example 1 - Install the workflows for the configured branch strategy
 
 ```powershell
-Get-PlatformTemplate -IncludedFolders 'templates' -OutputFolder ./.downloads
+Get-PlatformTemplate -IncludedFolders 'templates' -OutputFolder ./.tmp
 New-PlatformWorkflow
 ```
 
@@ -57,7 +57,7 @@ Copies the shared templates and the ones for the branch strategy declared in
 ### Example 2 - Install a specific strategy and overwrite existing files
 
 ```powershell
-New-PlatformWorkflow -InputFolder ./.downloads/templates -OutputFolder . -BranchStrategy release -Force
+New-PlatformWorkflow -InputFolder ./.tmp/templates -OutputFolder . -BranchStrategy release -Force
 ```
 
 ### Example 3 - Preview which files would be copied
@@ -161,7 +161,7 @@ HelpMessage: ''
 
 Path to the downloaded templates folder containing `github/workflows/manifest.jsonc`.
 Defaults to
-`.downloads/templates`, the location `Get-PlatformTemplate` writes to.
+`.tmp/templates`, the location `Get-PlatformTemplate` writes to.
 
 ```yaml
 Type: System.String

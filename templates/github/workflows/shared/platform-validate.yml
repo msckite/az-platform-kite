@@ -64,7 +64,7 @@ jobs:
           TEMPLATE_BRANCH: ${{ inputs.template-branch }}
         run: |
           $ErrorActionPreference = 'Stop'
-          Get-PlatformTemplate -IncludedFolders 'schemas', 'templates' -OutputFolder '.downloads' -Branch $env:TEMPLATE_BRANCH -Force
+          Get-PlatformTemplate -IncludedFolders 'schemas', 'templates' -OutputFolder '.tmp' -Branch $env:TEMPLATE_BRANCH -Force
 
       - name: Validate template and schema versions
         shell: pwsh
@@ -78,13 +78,13 @@ jobs:
           $pairs = @(
             @{
               Template = $env:GLOBAL_CONFIG_PATH
-              Schema   = '.downloads/schemas/global-config.schema.json'
-              Latest   = '.downloads/templates/global-config.jsonc'
+              Schema   = '.tmp/schemas/global-config.schema.json'
+              Latest   = '.tmp/templates/global-config.jsonc'
             }
             @{
               Template = $env:PLATFORM_CONFIG_PATH
-              Schema   = '.downloads/schemas/platform-config.schema.json'
-              Latest   = '.downloads/templates/platform-config.jsonc'
+              Schema   = '.tmp/schemas/platform-config.schema.json'
+              Latest   = '.tmp/templates/platform-config.jsonc'
             }
           )
 

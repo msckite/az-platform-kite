@@ -471,7 +471,7 @@ Get-PlatformContext -All
 temporary folder, copies the folder(s) listed in `-IncludedFolders` into `-OutputFolder`
 (preserving their relative path and subfolders/files), then deletes the temporary clone.
 
-By default, `-IncludedFolders` is `templates` and `-OutputFolder` is `.downloads`, a
+By default, `-IncludedFolders` is `templates` and `-OutputFolder` is `.tmp`, a
 dedicated folder so rerunning the cmdlet never overwrites configuration files already in use
 elsewhere in the workspace. Use `-Force` to overwrite files that already exist at the
 destination.</maml:para>
@@ -607,52 +607,52 @@ Defaults to `templates`.</maml:para>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="true (ByPropertyName)" position="1" aliases="none">
         <maml:name>OutputFolder</maml:name>
         <maml:description>
-          <maml:para>Local folder to copy the downloaded folder(s) into. Defaults to `.downloads`, a dedicated folder
+          <maml:para>Local folder to copy the downloaded folder(s) into. Defaults to `.tmp`, a dedicated folder
 separate from any in-use configuration so reruns never overwrite it.
 Local folder to copy the downloaded folder(s) into.
-Defaults to `.downloads`, a dedicated folder
+Defaults to `.tmp`, a dedicated folder
 separate from any in-use configuration so reruns never overwrite it.
 Local folder to copy the downloaded folder(s) into.
-Defaults to `.downloads`, a dedicated folder
+Defaults to `.tmp`, a dedicated folder
 separate from any in-use configuration so reruns never overwrite it.
 Local folder to copy the downloaded folder(s) into.
-Defaults to `.downloads`, a dedicated folder
+Defaults to `.tmp`, a dedicated folder
 separate from any in-use configuration so reruns never overwrite it.
 Local folder to copy the downloaded folder(s) into.
-Defaults to `.downloads`, a dedicated folder
+Defaults to `.tmp`, a dedicated folder
 separate from any in-use configuration so reruns never overwrite it.
 Local folder to copy the downloaded folder(s) into.
-Defaults to `.downloads`, a dedicated folder
+Defaults to `.tmp`, a dedicated folder
 separate from any in-use configuration so reruns never overwrite it.
 Local folder to copy the downloaded folder(s) into.
-Defaults to `.downloads`, a dedicated folder
+Defaults to `.tmp`, a dedicated folder
 separate from any in-use configuration so reruns never overwrite it.
 Local folder to copy the downloaded folder(s) into.
-Defaults to `.downloads`, a dedicated folder
+Defaults to `.tmp`, a dedicated folder
 separate from any in-use configuration so reruns never overwrite it.
 Local folder to copy the downloaded folder(s) into.
-Defaults to `.downloads`, a dedicated folder
+Defaults to `.tmp`, a dedicated folder
 separate from any in-use configuration so reruns never overwrite it.
 Local folder to copy the downloaded folder(s) into.
-Defaults to `.downloads`, a dedicated folder
+Defaults to `.tmp`, a dedicated folder
 separate from any in-use configuration so reruns never overwrite it.
 Local folder to copy the downloaded folder(s) into.
-Defaults to `.downloads`, a dedicated folder
+Defaults to `.tmp`, a dedicated folder
 separate from any in-use configuration so reruns never overwrite it.
 Local folder to copy the downloaded folder(s) into.
-Defaults to `.downloads`, a dedicated folder
+Defaults to `.tmp`, a dedicated folder
 separate from any in-use configuration so reruns never overwrite it.
 Local folder to copy the downloaded folder(s) into.
-Defaults to `.downloads`, a dedicated folder
+Defaults to `.tmp`, a dedicated folder
 separate from any in-use configuration so reruns never overwrite it.
 Local folder to copy the downloaded folder(s) into.
-Defaults to `.downloads`, a dedicated folder
+Defaults to `.tmp`, a dedicated folder
 separate from any in-use configuration so reruns never overwrite it.
 Local folder to copy the downloaded folder(s) into.
-Defaults to `.downloads`, a dedicated folder
+Defaults to `.tmp`, a dedicated folder
 separate from any in-use configuration so reruns never overwrite it.
 Local folder to copy the downloaded folder(s) into.
-Defaults to `.downloads`, a dedicated folder
+Defaults to `.tmp`, a dedicated folder
 separate from any in-use configuration so reruns never overwrite it.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
@@ -752,7 +752,7 @@ whether the download succeeded.</maml:para>
 Get-PlatformTemplate
 ```</maml:para>
           <maml:para>&#x80;</maml:para>
-          <maml:para>Copies the repository's `templates` folder into `.downloads\templates`.</maml:para>
+          <maml:para>Copies the repository's `templates` folder into `.tmp\templates`.</maml:para>
         </maml:introduction>
         <dev:code />
         <dev:remarks />
@@ -1183,7 +1183,7 @@ Defaults to `config/global-config.jsonc`.</maml:para>
         <maml:description>
           <maml:para>Path to the downloaded templates folder containing `github/workflows/manifest.jsonc`.
 Defaults to
-`.downloads/templates`, the location `Get-PlatformTemplate` writes to.</maml:para>
+`.tmp/templates`, the location `Get-PlatformTemplate` writes to.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
         <dev:type>
@@ -1243,7 +1243,7 @@ skipped because they already existed, and whether the installation succeeded.</m
         <maml:title>--------- Example 1 - Install the workflows for the configured branch strategy ---------</maml:title>
         <maml:introduction>
           <maml:para>```powershell
-Get-PlatformTemplate -IncludedFolders 'templates' -OutputFolder ./.downloads
+Get-PlatformTemplate -IncludedFolders 'templates' -OutputFolder ./.tmp
 New-PlatformWorkflow
 ```</maml:para>
           <maml:para>&#x80;</maml:para>
@@ -1257,7 +1257,7 @@ New-PlatformWorkflow
         <maml:title>--------- Example 2 - Install a specific strategy and overwrite existing files ---------</maml:title>
         <maml:introduction>
           <maml:para>```powershell
-New-PlatformWorkflow -InputFolder ./.downloads/templates -OutputFolder . -BranchStrategy release -Force
+New-PlatformWorkflow -InputFolder ./.tmp/templates -OutputFolder . -BranchStrategy release -Force
 ```</maml:para>
         </maml:introduction>
         <dev:code />
@@ -3777,7 +3777,7 @@ Test-PlatformTemplate -TemplatePath ./config/global-config.jsonc -SchemaPath ./s
         <maml:title>--------- Example 2 - Check for a newer downloaded template ---------</maml:title>
         <maml:introduction>
           <maml:para>```powershell
-Test-PlatformTemplate -TemplatePath ./config/global-config.jsonc -SchemaPath ./schemas/global-config.schema.json -LatestTemplatePath ./.downloads/templates/global-config.jsonc
+Test-PlatformTemplate -TemplatePath ./config/global-config.jsonc -SchemaPath ./schemas/global-config.schema.json -LatestTemplatePath ./.tmp/templates/global-config.jsonc
 ```</maml:para>
         </maml:introduction>
         <dev:code />

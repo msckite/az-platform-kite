@@ -45,7 +45,7 @@ Test-PlatformTemplate -TemplatePath ./config/global-config.jsonc -SchemaPath ./s
 ### Example 2 - Check for a newer downloaded template
 
 ```powershell
-Test-PlatformTemplate -TemplatePath ./config/global-config.jsonc -SchemaPath ./schemas/global-config.schema.json -LatestTemplatePath ./.downloads/templates/global-config.jsonc
+Test-PlatformTemplate -TemplatePath ./config/global-config.jsonc -SchemaPath ./schemas/global-config.schema.json -LatestTemplatePath ./.tmp/templates/global-config.jsonc
 ```
 
 ## PARAMETERS
