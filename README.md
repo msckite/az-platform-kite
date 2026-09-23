@@ -181,7 +181,7 @@ Set-PlatformEnvironmentIdentity # Phase 3: federated user-assigned identities an
 Set-PlatformGitHubEnvironment   # Phase 4: GitHub environments, secrets and variables
 ```
 
-Every phase is idempotent, so you can safely rerun the whole sequence after changing the configuration. Add `-WhatIf` to any command to preview the changes first.
+Every phase is idempotent, so you can safely rerun the whole sequence after changing the configuration. Add `-WhatIf` to preview the changes first, or `-Verbose` to see detailed progress.
 
 Once the first run has completed, hand the recurring runs over to GitHub Actions:
 
