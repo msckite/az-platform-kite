@@ -17,7 +17,7 @@ Use `Test-PlatformTemplate` after downloading templates, supplying the correspon
 Test-PlatformTemplate `
   -TemplatePath .\config\global-config.jsonc `
   -SchemaPath .\schemas\global-config.schema.json `
-  -LatestTemplatePath .\.downloads\templates\global-config.jsonc
+  -LatestTemplatePath .\.tmp\templates\global-config.jsonc
 ```
 
 > [!NOTE]

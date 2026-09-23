@@ -158,12 +158,12 @@ Set-GitHubDefault $null
 Working from your local repository, download the templates, scaffold the configuration folder from them, and fill in `global-config.jsonc` and `platform-config.jsonc`:
 
 ```powershell
-Get-PlatformTemplate -IncludedFolders 'templates' -OutputFolder ./.downloads
-New-PlatformConfigStructure -InputFolder ./.downloads/templates -OutputFolder ./config
-Copy-Item ./.downloads/templates/platform-config.jsonc ./config
+Get-PlatformTemplate -IncludedFolders 'templates' -OutputFolder ./.tmp
+New-PlatformConfigStructure -InputFolder ./.tmp/templates -OutputFolder ./config
+Copy-Item ./.tmp/templates/platform-config.jsonc ./config
 ```
 
-`Get-PlatformTemplate` downloads the latest `global-config.jsonc` and other available templates, into `.downloads`. `New-PlatformConfigStructure` seeds your repository's `config` folder with the downloaded `global-config.jsonc`, so nothing you edit later is ever overwritten by a new download.
+`Get-PlatformTemplate` downloads the latest `global-config.jsonc` and other available templates, into `.tmp`. `New-PlatformConfigStructure` seeds your repository's `config` folder with the downloaded `global-config.jsonc`, so nothing you edit later is ever overwritten by a new download.
 
 <br/>
 
@@ -189,7 +189,7 @@ Once the first run has completed, hand the recurring runs over to GitHub Actions
 New-PlatformWorkflow
 ```
 
-`New-PlatformWorkflow` reads the workflow manifest from `.downloads/templates` and copies the [workflow templates](templates/github/workflows/README.md) for your `sourceControl.branchStrategy` into `.github` of your repository. That ships a CI/CD pipeline staged across `dev`/`prd` (`github`) or `dev`/`stg`/`prd` (`release`), running the same four phases in dependency order. Existing files are left untouched unless you pass `-Force`.
+`New-PlatformWorkflow` reads the workflow manifest from `.tmp/templates` and copies the [workflow templates](templates/github/workflows/README.md) for your `sourceControl.branchStrategy` into `.github` of your repository. That ships a CI/CD pipeline staged across `dev`/`prd` (`github`) or `dev`/`stg`/`prd` (`release`), running the same four phases in dependency order. Existing files are left untouched unless you pass `-Force`.
 
 ## License
 

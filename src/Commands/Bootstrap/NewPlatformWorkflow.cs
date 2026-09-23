@@ -17,7 +17,7 @@ namespace MSCKite.Azure.Platform.Commands.Bootstrap
 
         [Parameter(Position = 0, ValueFromPipelineByPropertyName = true)]
         [ValidateNotNullOrEmpty]
-        public string InputFolder { get; set; } = ".downloads/templates";
+        public string InputFolder { get; set; } = ".tmp/templates";
 
         // Repository root that holds the .github folder the workflows are copied into
         [Parameter(Position = 1, ValueFromPipelineByPropertyName = true)]
