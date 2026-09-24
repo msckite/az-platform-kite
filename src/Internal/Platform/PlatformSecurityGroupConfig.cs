@@ -7,7 +7,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform
     {
         internal string DisplayName { get; set; }
 
-        internal string MailNickName { get; set; }
+        internal string MailNickname { get; set; }
 
         internal string Description { get; set; }
 

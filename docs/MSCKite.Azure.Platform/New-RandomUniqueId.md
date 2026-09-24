@@ -4,7 +4,7 @@ external help file: MSCKite.Azure.Platform.dll-Help.xml
 HelpUri: ''
 Locale: en-NL
 Module Name: MSCKite.Azure.Platform
-ms.date: 09/15/2026
+ms.date: 09/23/2026
 PlatyPS schema version: 2024-05-01
 title: New-RandomUniqueId
 ---
@@ -71,6 +71,48 @@ length is 8.
 Specifies the identifier length.
 The minimum length is 4, the maximum length is 12, and the default
 length is 8.
+Specifies the identifier length.
+The minimum length is 4, the maximum length is 12, and the default
+length is 8.
+Specifies the identifier length.
+The minimum length is 4, the maximum length is 12, and the default
+length is 8.
+Specifies the identifier length.
+The minimum length is 4, the maximum length is 12, and the default
+length is 8.
+Specifies the identifier length.
+The minimum length is 4, the maximum length is 12, and the default
+length is 8.
+Specifies the identifier length.
+The minimum length is 4, the maximum length is 12, and the default
+length is 8.
+Specifies the identifier length.
+The minimum length is 4, the maximum length is 12, and the default
+length is 8.
+Specifies the identifier length.
+The minimum length is 4, the maximum length is 12, and the default
+length is 8.
+Specifies the identifier length.
+The minimum length is 4, the maximum length is 12, and the default
+length is 8.
+Specifies the identifier length.
+The minimum length is 4, the maximum length is 12, and the default
+length is 8.
+Specifies the identifier length.
+The minimum length is 4, the maximum length is 12, and the default
+length is 8.
+Specifies the identifier length.
+The minimum length is 4, the maximum length is 12, and the default
+length is 8.
+Specifies the identifier length.
+The minimum length is 4, the maximum length is 12, and the default
+length is 8.
+Specifies the identifier length.
+The minimum length is 4, the maximum length is 12, and the default
+length is 8.
+Specifies the identifier length.
+The minimum length is 4, the maximum length is 12, and the default
+length is 8.
 
 ```yaml
 Type: System.Int16
@@ -116,4 +158,3 @@ guaranteed global uniqueness.
 ## RELATED LINKS
 
 - [New-RandomPassword](https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/New-RandomPassword.md)
-

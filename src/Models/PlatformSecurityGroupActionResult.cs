@@ -6,11 +6,11 @@ namespace MSCKite.Azure.Platform.Models
     {
         public string DisplayName { get; set; }
 
-        public string MailNickName { get; set; }
+        public string MailNickname { get; set; }
 
         public string ObjectId { get; set; }
 
-        // "Created", "Updated", or "Unchanged"
+        // "Created", "Updated", "Unchanged", "WouldCreate", or "WouldUpdate"
         public string Action { get; set; }
 
         public List<PlatformRoleAssignmentActionResult> RoleAssignments { get; } = new List<PlatformRoleAssignmentActionResult>();

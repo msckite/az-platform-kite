@@ -1,0 +1,56 @@
+name: 'Jobs: Project Provision'
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: GitHub environment used as the approval and OIDC gate.
+        type: string
+        required: false
+        default: dev
+      what-if:
+        description: Plan the project deployment without applying changes.
+        type: boolean
+        required: false
+        default: true
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  WHAT_IF: ${{ inputs.what-if }}
+
+jobs:
+  provision:
+    name: Provision
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    timeout-minutes: 30
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.release.tag_name || github.sha }}
+
+      - name: Set up Platform Kite
+        uses: ./.github/actions/setup-platform-kite
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Sync Project
+        shell: pwsh
+        run: |
+          if ($env:WHAT_IF -eq 'true') {
+            Write-Output '➡️ TODO: Plan (preflight) the project deployment with WhatIf = true'
+          }
+          else {
+            Write-Output '➡️ TODO: Deploy the project with WhatIf = false'
+          }

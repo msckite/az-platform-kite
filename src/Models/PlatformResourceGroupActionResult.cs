@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace MSCKite.Azure.Platform.Models
 {
     public class PlatformResourceGroupActionResult
@@ -8,7 +10,9 @@ namespace MSCKite.Azure.Platform.Models
 
         public string Location { get; set; }
 
-        // "Created", "Updated", or "Unchanged"
+        public Dictionary<string, string> Tags { get; set; }
+
+        // "Created", "Updated", "Unchanged", "WouldCreate", or "WouldUpdate"
         public string Action { get; set; }
     }
 }

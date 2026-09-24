@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Forces a list view for every Set-Platform* action result, instead of relying on PowerShell's
+     default table-vs-list heuristic (table for <= 4 visible properties, list otherwise), which
+     made PlatformResourceGroupActionResult (4 properties) render as a table while the other,
+     wider action result types already rendered as a list. -->
+<Configuration>
+  <ViewDefinitions>
+    <View>
+      <Name>PlatformResourceGroupActionResult</Name>
+      <ViewSelectedBy>
+        <TypeName>MSCKite.Azure.Platform.Models.PlatformResourceGroupActionResult</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem><PropertyName>Id</PropertyName></ListItem>
+              <ListItem><PropertyName>Name</PropertyName></ListItem>
+              <ListItem><PropertyName>Location</PropertyName></ListItem>
+              <ListItem><PropertyName>Tags</PropertyName></ListItem>
+              <ListItem><PropertyName>Action</PropertyName></ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <View>
+      <Name>PlatformSecurityGroupActionResult</Name>
+      <ViewSelectedBy>
+        <TypeName>MSCKite.Azure.Platform.Models.PlatformSecurityGroupActionResult</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem><PropertyName>DisplayName</PropertyName></ListItem>
+              <ListItem><PropertyName>MailNickname</PropertyName></ListItem>
+              <ListItem><PropertyName>ObjectId</PropertyName></ListItem>
+              <ListItem><PropertyName>Action</PropertyName></ListItem>
+              <ListItem><PropertyName>RoleAssignments</PropertyName></ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <View>
+      <Name>PlatformEnvironmentIdentityActionResult</Name>
+      <ViewSelectedBy>
+        <TypeName>MSCKite.Azure.Platform.Models.PlatformEnvironmentIdentityActionResult</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem><PropertyName>EnvironmentCode</PropertyName></ListItem>
+              <ListItem><PropertyName>IdentityName</PropertyName></ListItem>
+              <ListItem><PropertyName>PrincipalId</PropertyName></ListItem>
+              <ListItem><PropertyName>ClientId</PropertyName></ListItem>
+              <ListItem><PropertyName>Action</PropertyName></ListItem>
+              <ListItem><PropertyName>FederatedCredentialAction</PropertyName></ListItem>
+              <ListItem><PropertyName>RoleAssignments</PropertyName></ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <View>
+      <Name>PlatformGitHubEnvironmentActionResult</Name>
+      <ViewSelectedBy>
+        <TypeName>MSCKite.Azure.Platform.Models.PlatformGitHubEnvironmentActionResult</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem><PropertyName>EnvironmentCode</PropertyName></ListItem>
+              <ListItem><PropertyName>Name</PropertyName></ListItem>
+              <ListItem><PropertyName>Action</PropertyName></ListItem>
+              <ListItem><PropertyName>Secrets</PropertyName></ListItem>
+              <ListItem><PropertyName>Variables</PropertyName></ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+  </ViewDefinitions>
+</Configuration>

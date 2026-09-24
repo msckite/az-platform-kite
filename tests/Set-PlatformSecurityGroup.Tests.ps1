@@ -10,6 +10,17 @@ Describe 'Set-PlatformSecurityGroup' {
 
         Import-Module $modulePath -Force
 
+        # Shadows the real Az.Accounts cmdlet so the cmdlet's sign-in check passes without a real Azure login;
+        # the underlying Az.Resources cmdlets still run for real and no-op gracefully when unauthenticated
+        function Get-AzContext {
+            [PSCustomObject]@{
+                Account      = [PSCustomObject]@{ Id = 'tester@example.com' }
+                Tenant       = [PSCustomObject]@{ Id = '11111111-1111-1111-1111-111111111111' }
+                Subscription = [PSCustomObject]@{ Id = '22222222-2222-2222-2222-222222222222'; Name = 'Test Subscription' }
+                Environment  = [PSCustomObject]@{ Name = 'AzureCloud' }
+            }
+        }
+
         $script:ValidGlobalConfig = @'
 {
   "templateVersion": "1.0.0",
@@ -46,20 +57,20 @@ Describe 'Set-PlatformSecurityGroup' {
         { Set-PlatformSecurityGroup -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*must contain a "securityGroups" array*'
     }
 
-    It 'throws when a security group is missing a mailNickName' {
+    It 'throws when a security group is missing a mailNickname' {
         $global = Join-Path $TestDrive 'global.jsonc'
         $platform = Join-Path $TestDrive 'platform-nomail.jsonc'
         $script:ValidGlobalConfig | Set-Content -Path $global
         '{"templateVersion":"1.0.0","resourceGroups":[],"securityGroups":[{"displayName":"Devs","roleAssignments":[{"role":"Contributor","resourceGroupId":"dev"}]}]}' | Set-Content -Path $platform
 
-        { Set-PlatformSecurityGroup -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*must have a non-empty "mailNickName"*'
+        { Set-PlatformSecurityGroup -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*must have a non-empty "mailNickname"*'
     }
 
     It 'throws when a security group has no roleAssignments' {
         $global = Join-Path $TestDrive 'global.jsonc'
         $platform = Join-Path $TestDrive 'platform-noroles.jsonc'
         $script:ValidGlobalConfig | Set-Content -Path $global
-        '{"templateVersion":"1.0.0","resourceGroups":[],"securityGroups":[{"displayName":"Devs","mailNickName":"sg-devs","roleAssignments":[]}]}' | Set-Content -Path $platform
+        '{"templateVersion":"1.0.0","resourceGroups":[],"securityGroups":[{"displayName":"Devs","mailNickname":"sg-devs","roleAssignments":[]}]}' | Set-Content -Path $platform
 
         { Set-PlatformSecurityGroup -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*must have a non-empty "roleAssignments" array*'
     }
@@ -68,9 +79,9 @@ Describe 'Set-PlatformSecurityGroup' {
         $global = Join-Path $TestDrive 'global.jsonc'
         $platform = Join-Path $TestDrive 'platform-badplaceholder.jsonc'
         $script:ValidGlobalConfig | Set-Content -Path $global
-        '{"templateVersion":"1.0.0","resourceGroups":[],"securityGroups":[{"displayName":"SG ${bogus}","mailNickName":"sg-devs","roleAssignments":[{"role":"Contributor","resourceGroupId":"dev"}]}]}' | Set-Content -Path $platform
+        '{"templateVersion":"1.0.0","resourceGroups":[],"securityGroups":[{"displayName":"SG ${bogus}","mailNickname":"sg-devs","roleAssignments":[{"role":"Contributor","resourceGroupId":"dev"}]}]}' | Set-Content -Path $platform
 
-        { Set-PlatformSecurityGroup -GlobalConfigPath $global -PlatformConfigPath $platform -ErrorAction Stop } | Should -Throw "*Unresolved placeholder*bogus*"
+        { Set-PlatformSecurityGroup -GlobalConfigPath $global -PlatformConfigPath $platform -ErrorAction Stop } | Should -Throw '*Unresolved placeholder*bogus*'
     }
 
     It 'reports a role assignment referencing a resource group that does not exist' {
@@ -84,11 +95,29 @@ Describe 'Set-PlatformSecurityGroup' {
     { "id": "dev", "name": "rg-does-not-exist-msckite-tests-zzz", "location": "westeurope" }
   ],
   "securityGroups": [
-    { "displayName": "SG Devs", "mailNickName": "sg-msckite-tests-devs", "roleAssignments": [ { "role": "Contributor", "resourceGroupId": "dev" } ] }
+    { "displayName": "SG Devs", "mailNickname": "sg-msckite-tests-devs", "roleAssignments": [ { "role": "Contributor", "resourceGroupId": "dev" } ] }
   ]
 }
 '@ | Set-Content -Path $platform
 
         { Set-PlatformSecurityGroup -GlobalConfigPath $global -PlatformConfigPath $platform -ErrorAction Stop } | Should -Throw '*does not exist. Run Set-PlatformResourceGroup first*'
+    }
+
+    It 'throws when the active Azure tenant differs from global config' {
+        $global = Join-Path $TestDrive 'global-tenant-mismatch.jsonc'
+        $platform = Join-Path $TestDrive 'platform.jsonc'
+        ($script:ValidGlobalConfig -replace '"tenantId": "[^"]+"', '"tenantId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"') | Set-Content -Path $global
+        '{"templateVersion":"1.0.0","resourceGroups":[],"securityGroups":[]}' | Set-Content -Path $platform
+
+        { Set-PlatformSecurityGroup -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*active Azure tenant*does not match*'
+    }
+
+    It 'throws when the active Azure subscription differs from global config' {
+        $global = Join-Path $TestDrive 'global-subscription-mismatch.jsonc'
+        $platform = Join-Path $TestDrive 'platform.jsonc'
+        ($script:ValidGlobalConfig -replace '"subscriptionId": "[^"]+"', '"subscriptionId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"') | Set-Content -Path $global
+        '{"templateVersion":"1.0.0","resourceGroups":[],"securityGroups":[]}' | Set-Content -Path $platform
+
+        { Set-PlatformSecurityGroup -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*active Azure subscription*does not match*'
     }
 }

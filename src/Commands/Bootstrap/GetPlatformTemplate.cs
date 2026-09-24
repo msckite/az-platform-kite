@@ -22,7 +22,7 @@ namespace MSCKite.Azure.Platform.Commands.Bootstrap
         // Defaults to a dedicated folder so reruns never overwrite config already in use
         [Parameter(Position = 1, ValueFromPipelineByPropertyName = true)]
         [ValidateNotNullOrEmpty]
-        public string OutputFolder { get; set; } = ".downloads";
+        public string OutputFolder { get; set; } = ".tmp";
 
         [Parameter]
         [ValidateNotNullOrEmpty]

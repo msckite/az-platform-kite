@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Management.Automation;
 
@@ -18,11 +19,17 @@ namespace MSCKite.Azure.Platform.Internal.Azure
     // Creates, updates, and reads Microsoft Entra security groups via the Az.Resources module
     internal static class AzureAdGroupHelper
     {
-        // Get-AzADGroup has no -MailNickname parameter; lookup is done via an OData filter instead
+        // Get-AzADGroup has no -MailNickname parameter; lookup is done via an OData filter instead.
+        // Lookup failures (e.g. the caller's identity lacks the Microsoft Graph Group.Read.All permission) are captured
+        // and re-thrown rather than swallowed, so they aren't misreported as "the group doesn't exist".
         private const string GetScript = @"
 param($MailNickname)
 $escaped = $MailNickname -replace ""'"", ""''""
-$group = Get-AzADGroup -Filter ""mailNickname eq '$escaped'"" -ErrorAction SilentlyContinue | Select-Object -First 1
+$lookupError = $null
+$group = Get-AzADGroup -Filter ""mailNickname eq '$escaped'"" -ErrorAction SilentlyContinue -ErrorVariable lookupError | Select-Object -First 1
+if ($lookupError) {
+    throw $lookupError[0]
+}
 if ($group) {
     [PSCustomObject]@{
         Id           = $group.Id
@@ -45,10 +52,22 @@ param($ObjectId, $DisplayName, $Description)
 Update-AzADGroup -ObjectId $ObjectId -DisplayName $DisplayName -Description $Description -ErrorAction Stop | Out-Null
 ";
 
-        // Returns null if the group doesn't exist (or isn't yet visible)
+        // Returns null if the group doesn't exist (or isn't yet visible); throws if the lookup itself failed (e.g. missing Graph permissions),
+        // so a permission problem in CI surfaces as an error instead of being misreported as "the group doesn't exist yet"
         internal static AzureAdGroupInfo Get(PSCmdlet cmdlet, string mailNickname)
         {
-            var result = cmdlet.InvokeCommand.InvokeScript(GetScript, mailNickname).FirstOrDefault();
+            PSObject result;
+            try
+            {
+                result = cmdlet.InvokeCommand.InvokeScript(GetScript, mailNickname).FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException(
+                    $"Failed to look up security group '{mailNickname}' in Microsoft Entra ID. This is usually caused by the identity running this command missing the Microsoft Graph 'Group.Read.All' (or 'Directory.Read.All') permission: {ex.Message}",
+                    ex);
+            }
+
             if (result == null)
             {
                 return null;

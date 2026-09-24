@@ -8,7 +8,7 @@ namespace MSCKite.Azure.Platform.Models
 
         public string Name { get; set; }
 
-        // "Created" or "Updated"
+        // "Created", "Updated", "WouldCreate", or "WouldUpdate"
         public string Action { get; set; }
 
         public List<PlatformKeyValueActionResult> Secrets { get; } = new List<PlatformKeyValueActionResult>();

@@ -17,17 +17,21 @@ namespace MSCKite.Azure.Platform.Commands.Bootstrap
 
         [Parameter(Position = 0, ValueFromPipelineByPropertyName = true)]
         [ValidateNotNullOrEmpty]
-        public string InputFolder { get; set; } = ".downloads/templates";
+        public string InputFolder { get; set; } = ".tmp/templates";
 
         // Repository root that holds the .github folder the workflows are copied into
         [Parameter(Position = 1, ValueFromPipelineByPropertyName = true)]
         [ValidateNotNullOrEmpty]
         public string OutputFolder { get; set; } = ".";
 
-        // Falls back to sourceControl.branchStrategy in global-config.jsonc when not specified
+        // Used only for project workflows. Platform workflows have a fixed flow.
         [Parameter(ValueFromPipelineByPropertyName = true)]
         [ValidateNotNullOrEmpty]
         public string BranchStrategy { get; set; }
+
+        [Parameter(ValueFromPipelineByPropertyName = true)]
+        [ValidateSet("platform", "project", "both")]
+        public string WorkflowType { get; set; } = "both";
 
         [Parameter(ValueFromPipelineByPropertyName = true)]
         [ValidateNotNullOrEmpty]
@@ -59,77 +63,122 @@ namespace MSCKite.Azure.Platform.Commands.Bootstrap
                 return;
             }
 
-            var branchStrategy = ResolveBranchStrategy();
-            if (branchStrategy == null)
+            var workflowTypes = WorkflowType.Equals("both", StringComparison.OrdinalIgnoreCase)
+                ? new[] { "platform", "project" }
+                : new[] { WorkflowType.ToLowerInvariant() };
+            var branchStrategy = (string)null;
+            var selectedSets = new List<Tuple<string, WorkflowManifestSet, WorkflowManifestStrategy>>();
+
+            foreach (var workflowType in workflowTypes)
             {
-                return;
+                if (workflowType == "platform")
+                {
+                    selectedSets.Add(Tuple.Create(workflowType, manifest.Platform, (WorkflowManifestStrategy)null));
+                    continue;
+                }
+
+                branchStrategy = ResolveBranchStrategy();
+                if (branchStrategy == null)
+                {
+                    return;
+                }
+
+                if (!manifest.Project.Strategies.TryGetValue(branchStrategy, out var strategy))
+                {
+                    ThrowTerminatingError(new ErrorRecord(
+                        new ArgumentException($"Branch strategy '{branchStrategy}' isn't declared for the project workflow in '{manifestPath}'. Available strategies: {string.Join(", ", manifest.Project.Strategies.Keys)}."),
+                        "PlatformWorkflowStrategyNotFound",
+                        ErrorCategory.InvalidArgument,
+                        branchStrategy));
+                    return;
+                }
+
+                selectedSets.Add(Tuple.Create(workflowType, manifest.Project, strategy));
             }
 
-            if (!manifest.Strategies.TryGetValue(branchStrategy, out var strategy))
+            if (selectedSets.Count == 0)
             {
                 ThrowTerminatingError(new ErrorRecord(
-                    new ArgumentException($"Branch strategy '{branchStrategy}' isn't declared in '{manifestPath}'. Available strategies: {string.Join(", ", manifest.Strategies.Keys)}."),
-                    "PlatformWorkflowStrategyNotFound",
-                    ErrorCategory.InvalidArgument,
-                    branchStrategy));
+                    new InvalidOperationException("The manifest does not contain a selected workflow set."),
+                    "PlatformWorkflowTypeUnavailable",
+                    ErrorCategory.InvalidData,
+                    manifestPath));
                 return;
             }
 
-            WriteVerbose($"Using branch strategy '{strategy.Name}' from manifest version {manifest.TemplateVersion}.");
+            WriteVerbose($"Using workflow type '{WorkflowType}'" +
+                (branchStrategy == null ? string.Empty : $" with project branch strategy '{branchStrategy}'") +
+                $" from manifest version {manifest.TemplateVersion}.");
 
             var result = new PlatformWorkflowResult
             {
-                BranchStrategy = strategy.Name,
+                BranchStrategy = branchStrategy,
+                WorkflowType = WorkflowType.ToLowerInvariant(),
                 ManifestPath = manifestPath,
                 OutputFolder = outputRootPath,
                 Success = true
             };
 
-            result.Environments.AddRange(strategy.Environments);
-
-            foreach (var file in manifest.Shared.Concat(strategy.Files))
+            foreach (var selectedSet in selectedSets)
             {
-                var sourcePath = Path.Combine(inputRootPath, file.Source.Replace('/', Path.DirectorySeparatorChar));
-                var destinationPath = Path.Combine(outputRootPath, file.Destination.Replace('/', Path.DirectorySeparatorChar));
-
-                if (!File.Exists(sourcePath))
+                if (selectedSet.Item3 != null)
                 {
-                    result.Success = false;
-                    WriteError(new ErrorRecord(
-                        new FileNotFoundException($"Workflow template '{file.Source}' was not found in '{inputRootPath}'. Run Get-PlatformTemplate first.", sourcePath),
-                        "PlatformWorkflowTemplateNotFound",
-                        ErrorCategory.ObjectNotFound,
-                        sourcePath));
-                    continue;
+                    result.Environments.AddRange(selectedSet.Item3.Environments);
+                }
+            }
+
+            foreach (var selectedSet in selectedSets)
+            {
+                var files = selectedSet.Item2.Shared.Concat(selectedSet.Item2.Files);
+                if (selectedSet.Item3 != null)
+                {
+                    files = files.Concat(selectedSet.Item3.Files);
                 }
 
-                if (File.Exists(destinationPath) && !Force.IsPresent)
+                foreach (var file in files)
                 {
-                    result.SkippedFiles.Add(destinationPath);
-                    WriteWarning($"'{file.Destination}' already exists and was left untouched. Use -Force to overwrite it.");
-                    continue;
-                }
+                    var sourcePath = Path.Combine(inputRootPath, file.Source.Replace('/', Path.DirectorySeparatorChar));
+                    var destinationPath = Path.Combine(outputRootPath, file.Destination.Replace('/', Path.DirectorySeparatorChar));
 
-                if (!ShouldProcess(destinationPath, $"Copy workflow template '{file.Source}'"))
-                {
-                    continue;
-                }
+                    if (!File.Exists(sourcePath))
+                    {
+                        result.Success = false;
+                        WriteError(new ErrorRecord(
+                            new FileNotFoundException($"Workflow template '{file.Source}' was not found in '{inputRootPath}'. Run Get-PlatformTemplate first.", sourcePath),
+                            "PlatformWorkflowTemplateNotFound",
+                            ErrorCategory.ObjectNotFound,
+                            sourcePath));
+                        continue;
+                    }
 
-                try
-                {
-                    Directory.CreateDirectory(Path.GetDirectoryName(destinationPath));
-                    File.Copy(sourcePath, destinationPath, overwrite: true);
-                    result.CopiedFiles.Add(destinationPath);
-                    WriteVerbose($"Copied '{file.Source}' to '{destinationPath}'.");
-                }
-                catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
-                {
-                    result.Success = false;
-                    WriteError(new ErrorRecord(
-                        new InvalidOperationException($"Failed to copy '{file.Source}' to '{destinationPath}': {ex.Message}", ex),
-                        "PlatformWorkflowCopyFailed",
-                        ErrorCategory.WriteError,
-                        destinationPath));
+                    if (File.Exists(destinationPath) && !Force.IsPresent)
+                    {
+                        result.SkippedFiles.Add(destinationPath);
+                        WriteWarning($"'{file.Destination}' already exists and was left untouched. Use -Force to overwrite it.");
+                        continue;
+                    }
+
+                    if (!ShouldProcess(destinationPath, $"Copy workflow template '{file.Source}'"))
+                    {
+                        continue;
+                    }
+
+                    try
+                    {
+                        Directory.CreateDirectory(Path.GetDirectoryName(destinationPath));
+                        File.Copy(sourcePath, destinationPath, overwrite: true);
+                        result.CopiedFiles.Add(destinationPath);
+                        WriteVerbose($"Copied '{file.Source}' to '{destinationPath}'.");
+                    }
+                    catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
+                    {
+                        result.Success = false;
+                        WriteError(new ErrorRecord(
+                            new InvalidOperationException($"Failed to copy '{file.Source}' to '{destinationPath}': {ex.Message}", ex),
+                            "PlatformWorkflowCopyFailed",
+                            ErrorCategory.WriteError,
+                            destinationPath));
+                    }
                 }
             }
 

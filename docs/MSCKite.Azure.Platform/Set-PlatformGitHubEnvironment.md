@@ -1,10 +1,10 @@
----
+﻿---
 document type: cmdlet
 external help file: MSCKite.Azure.Platform.dll-Help.xml
 HelpUri: ''
 Locale: en-NL
 Module Name: MSCKite.Azure.Platform
-ms.date: 09/20/2026
+ms.date: 09/23/2026
 PlatyPS schema version: 2024-05-01
 title: Set-PlatformGitHubEnvironment
 ---
@@ -22,7 +22,7 @@ platform-config.jsonc, including its protection rules, secrets, and variables.
 
 ```
 Set-PlatformGitHubEnvironment [[-GlobalConfigPath] <string>] [[-PlatformConfigPath] <string>]
- [-WhatIf] [-Confirm]
+ [-AsHashtable] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## ALIASES
@@ -43,6 +43,11 @@ The identity referenced by each environment must already exist, so
 This cmdlet supports `-WhatIf`/`-Confirm` and requires the `Az.Resources` and
 `Az.ManagedServiceIdentity` modules, signed in via `Connect-AzAccount`, and the GitHub CLI (`gh`)
 signed in with permission to manage environments, secrets, and variables on the target repository.
+The active Az context tenant and subscription must match the `tenantId` and `subscriptionId` in
+global-config.jsonc before processing begins.
+By default, each environment's result is emitted once processing finishes; under
+`-WhatIf`, `Action` reports actions that would happen instead of applying a mutation. Pass `-AsHashtable` to
+collect every result and get a single summary object instead.
 
 ## EXAMPLES
 
@@ -62,6 +67,29 @@ Set-PlatformGitHubEnvironment -GlobalConfigPath ./config/global-config.jsonc -Pl
 ```
 
 ## PARAMETERS
+
+### -AsHashtable
+
+Collects every result in memory instead of streaming it, and emits a single `Hashtable` at the end
+with an `IsWhatIf` key and an `Environments` key holding the list of
+`PlatformGitHubEnvironmentActionResult` objects.
+
+```yaml
+Type: System.Management.Automation.SwitchParameter
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
 
 ### -Confirm
 
@@ -168,10 +196,19 @@ You can pipe the global config path or platform config path to this cmdlet by pr
 
 ## OUTPUTS
 
-### MSCKite.Azure.Platform.Models.PlatformGitHubEnvironmentSyncResult
+### MSCKite.Azure.Platform.Models.PlatformGitHubEnvironmentActionResult
 
-The EnvironmentCode, Name, and Action (`Created` or `Updated`) of each GitHub environment, and the
-Name and Action of every secret and variable synced.
+Emitted once processing finishes (the default). Has the
+EnvironmentCode, Name, and Action of the GitHub environment, and the Name and Action of every
+secret and variable synced. Environment actions are `Created` or `Updated`; `-WhatIf` returns
+`WouldCreate` or `WouldUpdate`. Secret and variable actions are `Created`, `Updated`, or
+`Unchanged`; `-WhatIf` returns `WouldCreate` or `WouldUpdate`.
+
+### System.Collections.Hashtable
+
+Emitted once at the end instead, only when `-AsHashtable` is passed. Has an
+`IsWhatIf` key, a `Count` key, and an `Environments` key holding the list of
+`PlatformGitHubEnvironmentActionResult` objects collected during the run.
 
 ## NOTES
 
@@ -183,4 +220,3 @@ on the target repository.
 ## RELATED LINKS
 
 - [Set-PlatformEnvironmentIdentity](https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Set-PlatformEnvironmentIdentity.md)
-

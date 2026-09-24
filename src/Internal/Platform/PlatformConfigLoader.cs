@@ -53,6 +53,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform
                     };
                 }
 
+                ValidateGlobalConfig(config);
                 return config;
             }
         }
@@ -148,22 +149,22 @@ namespace MSCKite.Azure.Platform.Internal.Platform
                 foreach (var element in arrayElement.EnumerateArray())
                 {
                     var displayName = GetString(element, "displayName");
-                    var mailNickName = GetString(element, "mailNickName");
+                    var mailNickname = GetString(element, "mailNickname");
 
                     if (string.IsNullOrWhiteSpace(displayName))
                     {
                         throw new InvalidOperationException("Each security group must have a non-empty \"displayName\".");
                     }
 
-                    if (string.IsNullOrWhiteSpace(mailNickName))
+                    if (string.IsNullOrWhiteSpace(mailNickname))
                     {
-                        throw new InvalidOperationException($"Security group '{displayName}' must have a non-empty \"mailNickName\".");
+                        throw new InvalidOperationException($"Security group '{displayName}' must have a non-empty \"mailNickname\".");
                     }
 
                     var securityGroup = new PlatformSecurityGroupConfig
                     {
                         DisplayName = displayName,
-                        MailNickName = mailNickName,
+                        MailNickname = mailNickname,
                         Description = GetString(element, "description") ?? string.Empty
                     };
 
@@ -250,6 +251,35 @@ namespace MSCKite.Azure.Platform.Internal.Platform
                 }
 
                 return environments;
+            }
+        }
+
+        private static void ValidateGlobalConfig(GlobalConfig config)
+        {
+            RequireGlobalConfigValue(config.TenantId, "tenantId");
+            RequireGlobalConfigValue(config.SubscriptionId, "subscriptionId");
+            RequireGlobalConfigValue(config.UniqueId, "uniqueId");
+            RequireGlobalConfigValue(config.ServiceShort, "serviceShort");
+            RequireGlobalConfigValue(config.DisplayName, "displayName");
+            RequireGlobalConfigValue(config.Location, "location");
+            RequireGlobalConfigValue(config.RegionCode, "regionCode");
+
+            if (config.SourceControl == null)
+            {
+                throw new InvalidOperationException("global-config.jsonc must have a \"sourceControl\" object.");
+            }
+
+            RequireGlobalConfigValue(config.SourceControl.Tool, "sourceControl.tool");
+            RequireGlobalConfigValue(config.SourceControl.Owner, "sourceControl.owner");
+            RequireGlobalConfigValue(config.SourceControl.Repository, "sourceControl.repository");
+            RequireGlobalConfigValue(config.SourceControl.BranchStrategy, "sourceControl.branchStrategy");
+        }
+
+        private static void RequireGlobalConfigValue(string value, string propertyName)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                throw new InvalidOperationException($"global-config.jsonc must have a non-empty \"{propertyName}\".");
             }
         }
 

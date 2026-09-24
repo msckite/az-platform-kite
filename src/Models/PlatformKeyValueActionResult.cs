@@ -4,7 +4,7 @@ namespace MSCKite.Azure.Platform.Models
     {
         public string Name { get; set; }
 
-        // "Created", "Updated", "Unchanged", or "Set" (secrets are never readable back, so their action is always "Set")
+        // "Created", "Updated", "Unchanged", "Set", "WouldCreate", or "WouldUpdate"
         public string Action { get; set; }
     }
 }

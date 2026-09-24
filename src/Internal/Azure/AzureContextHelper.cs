@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Management.Automation;
+using MSCKite.Azure.Platform.Internal.Platform;
 using MSCKite.Azure.Platform.Models;
 
 namespace MSCKite.Azure.Platform.Internal.Azure
@@ -41,6 +42,30 @@ if ($azContext -and $azContext.Account) {
                 Environment = result.Properties["Environment"]?.Value as string,
                 IsSignedIn = true
             };
+        }
+
+        // Verifies that the active Az context is the tenant and subscription declared in global-config.jsonc
+        internal static bool TryGetConfiguredContext(PSCmdlet cmdlet, GlobalConfig globalConfig, out AzureContext azureContext, out string message)
+        {
+            azureContext = GetContext(cmdlet, out message);
+            if (!azureContext.IsSignedIn)
+            {
+                return false;
+            }
+
+            if (!string.Equals(azureContext.Tenant, globalConfig.TenantId, System.StringComparison.OrdinalIgnoreCase))
+            {
+                message = $"The active Azure tenant '{azureContext.Tenant}' does not match global-config.jsonc tenantId '{globalConfig.TenantId}'.";
+                return false;
+            }
+
+            if (!string.Equals(azureContext.SubscriptionId, globalConfig.SubscriptionId, System.StringComparison.OrdinalIgnoreCase))
+            {
+                message = $"The active Azure subscription '{azureContext.SubscriptionId}' does not match global-config.jsonc subscriptionId '{globalConfig.SubscriptionId}'.";
+                return false;
+            }
+
+            return true;
         }
 
         // Runs Disconnect-AzAccount for the given username to drop that specific cached Az context

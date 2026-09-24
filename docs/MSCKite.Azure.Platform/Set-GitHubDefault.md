@@ -4,7 +4,7 @@ external help file: MSCKite.Azure.Platform.dll-Help.xml
 HelpUri: ''
 Locale: en-NL
 Module Name: MSCKite.Azure.Platform
-ms.date: 09/15/2026
+ms.date: 09/23/2026
 PlatyPS schema version: 2024-05-01
 title: Set-GitHubDefault
 ---
@@ -61,6 +61,90 @@ it.
 The name of the GitHub owner (user or organization) to use as the default.
 Pass `$null` to clear
 it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
+The name of the GitHub owner (user or organization) to use as the default.
+Pass `$null` to clear
+it.
 
 ```yaml
 Type: System.String
@@ -82,6 +166,62 @@ HelpMessage: ''
 ### -Repository
 
 The name of the GitHub repository to use as the default. Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
+The name of the GitHub repository to use as the default.
+Pass `$null` to clear it.
 The name of the GitHub repository to use as the default.
 Pass `$null` to clear it.
 The name of the GitHub repository to use as the default.
@@ -134,4 +274,3 @@ default relates to `gh repo set-default`.
 
 - [Get-GitHubDefault](https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Get-GitHubDefault.md)
 - [Set-GitHubLabels](https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Set-GitHubLabels.md)
-

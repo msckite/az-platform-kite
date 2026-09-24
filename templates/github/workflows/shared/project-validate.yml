@@ -1,0 +1,42 @@
+name: 'Jobs: Project Validate'
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  project-validate:
+    name: Validate, Build and Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Platform Kite
+        uses: ./.github/actions/setup-platform-kite
+        with:
+          azure-login: 'false'
+
+      - name: Install dependencies
+        shell: pwsh
+        run: |
+          Write-Output '➡️ TODO: Install the project dependencies'
+
+      - name: Validate code
+        shell: pwsh
+        run: |
+          Write-Output '➡️ TODO: validate the project source'
+
+      - name: Build project
+        shell: pwsh
+        run: |
+          Write-Output '➡️ TODO: Build the project'
+
+      - name: Run tests
+        shell: pwsh
+        run: |
+          Write-Output '➡️ TODO: Run the project tests'

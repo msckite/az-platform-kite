@@ -10,6 +10,17 @@ Describe 'Set-PlatformGitHubEnvironment' {
 
         Import-Module $modulePath -Force
 
+        # Shadows the real Az.Accounts cmdlet so the cmdlet's sign-in check passes without a real Azure login;
+        # the underlying Az.Resources cmdlets still run for real and no-op gracefully when unauthenticated
+        function Get-AzContext {
+            [PSCustomObject]@{
+                Account      = [PSCustomObject]@{ Id = 'tester@example.com' }
+                Tenant       = [PSCustomObject]@{ Id = '11111111-1111-1111-1111-111111111111' }
+                Subscription = [PSCustomObject]@{ Id = '22222222-2222-2222-2222-222222222222'; Name = 'Test Subscription' }
+                Environment  = [PSCustomObject]@{ Name = 'AzureCloud' }
+            }
+        }
+
         $script:ValidGlobalConfig = @'
 {
   "templateVersion": "1.0.0",
@@ -115,7 +126,7 @@ Describe 'Set-PlatformGitHubEnvironment' {
 }
 "@ | Set-Content -Path $platform
 
-        { Set-PlatformGitHubEnvironment -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*sourceControl.owner*sourceControl.repository*'
+        { Set-PlatformGitHubEnvironment -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*must have a "sourceControl" object*'
     }
 
     It 'reports a role assignment referencing a resource group that does not exist' {
@@ -141,4 +152,22 @@ Describe 'Set-PlatformGitHubEnvironment' {
 
         { Set-PlatformGitHubEnvironment -GlobalConfigPath $global -PlatformConfigPath $platform -ErrorAction Stop } | Should -Throw '*does not exist. Run Set-PlatformResourceGroup first*'
     }
+
+  It 'throws when the active Azure tenant differs from global config' {
+    $global = Join-Path $TestDrive 'global-tenant-mismatch.jsonc'
+    $platform = Join-Path $TestDrive 'platform.jsonc'
+    ($script:ValidGlobalConfig -replace '"tenantId": "[^"]+"', '"tenantId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"') | Set-Content -Path $global
+    '{"templateVersion":"1.0.0","resourceGroups":[],"environments":[]}' | Set-Content -Path $platform
+
+    { Set-PlatformGitHubEnvironment -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*active Azure tenant*does not match*'
+  }
+
+  It 'throws when the active Azure subscription differs from global config' {
+    $global = Join-Path $TestDrive 'global-subscription-mismatch.jsonc'
+    $platform = Join-Path $TestDrive 'platform.jsonc'
+    ($script:ValidGlobalConfig -replace '"subscriptionId": "[^"]+"', '"subscriptionId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"') | Set-Content -Path $global
+    '{"templateVersion":"1.0.0","resourceGroups":[],"environments":[]}' | Set-Content -Path $platform
+
+    { Set-PlatformGitHubEnvironment -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*active Azure subscription*does not match*'
+  }
 }
