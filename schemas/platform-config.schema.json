@@ -225,8 +225,19 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "role",
-        "resourceGroupId"
+        "role"
+      ],
+      "oneOf": [
+        {
+          "required": [
+            "resourceGroupId"
+          ]
+        },
+        {
+          "required": [
+            "scope"
+          ]
+        }
       ],
       "properties": {
         "role": {
@@ -235,9 +246,16 @@
           "minLength": 1
         },
         "resourceGroupId": {
-          "description": "Id of the resource group (from the top-level 'resourceGroups' array) this role is scoped to. The command resolves this to the resource group's full Azure resource ID, which allows cross-environment role assignments without duplicating naming logic.",
+          "description": "Id of the resource group (from the top-level 'resourceGroups' array) this role is scoped to. The command resolves this to the resource group's full Azure resource ID, which allows cross-environment role assignments without duplicating naming logic. Mutually exclusive with 'scope'.",
           "type": "string",
           "minLength": 1
+        },
+        "scope": {
+          "description": "Set to 'subscription' to assign this role at the subscription scope instead of a single resource group. Mutually exclusive with 'resourceGroupId'.",
+          "type": "string",
+          "enum": [
+            "subscription"
+          ]
         }
       }
     },

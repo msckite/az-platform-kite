@@ -34,8 +34,10 @@ jobs:
       contents: read
       id-token: write
     with:
-      # Reuse the protected project environment as the approval and OIDC gate. The WhatIf run
-      # evaluates the complete platform configuration and does not deploy changes.
-      environment: prd
+      # Dedicated bootstrap environment for the platform pipeline itself: its identity has
+      # subscription-level RBAC, so it can see and preview every environment's resource group,
+      # not just one. The WhatIf run evaluates the complete platform configuration and does not
+      # deploy changes.
+      environment: platform
       what-if: true
     secrets: inherit

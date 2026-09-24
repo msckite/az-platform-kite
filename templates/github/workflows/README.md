@@ -99,9 +99,10 @@ flowchart LR
   CD --> D["reconcile platform without -WhatIf"]
 ```
 
-Make `platform-ci` a required status check on `main`. The `prd` environment is reused from the
-project GitHub environments created by the platform configuration. It is the stricter approval and
-OIDC gate for both the WhatIf and real platform workflow executions, not a platform scope.
+Make `platform-ci` a required status check on `main`. Both workflows sign in as the dedicated
+`platform` environment declared in `platform-config.jsonc`, not one of the project's `dev`/`stg`/
+`prd` environments. Its identity holds subscription-level RBAC, so it can see and reconcile every
+resource group declared in `resourceGroups`, not just the one it lives in.
 
 ## GitHub Flow project strategy (`github`)
 
@@ -122,15 +123,16 @@ same platform-only paths as the GitHub Flow strategy.
    `Set-PlatformEnvironmentIdentity`, `Set-PlatformGitHubEnvironment`). The workflows authenticate
    with the federated identity that phase 3 creates and the environment secrets that phase 4 sets,
    so the very first run has to happen from a workstation.
-2. Grant that identity the Microsoft Graph application permission it needs to read (and, if you
-   want CI to manage groups outside `-WhatIf`, create) Entra security groups in phase 2. This is a
-   one-time, manual step, not something the phases do automatically: assigning Microsoft Graph app
-   roles requires the Application Administrator, Privileged Role Administrator, or Global
-   Administrator directory role, and the automated identity must never hold that role permanently.
-   Using the `PrincipalId` from phase 3's output:
+2. Grant the `platform` environment's identity the Microsoft Graph application permission it needs
+   to read (and, if you want CI to manage groups outside `-WhatIf`, create) Entra security groups
+   in phase 2, since CI now runs that phase as the `platform` identity, not a project environment's
+   identity. This is a one-time, manual step, not something the phases do automatically: assigning
+   Microsoft Graph app roles requires the Application Administrator, Privileged Role Administrator,
+   or Global Administrator directory role, and the automated identity must never hold that role
+   permanently. Using the `PrincipalId` from phase 3's output for the `platform` environment:
 
    ```powershell
-   Grant-PlatformGraphPermission -PrincipalId '<principalId-from-phase-3>' -Permission 'Group.Read.All'
+   Grant-PlatformGraphPermission -PrincipalId '<principalId-from-phase-3-platform-environment>' -Permission 'Group.Read.All'
    ```
 
    Add `'Group.ReadWrite.All'` to `-Permission` if CI is ever expected to create or update groups

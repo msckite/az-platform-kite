@@ -191,6 +191,9 @@ New-PlatformWorkflow
 
 `New-PlatformWorkflow` reads the workflow manifest from `.tmp/templates` and copies the [workflow templates](templates/github/workflows/README.md) for your `sourceControl.branchStrategy` into `.github` of your repository. That ships a CI/CD pipeline staged across `dev`/`prd` (`github`) or `dev`/`stg`/`prd` (`release`), running the same four phases in dependency order. Existing files are left untouched unless you pass `-Force`.
 
+> [!NOTE]
+> The platform pipeline (`platform-ci.yml`/`platform-cd.yml`) signs in as the dedicated `platform` environment declared in `platform-config.jsonc`, not one of your app environments. Its identity holds subscription-level RBAC (`Contributor` and `User Access Administrator`, both scoped to `subscription`), so it can see and reconcile every resource group declared in `resourceGroups`, not just the one it lives in.
+
 ## License
 
 Copyright (c) 2026 Martin Swinkels

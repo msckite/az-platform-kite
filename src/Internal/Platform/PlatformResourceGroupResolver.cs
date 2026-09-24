@@ -8,6 +8,32 @@ namespace MSCKite.Azure.Platform.Internal.Platform
     // Resolves platform-config.jsonc resourceGroupId references against Azure; shared by every phase that assigns roles or provisions resources into a resource group
     internal static class PlatformResourceGroupResolver
     {
+        // Value of a roleAssignment's "scope" property that targets the subscription instead of a single resource group
+        internal const string SubscriptionScope = "subscription";
+
+        // Resolves a role assignment to its ARM scope: the subscription, or the ARM id of one of the resource groups resolved by Resolve() above
+        internal static bool TryResolveRoleAssignmentScope(
+            PlatformRoleAssignmentConfig roleAssignment,
+            Dictionary<string, AzureResourceGroupInfo> resourceGroupsById,
+            string subscriptionId,
+            out string scope)
+        {
+            if (string.Equals(roleAssignment.Scope, SubscriptionScope, StringComparison.Ordinal))
+            {
+                scope = $"/subscriptions/{subscriptionId}";
+                return true;
+            }
+
+            if (resourceGroupsById.TryGetValue(roleAssignment.ResourceGroupId, out var resourceGroup))
+            {
+                scope = resourceGroup.ResourceId;
+                return true;
+            }
+
+            scope = null;
+            return false;
+        }
+
         // Verifies every referenced resource group already exists (phase 1 must have run), reporting a clear per-item error rather than failing the whole command
         internal static Dictionary<string, AzureResourceGroupInfo> Resolve(
             PSCmdlet cmdlet,

@@ -76,7 +76,7 @@ namespace MSCKite.Azure.Platform.Commands.Platform
             var placeholders = globalConfig.ToPlaceholderMap();
 
             // Resolve every resourceGroupId referenced anywhere in this config up front, so a missing phase-1 resource group fails fast with a clear message
-            var scopesById = ResolveResourceGroupScopes(resourceGroupConfigs, placeholders);
+            var resourceGroupsById = PlatformResourceGroupResolver.Resolve(this, resourceGroupConfigs, placeholders, "PlatformSecurityGroupResourceGroupMissing");
 
             var items = new List<PlatformSecurityGroupActionResult>();
 
@@ -103,7 +103,7 @@ namespace MSCKite.Azure.Platform.Commands.Platform
                     continue;
                 }
 
-                SyncRoleAssignments(actionResult, config, scopesById, placeholders);
+                SyncRoleAssignments(actionResult, config, resourceGroupsById, globalConfig.SubscriptionId, placeholders);
                 items.Add(actionResult);
             }
 
@@ -124,20 +124,6 @@ namespace MSCKite.Azure.Platform.Commands.Platform
                     WriteObject(item);
                 }
             }
-        }
-
-        // Builds a map of resourceGroupId -> ARM resource ID, verifying every referenced resource group already exists (phase 1 must have run)
-        private Dictionary<string, string> ResolveResourceGroupScopes(List<PlatformResourceGroupConfig> resourceGroupConfigs, Dictionary<string, string> placeholders)
-        {
-            var resourceGroupsById = PlatformResourceGroupResolver.Resolve(this, resourceGroupConfigs, placeholders, "PlatformSecurityGroupResourceGroupMissing");
-
-            var scopesById = new Dictionary<string, string>(StringComparer.Ordinal);
-            foreach (var entry in resourceGroupsById)
-            {
-                scopesById[entry.Key] = entry.Value.ResourceId;
-            }
-
-            return scopesById;
         }
 
         // Creates the group if missing, or updates its display name / description if either has drifted; returns null (after recording an error) if creation didn't succeed
@@ -236,14 +222,15 @@ namespace MSCKite.Azure.Platform.Commands.Platform
         private void SyncRoleAssignments(
             PlatformSecurityGroupActionResult actionResult,
             PlatformSecurityGroupConfig config,
-            Dictionary<string, string> scopesById,
+            Dictionary<string, AzureResourceGroupInfo> resourceGroupsById,
+            string subscriptionId,
             Dictionary<string, string> placeholders)
         {
             foreach (var roleAssignment in config.RoleAssignments)
             {
-                if (!scopesById.TryGetValue(roleAssignment.ResourceGroupId, out var scope))
+                if (!PlatformResourceGroupResolver.TryResolveRoleAssignmentScope(roleAssignment, resourceGroupsById, subscriptionId, out var scope))
                 {
-                    // Missing scope was already reported by ResolveResourceGroupScopes
+                    // Missing scope was already reported by PlatformResourceGroupResolver
                     continue;
                 }
 
