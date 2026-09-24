@@ -1,0 +1,57 @@
+name: 'Project Release (prd)'
+
+on:
+  release:
+    types:
+      - published
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-stg-promotion:
+    name: Verify release matches the last verified commit
+    if: |
+      github.event.release.target_commitish == 'main' ||
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Check out release commit
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.release.tag_name }}
+          fetch-depth: 0
+
+      - name: Confirm this commit was promoted through staging
+        shell: bash
+        run: |
+          if ! git fetch origin refs/tags/stg-verified:refs/tags/stg-verified; then
+            echo "::error::No 'stg-verified' tag found. Promote a commit through staging before releasing to prd."
+            exit 1
+          fi
+          released_sha=$(git rev-parse HEAD)
+          verified_sha=$(git rev-list -n 1 stg-verified)
+          if [ "$released_sha" != "$verified_sha" ]; then
+            echo "::error::Release '${{ github.event.release.tag_name }}' ($released_sha) is not the last verified commit ($verified_sha). Cut the release from the verified commit instead."
+            exit 1
+          fi
+          echo "Release commit ($released_sha) matches the last verified commit."
+
+  deploy-prd:
+    name: Deploy (prd)
+    needs: [verify-stg-promotion]
+    if: |
+      always() &&
+      (github.event_name == 'workflow_dispatch' || needs.verify-stg-promotion.result == 'success')
+    uses: ./.github/workflows/project-provision.yml
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      environment: prd
+      what-if: false
+    secrets: inherit

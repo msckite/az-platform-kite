@@ -1,0 +1,53 @@
+name: 'Project CI (dev)'
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - 'config/global-config.jsonc'
+      - 'config/platform-config.jsonc'
+      - '.github/workflows/platform-*.yml'
+      - '.github/actions/setup-platform-kite/**'
+  # Manual run for a branch before a PR exists
+  workflow_dispatch:
+
+concurrency:
+  # Ensure only one CI workflow runs per branch at a time
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate
+    uses: ./.github/workflows/project-validate.yml
+
+  deploy-dev:
+    name: Deploy (dev)
+    needs: [validate]
+    uses: ./.github/workflows/project-provision.yml
+    if: |
+      github.event_name == 'pull_request' ||
+      github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      environment: dev
+      what-if: false
+    secrets: inherit
+
+  plan-prd:
+    name: Preflight (prd)
+    needs: [validate, deploy-dev]
+    uses: ./.github/workflows/project-provision.yml
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      environment: prd
+      what-if: true
+    secrets: inherit

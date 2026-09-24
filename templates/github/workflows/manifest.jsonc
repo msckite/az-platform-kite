@@ -1,60 +1,76 @@
 {
     "templateVersion": "1.0.0",
-    // Consumed by the (future) workflow install command: for the selected branchStrategy, copy the
-    // shared files plus that strategy's files to their destination in the target repository.
-    "shared": [
-        {
-            "source": "github/actions/setup-platform-kite/action.yml",
-            "destination": ".github/actions/setup-platform-kite/action.yml"
-        },
-        {
-            "source": "github/workflows/shared/platform-validate.yml",
-            "destination": ".github/workflows/platform-validate.yml"
-        },
-        {
-            "source": "github/workflows/shared/platform-provision.yml",
-            "destination": ".github/workflows/platform-provision.yml"
-        }
-    ],
-    "strategies": {
-        // GitHub Flow: CI on feature/fix branches and pull requests, CD on merge to main (dev then prd).
-        "github": {
-            "environments": [
-                "dev",
-                "prd"
-            ],
-            "files": [
-                {
-                    "source": "github/workflows/github-flow/platform-ci.yml",
-                    "destination": ".github/workflows/platform-ci.yml"
-                },
-                {
-                    "source": "github/workflows/github-flow/platform-cd.yml",
-                    "destination": ".github/workflows/platform-cd.yml"
-                }
-            ]
-        },
-        // Release flow: CI on feature/fix branches and pull requests, CD on merge to main (dev then stg), prd on release publish.
-        "release": {
-            "environments": [
-                "dev",
-                "stg",
-                "prd"
-            ],
-            "files": [
-                {
-                    "source": "github/workflows/release-flow/platform-ci.yml",
-                    "destination": ".github/workflows/platform-ci.yml"
-                },
-                {
-                    "source": "github/workflows/release-flow/platform-cd.yml",
-                    "destination": ".github/workflows/platform-cd.yml"
-                },
-                {
-                    "source": "github/workflows/release-flow/platform-release.yml",
-                    "destination": ".github/workflows/platform-release.yml"
-                }
-            ]
+    // Select -WorkflowType platform, project, or both when installing these bundles.
+    "platform": {
+        "shared": [
+            {
+                "source": "github/actions/setup-platform-kite/action.yml",
+                "destination": ".github/actions/setup-platform-kite/action.yml"
+            },
+            {
+                "source": "github/workflows/shared/platform-validate.yml",
+                "destination": ".github/workflows/platform-validate.yml"
+            },
+            {
+                "source": "github/workflows/shared/platform-provision.yml",
+                "destination": ".github/workflows/platform-provision.yml"
+            }
+        ],
+        "files": [
+            {
+                "source": "github/workflows/platform-flow/platform-ci.yml",
+                "destination": ".github/workflows/platform-ci.yml"
+            },
+            {
+                "source": "github/workflows/platform-flow/platform-cd.yml",
+                "destination": ".github/workflows/platform-cd.yml"
+            }
+        ]
+    },
+    "project": {
+        "shared": [
+            {
+                "source": "github/actions/setup-platform-kite/action.yml",
+                "destination": ".github/actions/setup-platform-kite/action.yml"
+            },
+            {
+                "source": "github/workflows/shared/project-validate.yml",
+                "destination": ".github/workflows/project-validate.yml"
+            },
+            {
+                "source": "github/workflows/shared/project-provision.yml",
+                "destination": ".github/workflows/project-provision.yml"
+            }
+        ],
+        "strategies": {
+            "github": {
+                "files": [
+                    {
+                        "source": "github/workflows/github-flow/project-ci.yml",
+                        "destination": ".github/workflows/project-flow-ci.yml"
+                    },
+                    {
+                        "source": "github/workflows/github-flow/project-cd.yml",
+                        "destination": ".github/workflows/project-flow-cd.yml"
+                    }
+                ]
+            },
+            "release": {
+                "files": [
+                    {
+                        "source": "github/workflows/release-flow/project-ci.yml",
+                        "destination": ".github/workflows/project-flow-ci.yml"
+                    },
+                    {
+                        "source": "github/workflows/release-flow/project-cd.yml",
+                        "destination": ".github/workflows/project-flow-cd.yml"
+                    },
+                    {
+                        "source": "github/workflows/release-flow/project-release.yml",
+                        "destination": ".github/workflows/project-flow-release.yml"
+                    }
+                ]
+            }
         }
     }
 }

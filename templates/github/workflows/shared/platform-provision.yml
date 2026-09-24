@@ -64,9 +64,10 @@ jobs:
     permissions:
       contents: read
       id-token: write
+
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Platform Kite
         uses: ./.github/actions/setup-platform-kite
@@ -100,7 +101,7 @@ jobs:
       id-token: write
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Platform Kite
         uses: ./.github/actions/setup-platform-kite
@@ -134,7 +135,7 @@ jobs:
       id-token: write
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Platform Kite
         uses: ./.github/actions/setup-platform-kite
@@ -171,7 +172,7 @@ jobs:
       id-token: write
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Platform Kite
         uses: ./.github/actions/setup-platform-kite

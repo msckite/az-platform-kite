@@ -1,9 +1,9 @@
 <!-- omit from toc -->
-# Platform workflow templates
+# Platform and project workflow templates
 
-Ready-to-copy GitHub Actions workflows that provision `config/platform-config.jsonc` end to end.
-Pick the `github-flow` or `release-flow` folder for the `sourceControl.branchStrategy` value in your
-`config/global-config.jsonc`.
+Ready-to-copy GitHub Actions workflows for fixed platform reconciliation and project CI/CD
+placeholders. The platform flow is independent of `sourceControl.branchStrategy`; only project
+workflows use the `github` or `release` strategy from `config/global-config.jsonc`.
 
 <!-- omit from toc -->
 ## Table of Contents
@@ -11,8 +11,9 @@ Pick the `github-flow` or `release-flow` folder for the `sourceControl.branchStr
 - [Layout](#layout)
 - [Installing the templates](#installing-the-templates)
 - [Provisioning phases and dependencies](#provisioning-phases-and-dependencies)
-- [GitHub Flow strategy (`github`)](#github-flow-strategy-github)
-- [Release strategy (`release`)](#release-strategy-release)
+- [Platform flow](#platform-flow)
+- [GitHub Flow project strategy (`github`)](#github-flow-project-strategy-github)
+- [Release Flow project strategy (`release`)](#release-flow-project-strategy-release)
 - [Prerequisites](#prerequisites)
 - [Why the environment input is a gate, not a scope](#why-the-environment-input-is-a-gate-not-a-scope)
 
@@ -27,29 +28,43 @@ templates/github/
     shared/
       platform-validate.yml          Reusable: template and schema version validation
       platform-provision.yml         Reusable: the four provisioning phases, correctly chained
+      project-validate.yml           Reusable: source validation, build and tests
+      project-provision.yml          Reusable: project plan/deployment placeholder
+    platform-flow/
+      platform-ci.yml                 Fixed platform PR validation and WhatIf plan
+      platform-cd.yml                 Fixed platform main deployment
     github-flow/
-      platform-ci.yml                CI: feature/fix branches and pull requests to main
-      platform-cd.yml                CD: push to main, dev then prd
+      project-ci.yml                 GitHub Flow project trigger
+      project-cd.yml                 GitHub Flow project trigger
     release-flow/
-      platform-ci.yml                CI: feature/fix/release branches and pull requests to main
-      platform-cd.yml                CD: push to main, dev then stg
-      platform-release.yml           Release published, prd
+      project-ci.yml                 Release Flow project trigger
+      project-cd.yml                 Release Flow project trigger
+      project-release.yml            Release Flow project trigger
 ```
 
-The two strategy folders contain only thin caller workflows. All logic lives in the two reusable
-workflows in `shared/` and in the composite action, so both strategies stay in sync.
+The platform workflows have one fixed lifecycle: pull requests validate and run `-WhatIf`, while
+pushes to `main` deploy without `-WhatIf`. Project strategy folders contain thin trigger workflows.
+The shared project workflows provide validation/testing and provisioning capabilities. The
+strategy workflows call them and contain no project implementation logic.
 
 ## Installing the templates
 
-Copy the `shared` files plus the files for your strategy into the target repository, following
-`manifest.jsonc`:
+`New-PlatformWorkflow` copies either the platform bundle, the project bundle, or both. Platform
+installation never reads `sourceControl.branchStrategy`:
 
 | Source                                             | Destination                                         |
 | -------------------------------------------------- | --------------------------------------------------- |
 | `github/actions/setup-platform-kite/action.yml`     | `.github/actions/setup-platform-kite/action.yml`     |
 | `github/workflows/shared/platform-validate.yml`     | `.github/workflows/platform-validate.yml`            |
 | `github/workflows/shared/platform-provision.yml`    | `.github/workflows/platform-provision.yml`           |
-| `github/workflows/<strategy>-flow/platform-*.yml`   | `.github/workflows/platform-*.yml`                   |
+| `github/workflows/platform-flow/platform-ci.yml`    | `.github/workflows/platform-ci.yml`                 |
+| `github/workflows/platform-flow/platform-cd.yml`    | `.github/workflows/platform-cd.yml`                 |
+
+The project bundle copies the shared reusable workflows and the `project-*.yml` trigger files for
+the selected project strategy. The shared workflows use the setup action. Project CI validates,
+builds and tests source code, then calls `project-provision.yml` with `what-if: true`. Project CD
+calls the same reusable workflow with `what-if: false` for the actual deployment. Each project
+operation remains a PowerShell placeholder for the developer to replace.
 
 Reusable workflows referenced with `./.github/workflows/...` must live directly in
 `.github/workflows`, which is why the `shared` and `<strategy>-flow` folders flatten on copy.
@@ -71,42 +86,35 @@ flowchart LR
 
 Set the `what-if` input to `true` to run every phase with `-WhatIf`, which is what the CI workflows do.
 
-## GitHub Flow strategy (`github`)
+## Platform flow
 
-Two environments: `dev` and `prd`.
-
-```mermaid
-flowchart LR
-  FB["push feature/** or fix/**<br/>pull request to main"] --> CI["platform-ci<br/>validate + plan (dev, -WhatIf)"]
-  CI --> PR["merge pull request"]
-  PR --> CD["platform-cd on push to main"]
-  CD --> D["deploy dev"]
-  D --> P["deploy prd"]
-```
-
-Make `platform-ci` a required status check on `main` so a pull request can only be merged after CI
-has succeeded on the feature or fix branch, and add required reviewers to the `prd` environment to
-gate the promotion.
-
-## Release strategy (`release`)
-
-Three environments: `dev`, `stg` and `prd`.
+Pull requests run validation and a `-WhatIf` platform reconciliation. A push to `main` runs the
+same validation and reconciles the complete platform configuration once.
 
 ```mermaid
 flowchart LR
-  FB["push feature/**, fix/** or release/**<br/>pull request to main"] --> CI["platform-ci<br/>validate + plan (dev, -WhatIf)"]
-  CI --> PR["merge pull request"]
-  PR --> CD["platform-cd on push to main"]
-  CD --> D["deploy dev"]
-  D --> S["deploy stg"]
-  S --> R["release published"]
-  R --> G["platform-release<br/>guard: commit on main + successful platform-cd"]
-  G --> P["deploy prd"]
+  PR["pull request"] --> CI["platform-ci<br/>validate + -WhatIf"]
+  CI --> M["merge to main"]
+  M --> CD["platform-cd"]
+  CD --> D["reconcile platform without -WhatIf"]
 ```
 
-Production is never reached by merging alone. `platform-release` first verifies that the released
-commit is contained in `main` and that a successful `platform-cd` run exists for that exact commit,
-so `dev` and `stg` are always provisioned first.
+Make `platform-ci` a required status check on `main`. The `prd` environment is reused from the
+project GitHub environments created by the platform configuration. It is the stricter approval and
+OIDC gate for both the WhatIf and real platform workflow executions, not a platform scope.
+
+## GitHub Flow project strategy (`github`)
+
+Project CI runs on feature/fix branches and pull requests. Project CD runs after a push to `main`.
+Both ignore the platform-only paths (`config/global-config.jsonc`, `config/platform-config.jsonc`,
+`.github/workflows/platform-*.yml`, `.github/actions/setup-platform-kite/**`), which the platform
+flow already covers.
+
+## Release Flow project strategy (`release`)
+
+Project CI also includes `release/**` branches. Project CD promotes through dev and stg, while the
+project release trigger handles production after a published release. Project CI and CD ignore the
+same platform-only paths as the GitHub Flow strategy.
 
 ## Prerequisites
 
@@ -140,7 +148,6 @@ so `dev` and `stg` are always provisioned first.
 ## Why the environment input is a gate, not a scope
 
 Each `Set-Platform*` cmdlet reconciles the complete configuration file, not one environment. The
-`environment` input on `platform-provision.yml` therefore selects which federated credential signs
-in to Azure and which protection rules apply before the phases start. Staging the workflow across
-`dev`, `stg` and `prd` gives you progressive approval gates, while every stage converges the same
-declared end state.
+`environment` input on `platform-provision.yml` therefore selects the existing project GitHub
+environment whose federated credential signs in to Azure and whose protection rules apply before
+the single reconciliation starts. It is an approval and identity gate, not a configuration scope.

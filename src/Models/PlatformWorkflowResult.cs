@@ -6,6 +6,8 @@ namespace MSCKite.Azure.Platform.Models
     {
         public string BranchStrategy { get; set; }
 
+        public string WorkflowType { get; set; }
+
         public string ManifestPath { get; set; }
 
         public string OutputFolder { get; set; }

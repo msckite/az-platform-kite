@@ -1,0 +1,35 @@
+name: platform-cd
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'config/global-config.jsonc'
+      - 'config/platform-config.jsonc'
+      - '.github/workflows/platform-*.yml'
+      - '.github/actions/setup-platform-kite/**'
+  # Manual run for a branch if no PR exists
+  workflow_dispatch:
+
+concurrency:
+  # Ensure only one CI workflow runs per branch at a time
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Reconcile IaC platform configuration
+    uses: ./.github/workflows/platform-provision.yml
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      # Reuse the protected project environment as the approval and OIDC gate. The reusable
+      # workflow reconciles the complete platform configuration in one execution.
+      environment: prd
+      what-if: false
+    secrets: inherit
