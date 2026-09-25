@@ -1,4 +1,4 @@
-name: platform-validate
+name: 'Jobs: Platform Validate'
 
 # Reusable job: verifies that config/global-config.jsonc and config/platform-config.jsonc are
 # compatible with the schemas they declare, and reports whether a newer template is published.

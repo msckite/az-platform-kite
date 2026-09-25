@@ -1,4 +1,4 @@
-name: platform-provision
+name: 'Jobs: Platform Provision'
 
 # Reusable job set: runs the four platform-config.jsonc provisioning phases in dependency order.
 #
