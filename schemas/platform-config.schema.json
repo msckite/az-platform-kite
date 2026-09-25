@@ -82,9 +82,19 @@
           "minLength": 1
         },
         "userAssignedIdentity": {
+          "description": "Federated identity used by the infra (IaC) pipeline. Keeps broader rights (e.g. 'Azure Deployment Stack Contributor') needed to create, update, and delete resources.",
           "$ref": "#/definitions/userAssignedIdentity"
         },
         "githubEnvironment": {
+          "description": "GitHub environment paired with 'userAssignedIdentity', used as the infra pipeline's approval and OIDC gate.",
+          "$ref": "#/definitions/githubEnvironment"
+        },
+        "workloadUserAssignedIdentity": {
+          "description": "Optional, separate federated identity used by the workload (application/service/solution code) pipeline. Scoped narrower than 'userAssignedIdentity': no deployment-stack rights, so developers cannot alter infrastructure through this identity. Falls back to 'userAssignedIdentity' when omitted.",
+          "$ref": "#/definitions/userAssignedIdentity"
+        },
+        "workloadGithubEnvironment": {
+          "description": "Optional GitHub environment paired with 'workloadUserAssignedIdentity'. Falls back to 'githubEnvironment' when omitted.",
           "$ref": "#/definitions/githubEnvironment"
         }
       }

@@ -1,4 +1,4 @@
-name: 'Jobs: Project Validate'
+name: 'Jobs: Workload Validate'
 
 on:
   workflow_call:
@@ -7,7 +7,7 @@ permissions:
   contents: read
 
 jobs:
-  project-validate:
+  workload-validate:
     name: Validate, Build and Test
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -24,19 +24,19 @@ jobs:
       - name: Install dependencies
         shell: pwsh
         run: |
-          Write-Output '➡️ TODO: Install the project dependencies'
+          Write-Output '➡️ TODO: Install the workload dependencies'
 
       - name: Validate code
         shell: pwsh
         run: |
-          Write-Output '➡️ TODO: validate the project source'
+          Write-Output '➡️ TODO: validate the workload source'
 
-      - name: Build project
+      - name: Build workload
         shell: pwsh
         run: |
-          Write-Output '➡️ TODO: Build the project'
+          Write-Output '➡️ TODO: Build the workload'
 
       - name: Run tests
         shell: pwsh
         run: |
-          Write-Output '➡️ TODO: Run the project tests'
+          Write-Output '➡️ TODO: Run the workload tests'

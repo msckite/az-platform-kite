@@ -1,14 +1,12 @@
-name: 'Project CD (stg)'
+name: 'Infra CD (stg)'
 
 on:
   push:
     branches:
       - 'main'
-    paths-ignore:
-      - 'config/global-config.jsonc'
-      - 'config/platform-config.jsonc'
-      - '.github/workflows/platform-*.yml'
-      - '.github/actions/setup-platform-kite/**'
+    paths:
+      - 'iac/**'
+      - '.github/workflows/infra-*.yml'
   # Manual run for a branch if no PR exists
   workflow_dispatch:
 
@@ -23,7 +21,7 @@ permissions:
 jobs:
   deploy-stg:
     name: Deploy (stg)
-    uses: ./.github/workflows/project-provision.yml
+    uses: ./.github/workflows/infra-provision.yml
     if: |
       github.event_name == 'push' ||
       github.event_name == 'workflow_dispatch'
@@ -48,16 +46,18 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v7
 
-      # project-flow-release checks this tag before deploying prd
-      - name: Move stg-verified tag to this commit
+      # infra-flow-release checks this tag before deploying prd. Kept separate from the
+      # workload pipeline's own 'stg-verified' tag, since infra and workload changes promote
+      # independently of each other.
+      - name: Move infra-stg-verified tag to this commit
         run: |
-          git tag -f stg-verified
-          git push origin stg-verified --force
+          git tag -f infra-stg-verified
+          git push origin infra-stg-verified --force
 
   plan-prd:
     name: Preflight (prd)
     needs: [mark-stg-verified]
-    uses: ./.github/workflows/project-provision.yml
+    uses: ./.github/workflows/infra-provision.yml
     permissions:
       contents: read
       id-token: write

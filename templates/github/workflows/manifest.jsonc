@@ -1,6 +1,6 @@
 {
     "templateVersion": "1.0.0",
-    // Select -WorkflowType platform, project, or both when installing these bundles.
+    // Select -WorkflowType platform, workload, infra, both (platform+workload), or all (platform+workload+infra).
     "platform": {
         "shared": [
             {
@@ -27,47 +27,125 @@
             }
         ]
     },
-    "project": {
+    "workload": {
         "shared": [
             {
                 "source": "github/actions/setup-platform-kite/action.yml",
                 "destination": ".github/actions/setup-platform-kite/action.yml"
             },
             {
-                "source": "github/workflows/shared/project-validate.yml",
-                "destination": ".github/workflows/project-validate.yml"
+                "source": "github/workflows/shared/workload-validate.yml",
+                "destination": ".github/workflows/workload-validate.yml"
             },
             {
-                "source": "github/workflows/shared/project-provision.yml",
-                "destination": ".github/workflows/project-provision.yml"
+                "source": "github/workflows/shared/workload-provision.yml",
+                "destination": ".github/workflows/workload-provision.yml"
             }
         ],
         "strategies": {
             "github": {
                 "files": [
                     {
-                        "source": "github/workflows/github-flow/project-ci.yml",
-                        "destination": ".github/workflows/project-flow-ci.yml"
+                        "source": "github/workflows/github-flow/workload-ci.yml",
+                        "destination": ".github/workflows/workload-flow-ci.yml"
                     },
                     {
-                        "source": "github/workflows/github-flow/project-cd.yml",
-                        "destination": ".github/workflows/project-flow-cd.yml"
+                        "source": "github/workflows/github-flow/workload-cd.yml",
+                        "destination": ".github/workflows/workload-flow-cd.yml"
                     }
                 ]
             },
             "release": {
                 "files": [
                     {
-                        "source": "github/workflows/release-flow/project-ci.yml",
-                        "destination": ".github/workflows/project-flow-ci.yml"
+                        "source": "github/workflows/release-flow/workload-ci.yml",
+                        "destination": ".github/workflows/workload-flow-ci.yml"
                     },
                     {
-                        "source": "github/workflows/release-flow/project-cd.yml",
-                        "destination": ".github/workflows/project-flow-cd.yml"
+                        "source": "github/workflows/release-flow/workload-cd.yml",
+                        "destination": ".github/workflows/workload-flow-cd.yml"
                     },
                     {
-                        "source": "github/workflows/release-flow/project-release.yml",
-                        "destination": ".github/workflows/project-flow-release.yml"
+                        "source": "github/workflows/release-flow/workload-release.yml",
+                        "destination": ".github/workflows/workload-flow-release.yml"
+                    }
+                ]
+            }
+        }
+    },
+    "infra": {
+        "shared": [
+            {
+                "source": "github/actions/setup-platform-kite/action.yml",
+                "destination": ".github/actions/setup-platform-kite/action.yml"
+            },
+            {
+                "source": "github/workflows/shared/infra-validate.yml",
+                "destination": ".github/workflows/infra-validate.yml"
+            },
+            {
+                "source": "github/workflows/shared/infra-provision.yml",
+                "destination": ".github/workflows/infra-provision.yml"
+            },
+            {
+                "source": "iac/res/sample/main.bicep",
+                "destination": "iac/res/sample/main.bicep"
+            },
+            {
+                "source": "iac/res/sample/deploy.ps1",
+                "destination": "iac/res/sample/deploy.ps1"
+            },
+            {
+                "source": "iac/res/sample/types/main.bicep",
+                "destination": "iac/res/sample/types/main.bicep"
+            },
+            {
+                "source": "iac/res/sample/modules/.gitkeep",
+                "destination": "iac/res/sample/modules/.gitkeep"
+            },
+            {
+                "source": "iac/res/sample/params/base.bicepparam",
+                "destination": "iac/res/sample/params/base.bicepparam"
+            },
+            {
+                "source": "iac/res/sample/params/dev.bicepparam",
+                "destination": "iac/res/sample/params/dev.bicepparam"
+            },
+            {
+                "source": "iac/res/sample/params/stg.bicepparam",
+                "destination": "iac/res/sample/params/stg.bicepparam"
+            },
+            {
+                "source": "iac/res/sample/params/prd.bicepparam",
+                "destination": "iac/res/sample/params/prd.bicepparam"
+            }
+        ],
+        "strategies": {
+            "github": {
+                "files": [
+                    {
+                        "source": "github/workflows/github-flow/infra-ci.yml",
+                        "destination": ".github/workflows/infra-flow-ci.yml"
+                    },
+                    {
+                        "source": "github/workflows/github-flow/infra-cd.yml",
+                        "destination": ".github/workflows/infra-flow-cd.yml"
+                    }
+                ]
+            },
+            "release": {
+                "files": [
+                    {
+                        "source": "github/workflows/release-flow/infra-ci.yml",
+                        "destination": ".github/workflows/infra-flow-ci.yml"
+                    },
+                    {
+                        "source": "github/workflows/release-flow/infra-cd.yml",
+                        "destination": ".github/workflows/infra-flow-cd.yml"
+                    },
+                    {
+                        "source": "github/workflows/release-flow/infra-release.yml",
+                        "destination": ".github/workflows/infra-flow-release.yml"
                     }
                 ]
             }

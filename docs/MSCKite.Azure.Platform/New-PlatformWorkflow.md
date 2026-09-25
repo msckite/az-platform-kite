@@ -14,7 +14,7 @@ title: New-PlatformWorkflow
 ## SYNOPSIS
 
 Copies the selected GitHub Actions workflow templates into the repository. Platform workflows use
-a fixed drift-management flow; project workflows use the configured branch strategy.
+a fixed drift-management flow; workload and infra workflows use the configured branch strategy.
 
 ## SYNTAX
 
@@ -30,16 +30,17 @@ New-PlatformWorkflow [[-InputFolder] <string>] [[-OutputFolder] <string>] [-Bran
 ## DESCRIPTION
 
 Reads `github/workflows/manifest.jsonc` from a downloaded templates folder and copies the selected
-platform workflow, project workflow, or both bundles to their destination in the repository. Only
-project workflows use the `sourceControl.branchStrategy` value. The manifest maps every template to
-a fixed path under `.github`, because
+platform, workload, and/or infra workflow bundles to their destination in the repository. Only
+workload and infra workflows use the `sourceControl.branchStrategy` value. The manifest maps every
+template to a fixed path under `.github`, because
 reusable workflows referenced as `./.github/workflows/<name>.yml` must sit directly in
 `.github/workflows`.
 
-For project workflows, the branch strategy is read from `sourceControl.branchStrategy` in
-global-config.jsonc unless `-BranchStrategy` is specified. Platform-only installation does not read
-global configuration. Files that already exist at the destination are reported and left untouched
-unless `-Force` is specified, so local edits are never lost by accident.
+For workload and infra workflows, the branch strategy is read from `sourceControl.branchStrategy` in
+global-config.jsonc unless `-BranchStrategy` is specified; both use the same strategy value.
+Platform-only installation does not read global configuration. Files that already exist at the
+destination are reported and left untouched unless `-Force` is specified, so local edits are never
+lost by accident.
 
 Run `Get-PlatformTemplate` first to download the templates. This cmdlet only copies files, so it
 needs no Azure or GitHub sign-in.
@@ -68,19 +69,31 @@ New-PlatformWorkflow -InputFolder ./.tmp/templates -OutputFolder . -BranchStrate
 New-PlatformWorkflow -BranchStrategy github -WhatIf
 ```
 
-### Example 4 - Install only project workflow placeholders
+### Example 4 - Install only workload workflow placeholders
 
 ```powershell
-New-PlatformWorkflow -WorkflowType project -BranchStrategy github
+New-PlatformWorkflow -WorkflowType workload -BranchStrategy github
+```
+
+### Example 5 - Install only infra workflow placeholders
+
+```powershell
+New-PlatformWorkflow -WorkflowType infra -BranchStrategy github
+```
+
+### Example 6 - Install platform, workload, and infra together
+
+```powershell
+New-PlatformWorkflow -WorkflowType all -BranchStrategy release
 ```
 
 ## PARAMETERS
 
 ### -BranchStrategy
 
-The project branch strategy whose workflow templates are installed, matching a strategy declared in
-the manifest (`github` or `release`). It is ignored for `-WorkflowType platform` and defaults to
-`sourceControl.branchStrategy` in global-config.jsonc for project workflows.
+The workload/infra branch strategy whose workflow templates are installed, matching a strategy
+declared in the manifest (`github` or `release`). It is ignored for `-WorkflowType platform` and
+defaults to `sourceControl.branchStrategy` in global-config.jsonc for workload and infra workflows.
 
 ```yaml
 Type: System.String
@@ -101,7 +114,8 @@ HelpMessage: ''
 
 ### -WorkflowType
 
-Selects the workflow bundle to install: `platform`, `project`, or `both`. Defaults to `both`.
+Selects the workflow bundle to install: `platform`, `workload`, `infra`, `both` (platform +
+workload), or `all` (platform + workload + infra). Defaults to `both`.
 
 ```yaml
 Type: System.String
@@ -118,8 +132,10 @@ ParameterSets:
 DontShow: false
 AcceptedValues:
 - platform
-- project
+- workload
+- infra
 - both
+- all
 HelpMessage: ''
 ```
 

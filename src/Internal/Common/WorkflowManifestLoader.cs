@@ -39,7 +39,9 @@ namespace MSCKite.Azure.Platform.Internal.Common
 
         internal WorkflowManifestSet Platform { get; } = new WorkflowManifestSet();
 
-        internal WorkflowManifestSet Project { get; } = new WorkflowManifestSet();
+        internal WorkflowManifestSet Workload { get; } = new WorkflowManifestSet();
+
+        internal WorkflowManifestSet Infra { get; } = new WorkflowManifestSet();
     }
 
     // Reads templates/github/workflows/manifest.jsonc, the source/destination map for the workflow templates
@@ -81,14 +83,19 @@ namespace MSCKite.Azure.Platform.Internal.Common
                     ReadWorkflowSet(root, path, "legacy platform", manifest.Platform);
                 }
 
-                if (root.TryGetProperty("project", out var projectElement))
+                if (root.TryGetProperty("workload", out var workloadElement))
                 {
-                    ReadWorkflowSet(projectElement, path, "project", manifest.Project);
+                    ReadWorkflowSet(workloadElement, path, "workload", manifest.Workload);
                 }
 
-                if (manifest.Platform.Files.Count == 0 && manifest.Project.Strategies.Count == 0)
+                if (root.TryGetProperty("infra", out var infraElement))
                 {
-                    throw new InvalidOperationException($"'{path}' must declare at least one platform or project strategy.");
+                    ReadWorkflowSet(infraElement, path, "infra", manifest.Infra);
+                }
+
+                if (manifest.Platform.Files.Count == 0 && manifest.Workload.Strategies.Count == 0 && manifest.Infra.Strategies.Count == 0)
+                {
+                    throw new InvalidOperationException($"'{path}' must declare at least one platform, workload, or infra strategy.");
                 }
             }
 

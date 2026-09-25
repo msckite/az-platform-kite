@@ -1,0 +1,73 @@
+name: 'Jobs: Infra Validate'
+
+on:
+  workflow_call:
+    inputs:
+      infra-folder:
+        description: Root folder to recursively search for Bicep files to lint and build.
+        type: string
+        required: false
+        default: iac
+
+permissions:
+  contents: read
+
+jobs:
+  infra-validate:
+    name: Lint and Build Bicep
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Lint all Bicep files
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Continue'
+          $pattern = Join-Path '${{ inputs.infra-folder }}' '**/*.bicep'
+          bicep lint --pattern $pattern 2>&1 | ForEach-Object { Write-Host $_ }
+
+          if ($LastExitCode -ne 0) {
+            throw 'Bicep lint reported errors. See above for details.'
+          }
+
+          Write-Information 'Bicep lint completed successfully!' -InformationAction Continue
+
+      - name: Build all Bicep files
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Continue'
+          $buildErrors = @()
+          $bicepFiles = Get-ChildItem -Path '${{ inputs.infra-folder }}' -Filter '*.bicep' -Recurse
+
+          Write-Information "Found $($bicepFiles.Count) Bicep files to build" -InformationAction Continue
+
+          foreach ($file in $bicepFiles) {
+              Write-Information "Building: $($file.FullName)" -InformationAction Continue
+              try {
+                  $result = bicep build $file.FullName 2>&1
+                  if ($LastExitCode -ne 0) {
+                      $errorMessage = "Build failed for $($file.FullName): $result"
+                      Write-Warning $errorMessage
+                      $buildErrors += $errorMessage
+                  } else {
+                      Write-Information "Successfully built: $($file.FullName)" -InformationAction Continue
+                  }
+              } catch {
+                  $errorMessage = "Exception building $($file.FullName): $($_.Exception.Message)"
+                  Write-Warning $errorMessage
+                  $buildErrors += $errorMessage
+              }
+          }
+
+          if ($buildErrors.Count -gt 0) {
+              Write-Information "Build completed with $($buildErrors.Count) errors:" -InformationAction Continue
+              foreach ($buildError in $buildErrors) {
+                  Write-Error $buildError -ErrorAction Continue
+              }
+              throw "Bicep build process failed with $($buildErrors.Count) errors. See above for details."
+          } else {
+              Write-Information 'All Bicep files built successfully!' -InformationAction Continue
+          }

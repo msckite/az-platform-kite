@@ -50,6 +50,14 @@ managed identities, federated credentials, and RBAC role assignments. The active
 tenant and subscription must match the `tenantId` and `subscriptionId` in global-config.jsonc
 before processing begins.
 
+An environment can declare a second, narrower identity for the workload (application/service/
+solution code) pipeline: `workloadUserAssignedIdentity`, paired with `workloadGithubEnvironment`.
+When present, this cmdlet processes both the infra identity (`userAssignedIdentity`) and the
+workload identity in the same run, each with its own federated credential and role assignments.
+`workloadUserAssignedIdentity` and `workloadGithubEnvironment` must be declared together; declaring
+only one of them is a configuration error. Omitting both is still valid: the environment then has a
+single identity for both pipelines, as before.
+
 By default, each environment's result is emitted once processing finishes; under `-WhatIf`,
 `Action` reports actions that would happen instead of applying a mutation. Pass `-AsHashtable` to collect
 every result and get a single summary object instead.

@@ -40,6 +40,12 @@ since GitHub never exposes secret values so they can't be diffed), and syncs its
 The identity referenced by each environment must already exist, so
 `Set-PlatformEnvironmentIdentity` must be run first.
 
+An environment can declare a second, narrower GitHub environment for the workload (application/
+service/solution code) pipeline: `workloadGithubEnvironment`, paired with
+`workloadUserAssignedIdentity`. When present, this cmdlet creates or updates both the infra GitHub
+environment (`githubEnvironment`) and the workload GitHub environment in the same run, each
+resolving `${clientId}` from its own identity so their secrets never collide.
+
 This cmdlet supports `-WhatIf`/`-Confirm` and requires the `Az.Resources` and
 `Az.ManagedServiceIdentity` modules, signed in via `Connect-AzAccount`, and the GitHub CLI (`gh`)
 signed in with permission to manage environments, secrets, and variables on the target repository.
