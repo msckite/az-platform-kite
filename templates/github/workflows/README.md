@@ -1,12 +1,13 @@
 <!-- omit from toc -->
-# Platform and project workflow templates
+# Platform, workload, and infra workflow templates
 
-Ready-to-copy GitHub Actions workflows for fixed platform reconciliation, project CI/CD
-placeholders, and infra (IaC) CI/CD placeholders. The platform flow is independent of
-`sourceControl.branchStrategy`; project and infra workflows both use the `github` or `release`
-strategy from `config/global-config.jsonc`, but trigger on disjoint paths so that application code
-changes and infrastructure changes deploy independently of each other. Project workflows own
-everything outside `infra/**`; infra workflows own only `infra/**` and their own workflow files.
+Ready-to-copy GitHub Actions workflows for fixed platform reconciliation, workload (application/
+service/solution code) CI/CD placeholders, and infra (IaC) CI/CD placeholders. The platform flow is
+independent of `sourceControl.branchStrategy`; workload and infra workflows both use the `github` or
+`release` strategy from `config/global-config.jsonc`, but trigger on disjoint paths so that
+application code changes and infrastructure changes deploy independently of each other. Workload
+workflows own everything outside `infra/**`; infra workflows own only `infra/**` and their own
+workflow files.
 
 <!-- omit from toc -->
 ## Table of Contents
@@ -16,8 +17,8 @@ everything outside `infra/**`; infra workflows own only `infra/**` and their own
 - [Provisioning phases and dependencies](#provisioning-phases-and-dependencies)
 - [Workload and infra identity split](#workload-and-infra-identity-split)
 - [Platform flow](#platform-flow)
-- [GitHub Flow project strategy (`github`)](#github-flow-project-strategy-github)
-- [Release Flow project strategy (`release`)](#release-flow-project-strategy-release)
+- [GitHub Flow workload strategy (`github`)](#github-flow-workload-strategy-github)
+- [Release Flow workload strategy (`release`)](#release-flow-workload-strategy-release)
 - [GitHub Flow infra strategy (`github`)](#github-flow-infra-strategy-github)
 - [Release Flow infra strategy (`release`)](#release-flow-infra-strategy-release)
 - [Prerequisites](#prerequisites)
@@ -34,37 +35,39 @@ templates/github/
     shared/
       platform-validate.yml          Reusable: template and schema version validation
       platform-provision.yml         Reusable: the four provisioning phases, correctly chained
-      project-validate.yml           Reusable: source validation, build and tests
-      project-provision.yml          Reusable: project plan/deployment placeholder
+      workload-validate.yml          Reusable: source validation, build and tests
+      workload-provision.yml         Reusable: workload plan/deployment placeholder
       infra-validate.yml             Reusable: Bicep lint/build placeholder
       infra-provision.yml            Reusable: infra deployment stack plan/deployment placeholder
     platform-flow/
       platform-ci.yml                 Fixed platform PR validation and WhatIf plan
       platform-cd.yml                 Fixed platform main deployment
     github-flow/
-      project-ci.yml                 GitHub Flow project trigger
-      project-cd.yml                 GitHub Flow project trigger
+      workload-ci.yml                GitHub Flow workload trigger
+      workload-cd.yml                GitHub Flow workload trigger
       infra-ci.yml                   GitHub Flow infra trigger
       infra-cd.yml                   GitHub Flow infra trigger
     release-flow/
-      project-ci.yml                 Release Flow project trigger
-      project-cd.yml                 Release Flow project trigger
-      project-release.yml            Release Flow project trigger
+      workload-ci.yml                Release Flow workload trigger
+      workload-cd.yml                Release Flow workload trigger
+      workload-release.yml           Release Flow workload trigger
       infra-ci.yml                   Release Flow infra trigger
       infra-cd.yml                   Release Flow infra trigger
       infra-release.yml              Release Flow infra trigger
 ```
 
 The platform workflows have one fixed lifecycle: pull requests validate and run `-WhatIf`, while
-pushes to `main` deploy without `-WhatIf`. Project and infra strategy folders contain thin trigger
-workflows. The shared project/infra workflows provide validation/testing and provisioning
-capabilities. The strategy workflows call them and contain no project or infra implementation
+pushes to `main` deploy without `-WhatIf`. Workload and infra strategy folders contain thin trigger
+workflows. The shared workload/infra workflows provide validation/testing and provisioning
+capabilities. The strategy workflows call them and contain no workload or infra implementation
 logic.
 
 ## Installing the templates
 
-`New-PlatformWorkflow` copies either the platform bundle, the project bundle, or both. Platform
-installation never reads `sourceControl.branchStrategy`:
+`New-PlatformWorkflow` copies the platform bundle, the workload bundle, the infra bundle, or a
+combination via `-WorkflowType`: `platform`, `workload`, `infra`, `both` (platform + workload, the
+default), or `all` (platform + workload + infra). Platform installation never reads
+`sourceControl.branchStrategy`:
 
 | Source                                             | Destination                                         |
 | -------------------------------------------------- | --------------------------------------------------- |
@@ -74,16 +77,17 @@ installation never reads `sourceControl.branchStrategy`:
 | `github/workflows/platform-flow/platform-ci.yml`    | `.github/workflows/platform-ci.yml`                 |
 | `github/workflows/platform-flow/platform-cd.yml`    | `.github/workflows/platform-cd.yml`                 |
 
-The project bundle copies the shared reusable workflows and the `project-*.yml` trigger files for
-the selected project strategy. The shared workflows use the setup action. Project CI validates,
-builds and tests source code, then calls `project-provision.yml` with `what-if: true`. Project CD
-calls the same reusable workflow with `what-if: false` for the actual deployment. Each project
+The workload bundle copies the shared reusable workflows and the `workload-*.yml` trigger files for
+the selected branch strategy. The shared workflows use the setup action. Workload CI validates,
+builds and tests source code, then calls `workload-provision.yml` with `what-if: true`. Workload CD
+calls the same reusable workflow with `what-if: false` for the actual deployment. Each workload
 operation remains a PowerShell placeholder for the developer to replace.
 
-`manifest.jsonc` also declares an `infra` bundle, following the same shape as `project`, for the
-`infra-*.yml` templates described below. `New-PlatformWorkflow`'s `-WorkflowType` parameter does not
-accept `infra` yet, so installing this bundle currently means copying the `infra` entries from
-`manifest.jsonc` into the repository by hand, until that cmdlet is updated.
+`manifest.jsonc` also declares an `infra` bundle, following the same shape as `workload`, for the
+`infra-*.yml` templates described below. Pass `-WorkflowType infra` (or `-BranchStrategy` explicitly)
+to install just that bundle, or `-WorkflowType all` to install platform, workload, and infra together.
+Infra and workload share the same `-BranchStrategy`/`sourceControl.branchStrategy` value, since both
+follow the same promotion strategy (`github` or `release`).
 
 Reusable workflows referenced with `./.github/workflows/...` must live directly in
 `.github/workflows`, which is why the `shared` and `<strategy>-flow` folders flatten on copy.
@@ -117,7 +121,7 @@ Phases 3 and 4 process both when the workload pair is present.
   the `infra-*.yml` workflows, which sign in with `environment: dev` (no `-workload` suffix).
 - **Workload identity** (`workloadUserAssignedIdentity`): narrower rights, `Contributor` only, no
   deployment-stack role, so pushing application/service/solution code cannot alter infrastructure
-  through this identity. Used by the `project-*.yml` workflows, which sign in with
+  through this identity. Used by the `workload-*.yml` workflows, which sign in with
   `environment: dev-workload`.
 
 This is what actually enforces "developers deploy code, platform/cloud engineers deploy
@@ -141,38 +145,38 @@ flowchart LR
 ```
 
 Make `platform-ci` a required status check on `main`. Both workflows sign in as the dedicated
-`platform` environment declared in `platform-config.jsonc`, not one of the project's `dev`/`stg`/
+`platform` environment declared in `platform-config.jsonc`, not one of the workload's `dev`/`stg`/
 `prd` environments. Its identity holds subscription-level RBAC, so it can see and reconcile every
 resource group declared in `resourceGroups`, not just the one it lives in.
 
-## GitHub Flow project strategy (`github`)
+## GitHub Flow workload strategy (`github`)
 
-Project CI runs on pull requests targeting `main`, deploys `dev` and runs a `-WhatIf` preflight for
-`prd`. Project CD runs after a push to `main` and deploys `prd`. Both ignore the platform-only paths
+Workload CI runs on pull requests targeting `main`, deploys `dev` and runs a `-WhatIf` preflight for
+`prd`. Workload CD runs after a push to `main` and deploys `prd`. Both ignore the platform-only paths
 (`config/global-config.jsonc`, `config/platform-config.jsonc`, `.github/workflows/platform-*.yml`,
 `.github/actions/setup-platform-kite/**`), which the platform flow already covers.
 
-## Release Flow project strategy (`release`)
+## Release Flow workload strategy (`release`)
 
-Project CI runs on pull requests targeting `main`, deploys `dev` and runs a `-WhatIf` preflight for
-`stg`. Project CD runs after a push to `main`, deploys `stg`, moves the `stg-verified` tag to that
-commit, then runs a `-WhatIf` preflight for `prd`. The project release trigger deploys `prd` after a
+Workload CI runs on pull requests targeting `main`, deploys `dev` and runs a `-WhatIf` preflight for
+`stg`. Workload CD runs after a push to `main`, deploys `stg`, moves the `stg-verified` tag to that
+commit, then runs a `-WhatIf` preflight for `prd`. The workload release trigger deploys `prd` after a
 published release, first confirming the release commit matches the last `stg-verified` commit.
-Project CI and CD ignore the same platform-only paths as the GitHub Flow strategy.
+Workload CI and CD ignore the same platform-only paths as the GitHub Flow strategy.
 
 ## GitHub Flow infra strategy (`github`)
 
-Infra CI and CD mirror the GitHub Flow project strategy exactly, but trigger only on `infra/**` and
+Infra CI and CD mirror the GitHub Flow workload strategy exactly, but trigger only on `infra/**` and
 `.github/workflows/infra-*.yml` changes, and deploy the `infra-provision.yml` reusable workflow
-instead of `project-provision.yml`. Infra CI validates the Bicep templates, deploys `dev`, and runs
+instead of `workload-provision.yml`. Infra CI validates the Bicep templates, deploys `dev`, and runs
 a `-WhatIf` preflight for `prd`. Infra CD deploys `prd` after a push to `main`.
 
 ## Release Flow infra strategy (`release`)
 
-Infra CI and CD mirror the Release Flow project strategy, triggered only on `infra/**` and
+Infra CI and CD mirror the Release Flow workload strategy, triggered only on `infra/**` and
 `.github/workflows/infra-*.yml` changes. Infra CD moves its own `infra-stg-verified` tag after
-deploying `stg`, kept separate from the project pipeline's `stg-verified` tag so that an infra-only
-change doesn't need a project deployment to promote, and vice versa. The infra release trigger
+deploying `stg`, kept separate from the workload pipeline's `stg-verified` tag so that an infra-only
+change doesn't need a workload deployment to promote, and vice versa. The infra release trigger
 deploys `prd` after a published release, confirming the release commit matches the last
 `infra-stg-verified` commit.
 
@@ -184,7 +188,7 @@ deploys `prd` after a published release, confirming the release commit matches t
    so the very first run has to happen from a workstation.
 2. Grant the `platform` environment's identity the Microsoft Graph application permission it needs
    to read (and, if you want CI to manage groups outside `-WhatIf`, create) Entra security groups
-   in phase 2, since CI now runs that phase as the `platform` identity, not a project environment's
+   in phase 2, since CI now runs that phase as the `platform` identity, not a workload environment's
    identity. This is a one-time, manual step, not something the phases do automatically: assigning
    Microsoft Graph app roles requires the Application Administrator, Privileged Role Administrator,
    or Global Administrator directory role, and the automated identity must never hold that role
@@ -202,7 +206,7 @@ deploys `prd` after a published release, confirming the release commit matches t
 3. Confirm every environment in `platform-config.jsonc` has a matching GitHub environment holding
    `AZURE_CLIENT_ID`, `AZURE_TENANT_ID` and `AZURE_SUBSCRIPTION_ID`. Phase 4 writes these. If an
    environment declares `workloadUserAssignedIdentity`/`workloadGithubEnvironment`, confirm the
-   `-workload`-suffixed environment (e.g. `dev-workload`) exists too; the `project-*.yml` workflows
+   `-workload`-suffixed environment (e.g. `dev-workload`) exists too; the `workload-*.yml` workflows
    sign in to that one, not the plain `dev` environment used by `infra-*.yml`.
 4. Add `PLATFORM_GITHUB_TOKEN` by hand as an **environment secret** on the `platform` GitHub
    environment (Settings > Environments > platform > Secrets), not a repository secret, so its
@@ -219,6 +223,6 @@ deploys `prd` after a published release, confirming the release commit matches t
 ## Why the environment input is a gate, not a scope
 
 Each `Set-Platform*` cmdlet reconciles the complete configuration file, not one environment. The
-`environment` input on `platform-provision.yml` therefore selects the existing project GitHub
+`environment` input on `platform-provision.yml` therefore selects the existing workload GitHub
 environment whose federated credential signs in to Azure and whose protection rules apply before
 the single reconciliation starts. It is an approval and identity gate, not a configuration scope.

@@ -43,8 +43,8 @@ GitHub resolves automatically from the job's `environment:` without the caller p
 
 - [ ] Verify a `plan-dev`/`plan-stg` run still authenticates correctly after this change (no more
       `secrets: inherit` on the calling jobs)
-- [ ] Confirm no other repo or org secrets are relied on implicitly by project-specific automation
-      you add inside `project-validate.yml` or `project-provision.yml`
+- [ ] Confirm no other repo or org secrets are relied on implicitly by workload-specific automation
+      you add inside `workload-validate.yml` or `workload-provision.yml`
 
 On the cross-environment `Contributor` grants (`dev` identity on `stg`, `stg` identity on `prd`,
 commented "to run preflight -WhatIf checks"): per Microsoft's own docs on
@@ -62,7 +62,7 @@ downgrade candidate.
 
 ## 4. Decide the direct-main-deployment policy
 
-`project-cd.yml` still deploys on every push to `main`. That is an intentional part of the current
+`workload-cd.yml` still deploys on every push to `main`. That is an intentional part of the current
 design (see `templates/github/workflows/README.md`), but it only stays safe once items 1 and 2
 above are in place.
 

@@ -1,8 +1,6 @@
 {
     "templateVersion": "1.0.0",
-    // Select -WorkflowType platform, project, infra, or both when installing these bundles.
-    // NOTE: New-PlatformWorkflow does not yet accept -WorkflowType infra; installing the infra
-    // bundle currently requires copying these files by hand until that cmdlet is updated.
+    // Select -WorkflowType platform, workload, infra, both (platform+workload), or all (platform+workload+infra).
     "platform": {
         "shared": [
             {
@@ -29,47 +27,47 @@
             }
         ]
     },
-    "project": {
+    "workload": {
         "shared": [
             {
                 "source": "github/actions/setup-platform-kite/action.yml",
                 "destination": ".github/actions/setup-platform-kite/action.yml"
             },
             {
-                "source": "github/workflows/shared/project-validate.yml",
-                "destination": ".github/workflows/project-validate.yml"
+                "source": "github/workflows/shared/workload-validate.yml",
+                "destination": ".github/workflows/workload-validate.yml"
             },
             {
-                "source": "github/workflows/shared/project-provision.yml",
-                "destination": ".github/workflows/project-provision.yml"
+                "source": "github/workflows/shared/workload-provision.yml",
+                "destination": ".github/workflows/workload-provision.yml"
             }
         ],
         "strategies": {
             "github": {
                 "files": [
                     {
-                        "source": "github/workflows/github-flow/project-ci.yml",
-                        "destination": ".github/workflows/project-flow-ci.yml"
+                        "source": "github/workflows/github-flow/workload-ci.yml",
+                        "destination": ".github/workflows/workload-flow-ci.yml"
                     },
                     {
-                        "source": "github/workflows/github-flow/project-cd.yml",
-                        "destination": ".github/workflows/project-flow-cd.yml"
+                        "source": "github/workflows/github-flow/workload-cd.yml",
+                        "destination": ".github/workflows/workload-flow-cd.yml"
                     }
                 ]
             },
             "release": {
                 "files": [
                     {
-                        "source": "github/workflows/release-flow/project-ci.yml",
-                        "destination": ".github/workflows/project-flow-ci.yml"
+                        "source": "github/workflows/release-flow/workload-ci.yml",
+                        "destination": ".github/workflows/workload-flow-ci.yml"
                     },
                     {
-                        "source": "github/workflows/release-flow/project-cd.yml",
-                        "destination": ".github/workflows/project-flow-cd.yml"
+                        "source": "github/workflows/release-flow/workload-cd.yml",
+                        "destination": ".github/workflows/workload-flow-cd.yml"
                     },
                     {
-                        "source": "github/workflows/release-flow/project-release.yml",
-                        "destination": ".github/workflows/project-flow-release.yml"
+                        "source": "github/workflows/release-flow/workload-release.yml",
+                        "destination": ".github/workflows/workload-flow-release.yml"
                     }
                 ]
             }

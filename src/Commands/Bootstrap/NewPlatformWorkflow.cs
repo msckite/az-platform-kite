@@ -24,13 +24,13 @@ namespace MSCKite.Azure.Platform.Commands.Bootstrap
         [ValidateNotNullOrEmpty]
         public string OutputFolder { get; set; } = ".";
 
-        // Used only for project workflows. Platform workflows have a fixed flow.
+        // Used only for workload workflows. Platform workflows have a fixed flow.
         [Parameter(ValueFromPipelineByPropertyName = true)]
         [ValidateNotNullOrEmpty]
         public string BranchStrategy { get; set; }
 
         [Parameter(ValueFromPipelineByPropertyName = true)]
-        [ValidateSet("platform", "project", "both")]
+        [ValidateSet("platform", "workload", "infra", "both", "all")]
         public string WorkflowType { get; set; } = "both";
 
         [Parameter(ValueFromPipelineByPropertyName = true)]
@@ -63,9 +63,11 @@ namespace MSCKite.Azure.Platform.Commands.Bootstrap
                 return;
             }
 
-            var workflowTypes = WorkflowType.Equals("both", StringComparison.OrdinalIgnoreCase)
-                ? new[] { "platform", "project" }
-                : new[] { WorkflowType.ToLowerInvariant() };
+            var workflowTypes = WorkflowType.ToLowerInvariant() == "both"
+                ? new[] { "platform", "workload" }
+                : WorkflowType.ToLowerInvariant() == "all"
+                    ? new[] { "platform", "workload", "infra" }
+                    : new[] { WorkflowType.ToLowerInvariant() };
             var branchStrategy = (string)null;
             var selectedSets = new List<Tuple<string, WorkflowManifestSet, WorkflowManifestStrategy>>();
 
@@ -77,23 +79,26 @@ namespace MSCKite.Azure.Platform.Commands.Bootstrap
                     continue;
                 }
 
+                // "workload" and "infra" both use the branch strategy to select which strategy's files to copy
+                var workflowSet = workflowType == "infra" ? manifest.Infra : manifest.Workload;
+
                 branchStrategy = ResolveBranchStrategy();
                 if (branchStrategy == null)
                 {
                     return;
                 }
 
-                if (!manifest.Project.Strategies.TryGetValue(branchStrategy, out var strategy))
+                if (!workflowSet.Strategies.TryGetValue(branchStrategy, out var strategy))
                 {
                     ThrowTerminatingError(new ErrorRecord(
-                        new ArgumentException($"Branch strategy '{branchStrategy}' isn't declared for the project workflow in '{manifestPath}'. Available strategies: {string.Join(", ", manifest.Project.Strategies.Keys)}."),
+                        new ArgumentException($"Branch strategy '{branchStrategy}' isn't declared for the {workflowType} workflow in '{manifestPath}'. Available strategies: {string.Join(", ", workflowSet.Strategies.Keys)}."),
                         "PlatformWorkflowStrategyNotFound",
                         ErrorCategory.InvalidArgument,
                         branchStrategy));
                     return;
                 }
 
-                selectedSets.Add(Tuple.Create(workflowType, manifest.Project, strategy));
+                selectedSets.Add(Tuple.Create(workflowType, workflowSet, strategy));
             }
 
             if (selectedSets.Count == 0)
@@ -107,7 +112,7 @@ namespace MSCKite.Azure.Platform.Commands.Bootstrap
             }
 
             WriteVerbose($"Using workflow type '{WorkflowType}'" +
-                (branchStrategy == null ? string.Empty : $" with project branch strategy '{branchStrategy}'") +
+                (branchStrategy == null ? string.Empty : $" with branch strategy '{branchStrategy}'") +
                 $" from manifest version {manifest.TemplateVersion}.");
 
             var result = new PlatformWorkflowResult
@@ -127,6 +132,11 @@ namespace MSCKite.Azure.Platform.Commands.Bootstrap
                 }
             }
 
+            // Tracks destinations already handled in this invocation, so a file shared by multiple
+            // selected bundles (e.g. the setup action, present in platform/workload/infra's own
+            // "shared" list) is only copied/checked once instead of warning on every later bundle.
+            var handledDestinations = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
             foreach (var selectedSet in selectedSets)
             {
                 var files = selectedSet.Item2.Shared.Concat(selectedSet.Item2.Files);
@@ -139,6 +149,11 @@ namespace MSCKite.Azure.Platform.Commands.Bootstrap
                 {
                     var sourcePath = Path.Combine(inputRootPath, file.Source.Replace('/', Path.DirectorySeparatorChar));
                     var destinationPath = Path.Combine(outputRootPath, file.Destination.Replace('/', Path.DirectorySeparatorChar));
+
+                    if (!handledDestinations.Add(destinationPath))
+                    {
+                        continue;
+                    }
 
                     if (!File.Exists(sourcePath))
                     {

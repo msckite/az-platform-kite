@@ -1,4 +1,4 @@
-name: 'Jobs: Project Provision'
+name: 'Jobs: Workload Provision'
 
 on:
   workflow_call:
@@ -9,7 +9,7 @@ on:
         required: false
         default: dev
       what-if:
-        description: Plan the project deployment without applying changes.
+        description: Plan the workload deployment without applying changes.
         type: boolean
         required: false
         default: true
@@ -45,12 +45,12 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Sync Project
+      - name: Sync Workload
         shell: pwsh
         run: |
           if ($env:WHAT_IF -eq 'true') {
-            Write-Output '➡️ TODO: Plan (preflight) the project deployment with WhatIf = true'
+            Write-Output '➡️ TODO: Plan (preflight) the workload deployment with WhatIf = true'
           }
           else {
-            Write-Output '➡️ TODO: Deploy the project with WhatIf = false'
+            Write-Output '➡️ TODO: Deploy the workload with WhatIf = false'
           }

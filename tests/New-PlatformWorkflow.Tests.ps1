@@ -30,23 +30,42 @@ Describe 'New-PlatformWorkflow' {
       { "source": "github/workflows/platform-flow/platform-cd.yml", "destination": ".github/workflows/platform-cd.yml" }
     ]
   },
-  "project": {
+  "workload": {
     "shared": [
       { "source": "github/actions/setup-platform-kite/action.yml", "destination": ".github/actions/setup-platform-kite/action.yml" },
-      { "source": "github/workflows/shared/project-validate.yml", "destination": ".github/workflows/project-validate.yml" },
-      { "source": "github/workflows/shared/project-provision.yml", "destination": ".github/workflows/project-provision.yml" }
+      { "source": "github/workflows/shared/workload-validate.yml", "destination": ".github/workflows/workload-validate.yml" },
+      { "source": "github/workflows/shared/workload-provision.yml", "destination": ".github/workflows/workload-provision.yml" }
     ],
     "strategies": {
       "github": {
         "environments": [ "dev", "prd" ],
         "files": [
-          { "source": "github/workflows/github-flow/project-ci.yml", "destination": ".github/workflows/project-flow-ci.yml" }
+          { "source": "github/workflows/github-flow/workload-ci.yml", "destination": ".github/workflows/workload-flow-ci.yml" }
         ]
       },
       "release": {
         "environments": [ "dev", "stg", "prd" ],
         "files": [
-          { "source": "github/workflows/release-flow/project-ci.yml", "destination": ".github/workflows/project-flow-ci.yml" }
+          { "source": "github/workflows/release-flow/workload-ci.yml", "destination": ".github/workflows/workload-flow-ci.yml" }
+        ]
+      }
+    }
+  },
+  "infra": {
+    "shared": [
+      { "source": "github/actions/setup-platform-kite/action.yml", "destination": ".github/actions/setup-platform-kite/action.yml" },
+      { "source": "github/workflows/shared/infra-validate.yml", "destination": ".github/workflows/infra-validate.yml" },
+      { "source": "github/workflows/shared/infra-provision.yml", "destination": ".github/workflows/infra-provision.yml" }
+    ],
+    "strategies": {
+      "github": {
+        "files": [
+          { "source": "github/workflows/github-flow/infra-ci.yml", "destination": ".github/workflows/infra-flow-ci.yml" }
+        ]
+      },
+      "release": {
+        "files": [
+          { "source": "github/workflows/release-flow/infra-ci.yml", "destination": ".github/workflows/infra-flow-ci.yml" }
         ]
       }
     }
@@ -60,10 +79,14 @@ Describe 'New-PlatformWorkflow' {
         'github/workflows/shared/platform-provision.yml'
         'github/workflows/platform-flow/platform-ci.yml'
         'github/workflows/platform-flow/platform-cd.yml'
-        'github/workflows/shared/project-validate.yml'
-        'github/workflows/shared/project-provision.yml'
-        'github/workflows/github-flow/project-ci.yml'
-        'github/workflows/release-flow/project-ci.yml'
+        'github/workflows/shared/workload-validate.yml'
+        'github/workflows/shared/workload-provision.yml'
+        'github/workflows/github-flow/workload-ci.yml'
+        'github/workflows/release-flow/workload-ci.yml'
+        'github/workflows/shared/infra-validate.yml'
+        'github/workflows/shared/infra-provision.yml'
+        'github/workflows/github-flow/infra-ci.yml'
+        'github/workflows/release-flow/infra-ci.yml'
       )
 
       foreach ($file in $files) {
@@ -124,11 +147,11 @@ Describe 'New-PlatformWorkflow' {
   }
 
   It 'copies only the requested workflow type' {
-    $result = New-PlatformWorkflow -InputFolder $script:templateRoot -OutputFolder $script:repoRoot -BranchStrategy 'github' -WorkflowType project
+    $result = New-PlatformWorkflow -InputFolder $script:templateRoot -OutputFolder $script:repoRoot -BranchStrategy 'github' -WorkflowType workload
 
-    $result.WorkflowType | Should -Be 'project'
-    Test-Path (Join-Path $script:repoRoot '.github/workflows/project-validate.yml') | Should -BeTrue
-    Test-Path (Join-Path $script:repoRoot '.github/workflows/project-flow-ci.yml') | Should -BeTrue
+    $result.WorkflowType | Should -Be 'workload'
+    Test-Path (Join-Path $script:repoRoot '.github/workflows/workload-validate.yml') | Should -BeTrue
+    Test-Path (Join-Path $script:repoRoot '.github/workflows/workload-flow-ci.yml') | Should -BeTrue
     Test-Path (Join-Path $script:repoRoot '.github/workflows/platform-provision.yml') | Should -BeFalse
   }
 
@@ -136,10 +159,10 @@ Describe 'New-PlatformWorkflow' {
     $globalConfigPath = Join-Path $script:repoRoot 'config/global-config.jsonc'
     New-TestGlobalConfig -Path $globalConfigPath -BranchStrategy 'release'
 
-    $result = New-PlatformWorkflow -InputFolder $script:templateRoot -OutputFolder $script:repoRoot -GlobalConfigPath $globalConfigPath -WorkflowType project
+    $result = New-PlatformWorkflow -InputFolder $script:templateRoot -OutputFolder $script:repoRoot -GlobalConfigPath $globalConfigPath -WorkflowType workload
 
     $result.BranchStrategy | Should -Be 'release'
-    Test-Path (Join-Path $script:repoRoot '.github/workflows/project-flow-ci.yml') | Should -BeTrue
+    Test-Path (Join-Path $script:repoRoot '.github/workflows/workload-flow-ci.yml') | Should -BeTrue
     Test-Path (Join-Path $script:repoRoot '.github/workflows/platform-cd.yml') | Should -BeFalse
   }
 
@@ -166,8 +189,32 @@ Describe 'New-PlatformWorkflow' {
   }
 
   It 'fails for a strategy that is not declared in the manifest' {
-    { New-PlatformWorkflow -InputFolder $script:templateRoot -OutputFolder $script:repoRoot -WorkflowType project -BranchStrategy 'trunk' } |
+    { New-PlatformWorkflow -InputFolder $script:templateRoot -OutputFolder $script:repoRoot -WorkflowType workload -BranchStrategy 'trunk' } |
       Should -Throw '*Available strategies*'
+  }
+
+  It 'copies the infra bundle for the requested branch strategy' {
+    $result = New-PlatformWorkflow -InputFolder $script:templateRoot -OutputFolder $script:repoRoot -BranchStrategy 'github' -WorkflowType infra
+
+    $result.WorkflowType | Should -Be 'infra'
+    Test-Path (Join-Path $script:repoRoot '.github/workflows/infra-validate.yml') | Should -BeTrue
+    Test-Path (Join-Path $script:repoRoot '.github/workflows/infra-flow-ci.yml') | Should -BeTrue
+    Test-Path (Join-Path $script:repoRoot '.github/workflows/workload-validate.yml') | Should -BeFalse
+    Test-Path (Join-Path $script:repoRoot '.github/workflows/platform-provision.yml') | Should -BeFalse
+  }
+
+  It 'copies platform, workload, and infra bundles for -WorkflowType all' {
+    $result = New-PlatformWorkflow -InputFolder $script:templateRoot -OutputFolder $script:repoRoot -BranchStrategy 'release' -WorkflowType all -WarningVariable warnings -WarningAction SilentlyContinue
+
+    $result.WorkflowType | Should -Be 'all'
+    Test-Path (Join-Path $script:repoRoot '.github/workflows/platform-ci.yml') | Should -BeTrue
+    Test-Path (Join-Path $script:repoRoot '.github/workflows/workload-validate.yml') | Should -BeTrue
+    Test-Path (Join-Path $script:repoRoot '.github/workflows/infra-validate.yml') | Should -BeTrue
+
+    # The setup action is listed in all three bundles' own "shared" list; it must be copied/checked
+    # only once per invocation instead of warning "already exists" for the second and third bundle.
+    $warnings.Count | Should -Be 0
+    ($result.CopiedFiles | Where-Object { $_ -like '*setup-platform-kite*' }).Count | Should -Be 1
   }
 
   It 'fails when the manifest is missing' {

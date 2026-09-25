@@ -1,4 +1,4 @@
-name: 'Project Release (prd)'
+name: 'Workload Release (prd)'
 
 on:
   release:
@@ -47,7 +47,7 @@ jobs:
     if: |
       always() &&
       (github.event_name == 'workflow_dispatch' || needs.verify-stg-promotion.result == 'success')
-    uses: ./.github/workflows/project-provision.yml
+    uses: ./.github/workflows/workload-provision.yml
     permissions:
       contents: read
       id-token: write

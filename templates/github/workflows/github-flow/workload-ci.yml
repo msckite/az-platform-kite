@@ -1,4 +1,4 @@
-name: 'Project CI (dev)'
+name: 'Workload CI (dev)'
 
 on:
   pull_request:
@@ -25,12 +25,12 @@ permissions:
 jobs:
   validate:
     name: Validate
-    uses: ./.github/workflows/project-validate.yml
+    uses: ./.github/workflows/workload-validate.yml
 
   deploy-dev:
     name: Deploy (dev)
     needs: [validate]
-    uses: ./.github/workflows/project-provision.yml
+    uses: ./.github/workflows/workload-provision.yml
     if: |
       github.event_name == 'pull_request' ||
       github.event_name == 'workflow_dispatch'
@@ -42,14 +42,14 @@ jobs:
       what-if: false
     secrets: inherit
 
-  plan-stg:
-    name: Preflight (stg)
+  plan-prd:
+    name: Preflight (prd)
     needs: [validate, deploy-dev]
-    uses: ./.github/workflows/project-provision.yml
+    uses: ./.github/workflows/workload-provision.yml
     permissions:
       contents: read
       id-token: write
     with:
-      environment: stg-workload
+      environment: prd-workload
       what-if: true
     secrets: inherit
