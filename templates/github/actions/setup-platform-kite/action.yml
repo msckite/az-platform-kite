@@ -31,7 +31,7 @@ runs:
   using: composite
   steps:
     - name: Cache PowerShell modules
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: ~/.local/share/powershell/Modules
         key: psmodules-${{ runner.os }}-msckite-${{ inputs.module-version || 'latest' }}-${{ inputs.allow-prerelease }}
