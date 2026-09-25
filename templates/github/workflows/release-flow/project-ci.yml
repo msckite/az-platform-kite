@@ -38,7 +38,7 @@ jobs:
       contents: read
       id-token: write
     with:
-      environment: dev
+      environment: dev-workload
       what-if: false
     secrets: inherit
 
@@ -50,6 +50,6 @@ jobs:
       contents: read
       id-token: write
     with:
-      environment: stg
+      environment: stg-workload
       what-if: true
     secrets: inherit

@@ -112,17 +112,30 @@ namespace MSCKite.Azure.Platform.Commands.Platform
                     continue;
                 }
 
-                var actionResult = SyncIdentityAndCredential(config, resourceGroup, placeholders, githubRepository);
-                if (actionResult == null)
+                // Always process the infra identity; only process the workload identity when the environment declares one
+                var slots = new List<Tuple<string, PlatformUserAssignedIdentityConfig, PlatformGitHubEnvironmentConfig>>
                 {
-                    continue;
+                    Tuple.Create("infra", config.UserAssignedIdentity, config.GitHubEnvironment)
+                };
+                if (config.WorkloadUserAssignedIdentity != null)
+                {
+                    slots.Add(Tuple.Create("workload", config.WorkloadUserAssignedIdentity, config.WorkloadGitHubEnvironment));
                 }
 
-                SyncRoleAssignments(actionResult, config.UserAssignedIdentity, resourceGroupsById, globalConfig.SubscriptionId, placeholders);
-                items.Add(actionResult);
+                foreach (var slot in slots)
+                {
+                    var actionResult = SyncIdentityAndCredential(config, slot.Item1, slot.Item2, slot.Item3, resourceGroup, placeholders, githubRepository);
+                    if (actionResult == null)
+                    {
+                        continue;
+                    }
+
+                    SyncRoleAssignments(actionResult, slot.Item2, resourceGroupsById, globalConfig.SubscriptionId, placeholders);
+                    items.Add(actionResult);
+                }
             }
 
-            WriteVerbose($"Done. Processed {items.Count} of {environmentConfigs.Count} environment(s).");
+            WriteVerbose($"Done. Processed {items.Count} identity/identities across {environmentConfigs.Count} environment(s).");
             if (AsHashtable.IsPresent)
             {
                 WriteObject(new Hashtable
@@ -144,6 +157,9 @@ namespace MSCKite.Azure.Platform.Commands.Platform
         // Creates the identity and its federated credential if missing, updating the credential in place if it has drifted; returns null (after recording an error) on failure
         private PlatformEnvironmentIdentityActionResult SyncIdentityAndCredential(
             PlatformEnvironmentConfig config,
+            string purpose,
+            PlatformUserAssignedIdentityConfig identityConfig,
+            PlatformGitHubEnvironmentConfig githubEnvironmentConfig,
             AzureResourceGroupInfo resourceGroup,
             Dictionary<string, string> placeholders,
             GitHubRepositoryInfo githubRepository)
@@ -151,7 +167,7 @@ namespace MSCKite.Azure.Platform.Commands.Platform
             string identityName;
             try
             {
-                identityName = PlatformConfigLoader.ResolvePlaceholders(config.UserAssignedIdentity.Name, placeholders);
+                identityName = PlatformConfigLoader.ResolvePlaceholders(identityConfig.Name, placeholders);
             }
             catch (InvalidOperationException ex)
             {
@@ -159,7 +175,7 @@ namespace MSCKite.Azure.Platform.Commands.Platform
                 return null;
             }
 
-            WriteVerbose($"Environment '{config.EnvironmentCode}': checking whether identity '{identityName}' already exists.");
+            WriteVerbose($"Environment '{config.EnvironmentCode}' ({purpose}): checking whether identity '{identityName}' already exists.");
             var existing = AzureUserAssignedIdentityHelper.Get(this, resourceGroup.Name, identityName);
             string identityAction;
             AzureUserAssignedIdentityInfo identity;
@@ -172,6 +188,7 @@ namespace MSCKite.Azure.Platform.Commands.Platform
                     return new PlatformEnvironmentIdentityActionResult
                     {
                         EnvironmentCode = config.EnvironmentCode,
+                        Purpose = purpose,
                         IdentityName = identityName,
                         Action = "WouldCreate",
                         FederatedCredentialAction = "WouldCreate"
@@ -212,25 +229,28 @@ namespace MSCKite.Azure.Platform.Commands.Platform
             var actionResult = new PlatformEnvironmentIdentityActionResult
             {
                 EnvironmentCode = config.EnvironmentCode,
+                Purpose = purpose,
                 IdentityName = identity.Name,
                 PrincipalId = identity.PrincipalId,
                 ClientId = identity.ClientId,
                 Action = identityAction
             };
 
-            actionResult.FederatedCredentialAction = SyncFederatedCredential(config, identityName, resourceGroup, placeholders, githubRepository);
+            actionResult.FederatedCredentialAction = SyncFederatedCredential(config, identityConfig, githubEnvironmentConfig, identityName, resourceGroup, placeholders, githubRepository);
             return actionResult;
         }
 
         // Creates the federated credential if missing, or updates it if the issuer/subject/audiences have drifted; returns the action taken, or null if it couldn't be resolved/applied
         private string SyncFederatedCredential(
             PlatformEnvironmentConfig config,
+            PlatformUserAssignedIdentityConfig identityConfig,
+            PlatformGitHubEnvironmentConfig githubEnvironmentConfig,
             string identityName,
             AzureResourceGroupInfo resourceGroup,
             Dictionary<string, string> placeholders,
             GitHubRepositoryInfo githubRepository)
         {
-            var federatedConfig = config.UserAssignedIdentity.FederatedCredential;
+            var federatedConfig = identityConfig.FederatedCredential;
 
             string credentialName;
             string issuer;
@@ -240,7 +260,7 @@ namespace MSCKite.Azure.Platform.Commands.Platform
             {
                 credentialName = PlatformConfigLoader.ResolvePlaceholders(federatedConfig.Name, placeholders);
                 issuer = PlatformConfigLoader.ResolvePlaceholders(federatedConfig.Issuer, placeholders);
-                githubEnvironmentName = PlatformConfigLoader.ResolvePlaceholders(config.GitHubEnvironment.Name, placeholders);
+                githubEnvironmentName = PlatformConfigLoader.ResolvePlaceholders(githubEnvironmentConfig.Name, placeholders);
                 audiences = federatedConfig.Audiences.Select(a => PlatformConfigLoader.ResolvePlaceholders(a, placeholders)).ToArray();
             }
             catch (InvalidOperationException ex)

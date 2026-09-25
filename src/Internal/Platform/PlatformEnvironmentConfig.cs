@@ -14,6 +14,11 @@ namespace MSCKite.Azure.Platform.Internal.Platform
         internal PlatformUserAssignedIdentityConfig UserAssignedIdentity { get; set; }
 
         internal PlatformGitHubEnvironmentConfig GitHubEnvironment { get; set; }
+
+        // Optional narrower-scoped identity/environment for the workload (application/service/solution code) pipeline. Null when the environment does not declare one, in which case callers fall back to UserAssignedIdentity/GitHubEnvironment.
+        internal PlatformUserAssignedIdentityConfig WorkloadUserAssignedIdentity { get; set; }
+
+        internal PlatformGitHubEnvironmentConfig WorkloadGitHubEnvironment { get; set; }
     }
 
     // Raw (unresolved) representation of an environment's "githubEnvironment"

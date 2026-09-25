@@ -212,6 +212,57 @@
                         "value": "rgds-${serviceShort}${uniqueId}-${environmentCode}-${regionCode}"
                     }
                 ]
+            },
+            // Narrower identity/environment for the workload (application/service/solution code) pipeline: no
+            // deployment-stack rights, so developers pushing workload code cannot alter infrastructure through
+            // this identity. Falls back to userAssignedIdentity/githubEnvironment above when omitted.
+            "workloadUserAssignedIdentity": {
+                "name": "id-${serviceShort}${uniqueId}-${tool}-${environmentCode}-workload",
+                "federatedCredential": {
+                    "name": "fic-${serviceShort}${uniqueId}-${tool}-${environmentCode}-workload",
+                    "issuer": "https://token.actions.githubusercontent.com",
+                    "subjectType": "environment",
+                    "audiences": [
+                        "api://AzureADTokenExchange"
+                    ]
+                },
+                "roleAssignments": [
+                    {
+                        "role": "Contributor",
+                        "resourceGroupId": "dev"
+                    }
+                ]
+            },
+            "workloadGithubEnvironment": {
+                "name": "${environmentCode}-workload",
+                "protectionRules": {
+                    "requiredReviewers": [],
+                    "waitTimerMinutes": 0
+                },
+                "secrets": [
+                    {
+                        "name": "AZURE_CLIENT_ID",
+                        "value": "${clientId}" // populated from the clientId of the workloadUserAssignedIdentity created above, once it exists
+                    },
+                    {
+                        "name": "AZURE_SUBSCRIPTION_ID",
+                        "value": "${subscriptionId}"
+                    },
+                    {
+                        "name": "AZURE_TENANT_ID",
+                        "value": "${tenantId}"
+                    }
+                ],
+                "variables": [
+                    {
+                        "name": "ENV_CODE",
+                        "value": "${environmentCode}"
+                    },
+                    {
+                        "name": "RESOURCE_GROUP_NAME",
+                        "value": "rg-${serviceShort}${uniqueId}-${environmentCode}-${regionCode}"
+                    }
+                ]
             }
         }
     ]

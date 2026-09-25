@@ -14,6 +14,7 @@ everything outside `infra/**`; infra workflows own only `infra/**` and their own
 - [Layout](#layout)
 - [Installing the templates](#installing-the-templates)
 - [Provisioning phases and dependencies](#provisioning-phases-and-dependencies)
+- [Workload and infra identity split](#workload-and-infra-identity-split)
 - [Platform flow](#platform-flow)
 - [GitHub Flow project strategy (`github`)](#github-flow-project-strategy-github)
 - [Release Flow project strategy (`release`)](#release-flow-project-strategy-release)
@@ -104,6 +105,28 @@ flowchart LR
 
 Set the `what-if` input to `true` to run every phase with `-WhatIf`, which is what the CI workflows do.
 
+## Workload and infra identity split
+
+Each `dev`/`stg`/`prd` environment in `platform-config.jsonc` can declare two identities instead of
+one: `userAssignedIdentity` (paired with `githubEnvironment`, named e.g. `dev`) and an optional
+`workloadUserAssignedIdentity` (paired with `workloadGithubEnvironment`, named e.g. `dev-workload`).
+Phases 3 and 4 process both when the workload pair is present.
+
+- **Infra identity** (`userAssignedIdentity`): broader rights, including `Azure Deployment Stack
+  Contributor`, so it can create, update, and delete resources through a deployment stack. Used by
+  the `infra-*.yml` workflows, which sign in with `environment: dev` (no `-workload` suffix).
+- **Workload identity** (`workloadUserAssignedIdentity`): narrower rights, `Contributor` only, no
+  deployment-stack role, so pushing application/service/solution code cannot alter infrastructure
+  through this identity. Used by the `project-*.yml` workflows, which sign in with
+  `environment: dev-workload`.
+
+This is what actually enforces "developers deploy code, platform/cloud engineers deploy
+infrastructure": two separate GitHub environments with two separate federated identities, not just
+two separate workflow files. Declaring `workloadUserAssignedIdentity` without
+`workloadGithubEnvironment` (or the reverse) is rejected, since their secrets would otherwise
+collide with the infra environment's. Omitting both is still valid: the environment then has a
+single identity for both pipelines, as before.
+
 ## Platform flow
 
 Pull requests run validation and a `-WhatIf` platform reconciliation. A push to `main` runs the
@@ -177,7 +200,10 @@ deploys `prd` after a published release, confirming the release commit matches t
    outside `-WhatIf`. Without this grant, `Set-PlatformSecurityGroup` fails, or in CI's
    `-ErrorAction SilentlyContinue` lookup path, misreports existing groups as missing.
 3. Confirm every environment in `platform-config.jsonc` has a matching GitHub environment holding
-   `AZURE_CLIENT_ID`, `AZURE_TENANT_ID` and `AZURE_SUBSCRIPTION_ID`. Phase 4 writes these.
+   `AZURE_CLIENT_ID`, `AZURE_TENANT_ID` and `AZURE_SUBSCRIPTION_ID`. Phase 4 writes these. If an
+   environment declares `workloadUserAssignedIdentity`/`workloadGithubEnvironment`, confirm the
+   `-workload`-suffixed environment (e.g. `dev-workload`) exists too; the `project-*.yml` workflows
+   sign in to that one, not the plain `dev` environment used by `infra-*.yml`.
 4. Add `PLATFORM_GITHUB_TOKEN` by hand as an **environment secret** on the `platform` GitHub
    environment (Settings > Environments > platform > Secrets), not a repository secret, so its
    access is scoped to just the identity that runs the platform pipeline. Use a fine-grained

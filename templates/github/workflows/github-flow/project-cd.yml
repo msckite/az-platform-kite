@@ -33,6 +33,6 @@ jobs:
       contents: read
       id-token: write
     with:
-      environment: prd
+      environment: prd-workload
       what-if: false
     secrets: inherit

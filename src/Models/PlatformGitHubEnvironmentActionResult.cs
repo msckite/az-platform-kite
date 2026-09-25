@@ -6,6 +6,9 @@ namespace MSCKite.Azure.Platform.Models
     {
         public string EnvironmentCode { get; set; }
 
+        // "infra" or "workload"
+        public string Purpose { get; set; }
+
         public string Name { get; set; }
 
         // "Created", "Updated", "WouldCreate", or "WouldUpdate"

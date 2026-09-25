@@ -56,6 +56,28 @@ Describe 'Set-PlatformEnvironmentIdentity' {
   "variables": []
 }
 '@
+
+    # A narrower workload identity/environment pair, used to test the optional workload/infra identity split
+    $script:ValidWorkloadIdentity = @'
+"workloadUserAssignedIdentity": {
+  "name": "id-${uniqueId}${serviceShort}-${tool}-${environmentCode}-workload",
+  "federatedCredential": {
+    "name": "fic-${uniqueId}${serviceShort}-${tool}-${environmentCode}-workload",
+    "issuer": "https://token.actions.githubusercontent.com",
+    "subjectType": "environment",
+    "audiences": ["api://AzureADTokenExchange"]
+  },
+  "roleAssignments": [ { "role": "Contributor", "resourceGroupId": "dev" } ]
+}
+'@
+
+    $script:ValidWorkloadGitHubEnvironment = @'
+"workloadGithubEnvironment": {
+  "name": "${environmentCode}-workload",
+  "secrets": [],
+  "variables": []
+}
+'@
   }
 
   AfterAll {
@@ -263,5 +285,78 @@ Describe 'Set-PlatformEnvironmentIdentity' {
     '{"templateVersion":"1.0.0","resourceGroups":[],"environments":[]}' | Set-Content -Path $platform
 
     { Set-PlatformEnvironmentIdentity -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*active Azure subscription*does not match*'
+  }
+
+  It 'throws when workloadUserAssignedIdentity is declared without workloadGithubEnvironment' {
+    $global = Join-Path $TestDrive 'global.jsonc'
+    $platform = Join-Path $TestDrive 'platform-workload-identity-only.jsonc'
+    $script:ValidGlobalConfig | Set-Content -Path $global
+    @"
+{
+  "templateVersion": "1.0.0",
+  "resourceGroups": [],
+  "environments": [
+    {
+      "environmentCode": "dev",
+      "resourceGroupId": "dev",
+      $script:ValidIdentity,
+      $script:ValidGitHubEnvironment,
+      $script:ValidWorkloadIdentity
+    }
+  ]
+}
+"@ | Set-Content -Path $platform
+
+    { Set-PlatformEnvironmentIdentity -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*must declare both "workloadUserAssignedIdentity" and "workloadGithubEnvironment" together, or neither*'
+  }
+
+  It 'throws when workloadGithubEnvironment is declared without workloadUserAssignedIdentity' {
+    $global = Join-Path $TestDrive 'global.jsonc'
+    $platform = Join-Path $TestDrive 'platform-workload-github-only.jsonc'
+    $script:ValidGlobalConfig | Set-Content -Path $global
+    @"
+{
+  "templateVersion": "1.0.0",
+  "resourceGroups": [],
+  "environments": [
+    {
+      "environmentCode": "dev",
+      "resourceGroupId": "dev",
+      $script:ValidIdentity,
+      $script:ValidGitHubEnvironment,
+      $script:ValidWorkloadGitHubEnvironment
+    }
+  ]
+}
+"@ | Set-Content -Path $platform
+
+    { Set-PlatformEnvironmentIdentity -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*must declare both "workloadUserAssignedIdentity" and "workloadGithubEnvironment" together, or neither*'
+  }
+
+  It 'reports both the infra and workload identity when workloadUserAssignedIdentity is declared' {
+    $global = Join-Path $TestDrive 'global.jsonc'
+    $platform = Join-Path $TestDrive 'platform-workload-identity-missing-rg.jsonc'
+    $script:ValidGlobalConfig | Set-Content -Path $global
+    @"
+{
+  "templateVersion": "1.0.0",
+  "resourceGroups": [
+    { "id": "dev", "name": "rg-does-not-exist-msckite-tests-zzz", "location": "westeurope" }
+  ],
+  "environments": [
+    {
+      "environmentCode": "dev",
+      "resourceGroupId": "dev",
+      $script:ValidIdentity,
+      $script:ValidGitHubEnvironment,
+      $script:ValidWorkloadIdentity,
+      $script:ValidWorkloadGitHubEnvironment
+    }
+  ]
+}
+"@ | Set-Content -Path $platform
+
+    # The resource group intentionally does not exist, so this only exercises config parsing (both slots build without error) before the resolver reports the missing resource group.
+    { Set-PlatformEnvironmentIdentity -GlobalConfigPath $global -PlatformConfigPath $platform -ErrorAction Stop } | Should -Throw '*does not exist. Run Set-PlatformResourceGroup first*'
   }
 }

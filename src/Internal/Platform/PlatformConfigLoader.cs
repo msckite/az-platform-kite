@@ -239,13 +239,35 @@ namespace MSCKite.Azure.Platform.Internal.Platform
                         throw new InvalidOperationException($"Environment '{environmentCode}' must have a \"githubEnvironment\" object.");
                     }
 
+                    // Optional narrower-scoped workload identity/environment; when absent, callers fall back to userAssignedIdentity/githubEnvironment.
+                    // Both must be declared together: their GitHub environment names must differ from the infra one, or their secrets would collide.
+                    PlatformUserAssignedIdentityConfig workloadIdentity = null;
+                    if (element.TryGetProperty("workloadUserAssignedIdentity", out var workloadIdentityElement) && workloadIdentityElement.ValueKind == JsonValueKind.Object)
+                    {
+                        workloadIdentity = ParseUserAssignedIdentity(workloadIdentityElement, environmentCode);
+                    }
+
+                    PlatformGitHubEnvironmentConfig workloadGithubEnvironment = null;
+                    if (element.TryGetProperty("workloadGithubEnvironment", out var workloadGithubElement) && workloadGithubElement.ValueKind == JsonValueKind.Object)
+                    {
+                        workloadGithubEnvironment = ParseGitHubEnvironment(workloadGithubElement, environmentCode);
+                    }
+
+                    if ((workloadIdentity == null) != (workloadGithubEnvironment == null))
+                    {
+                        throw new InvalidOperationException(
+                            $"Environment '{environmentCode}' must declare both \"workloadUserAssignedIdentity\" and \"workloadGithubEnvironment\" together, or neither.");
+                    }
+
                     environments.Add(new PlatformEnvironmentConfig
                     {
                         DisplayName = GetString(element, "displayName"),
                         EnvironmentCode = environmentCode,
                         ResourceGroupId = resourceGroupId,
                         UserAssignedIdentity = ParseUserAssignedIdentity(identityElement, environmentCode),
-                        GitHubEnvironment = ParseGitHubEnvironment(githubElement, environmentCode)
+                        GitHubEnvironment = ParseGitHubEnvironment(githubElement, environmentCode),
+                        WorkloadUserAssignedIdentity = workloadIdentity,
+                        WorkloadGitHubEnvironment = workloadGithubEnvironment
                     });
                 }
 

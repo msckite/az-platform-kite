@@ -95,7 +95,7 @@ namespace MSCKite.Azure.Platform.Commands.Platform
 
             foreach (var config in environmentConfigs)
             {
-                var placeholders = new Dictionary<string, string>(globalPlaceholders, StringComparer.Ordinal)
+                var basePlaceholders = new Dictionary<string, string>(globalPlaceholders, StringComparer.Ordinal)
                 {
                     ["environmentCode"] = config.EnvironmentCode
                 };
@@ -106,23 +106,39 @@ namespace MSCKite.Azure.Platform.Commands.Platform
                     continue;
                 }
 
-                if (!TryResolveClientId(config, resourceGroup, placeholders))
+                // Always process the infra environment; only process the workload environment when the environment declares one
+                var slots = new List<Tuple<string, PlatformUserAssignedIdentityConfig, PlatformGitHubEnvironmentConfig>>
                 {
-                    continue;
+                    Tuple.Create("infra", config.UserAssignedIdentity, config.GitHubEnvironment)
+                };
+                if (config.WorkloadUserAssignedIdentity != null)
+                {
+                    slots.Add(Tuple.Create("workload", config.WorkloadUserAssignedIdentity, config.WorkloadGitHubEnvironment));
                 }
 
-                var actionResult = SyncEnvironment(config, owner, repository, placeholders);
-                if (actionResult == null)
+                foreach (var slot in slots)
                 {
-                    continue;
-                }
+                    // Each identity resolves its own "${clientId}", so copy the placeholders per slot instead of sharing one map
+                    var placeholders = new Dictionary<string, string>(basePlaceholders, StringComparer.Ordinal);
 
-                SyncSecrets(actionResult, config.GitHubEnvironment, owner, repository, placeholders);
-                SyncVariables(actionResult, config.GitHubEnvironment, owner, repository, placeholders);
-                items.Add(actionResult);
+                    if (!TryResolveClientId(config, slot.Item2, resourceGroup, placeholders))
+                    {
+                        continue;
+                    }
+
+                    var actionResult = SyncEnvironment(config, slot.Item1, slot.Item3, owner, repository, placeholders);
+                    if (actionResult == null)
+                    {
+                        continue;
+                    }
+
+                    SyncSecrets(actionResult, slot.Item3, owner, repository, placeholders);
+                    SyncVariables(actionResult, slot.Item3, owner, repository, placeholders);
+                    items.Add(actionResult);
+                }
             }
 
-            WriteVerbose($"Done. Processed {items.Count} of {environmentConfigs.Count} environment(s).");
+            WriteVerbose($"Done. Processed {items.Count} GitHub environment(s) across {environmentConfigs.Count} configured environment(s).");
             if (AsHashtable.IsPresent)
             {
                 WriteObject(new Hashtable
@@ -142,12 +158,12 @@ namespace MSCKite.Azure.Platform.Commands.Platform
         }
 
         // Adds "${clientId}" to the placeholder map by reading the identity created in phase 3; reports a clear error if that phase hasn't run yet
-        private bool TryResolveClientId(PlatformEnvironmentConfig config, AzureResourceGroupInfo resourceGroup, Dictionary<string, string> placeholders)
+        private bool TryResolveClientId(PlatformEnvironmentConfig config, PlatformUserAssignedIdentityConfig identityConfig, AzureResourceGroupInfo resourceGroup, Dictionary<string, string> placeholders)
         {
             string identityName;
             try
             {
-                identityName = PlatformConfigLoader.ResolvePlaceholders(config.UserAssignedIdentity.Name, placeholders);
+                identityName = PlatformConfigLoader.ResolvePlaceholders(identityConfig.Name, placeholders);
             }
             catch (InvalidOperationException ex)
             {
@@ -171,10 +187,8 @@ namespace MSCKite.Azure.Platform.Commands.Platform
 
         // Always reconciles the environment's protection rules (idempotent PUT); the action label is based only on whether the environment previously existed
         private PlatformGitHubEnvironmentActionResult SyncEnvironment(
-            PlatformEnvironmentConfig config, string owner, string repository, Dictionary<string, string> placeholders)
+            PlatformEnvironmentConfig config, string purpose, PlatformGitHubEnvironmentConfig githubConfig, string owner, string repository, Dictionary<string, string> placeholders)
         {
-            var githubConfig = config.GitHubEnvironment;
-
             string name;
             try
             {
@@ -211,6 +225,7 @@ namespace MSCKite.Azure.Platform.Commands.Platform
                 return new PlatformGitHubEnvironmentActionResult
                 {
                     EnvironmentCode = config.EnvironmentCode,
+                    Purpose = purpose,
                     Name = name,
                     Action = existed ? "WouldUpdate" : "WouldCreate"
                 };
@@ -228,6 +243,7 @@ namespace MSCKite.Azure.Platform.Commands.Platform
             return new PlatformGitHubEnvironmentActionResult
             {
                 EnvironmentCode = config.EnvironmentCode,
+                Purpose = purpose,
                 Name = name,
                 Action = existed ? "Updated" : "Created"
             };
