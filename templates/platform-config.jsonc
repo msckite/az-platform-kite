@@ -4,6 +4,20 @@
     // Phase 1: Azure resource groups are created first, independently of security groups, environments, identities, and GitHub environments.
     "resourceGroups": [
         {
+            // Hosts the identity that runs the platform-config.jsonc provisioning pipeline itself (see the "platform" environment below).
+            "id": "platform",
+            "name": "rg-${serviceShort}${uniqueId}-platform-${regionCode}",
+            "location": "${location}",
+            "tags": {
+                "service": "${serviceShort}",
+                "environment": "platform",
+                "location": "${location}",
+                "owner": "engineering-team",
+                "criticality": "high",
+                "cost-center": "engineering"
+            }
+        },
+        {
             "id": "dev",
             "name": "rg-${serviceShort}${uniqueId}-dev-${regionCode}",
             "location": "${location}",
@@ -82,6 +96,58 @@
     ],
     // Phase 3: Entra federated user-assigned identity, Phase 4: GitHub environment (both per-environment).
     "environments": [
+        {
+            // The bootstrap environment: platform-ci.yml/platform-cd.yml sign in as this identity to run all four
+            // phases. Its role assignments are scoped to the whole subscription (not a single resource group), so it
+            // can see and reconcile every resource group declared above, not just the one it lives in.
+            "displayName": "Platform",
+            "environmentCode": "platform",
+            "description": "Bootstrap environment whose identity runs the platform-config.jsonc provisioning pipeline",
+            "resourceGroupId": "platform",
+            "userAssignedIdentity": {
+                "name": "id-${serviceShort}${uniqueId}-${tool}-${environmentCode}",
+                "federatedCredential": {
+                    "name": "fic-${serviceShort}${uniqueId}-${tool}-${environmentCode}",
+                    "issuer": "https://token.actions.githubusercontent.com",
+                    "subjectType": "environment",
+                    "audiences": [
+                        "api://AzureADTokenExchange"
+                    ]
+                },
+                "roleAssignments": [
+                    {
+                        "role": "Contributor",
+                        "scope": "subscription"
+                    },
+                    {
+                        "role": "User Access Administrator", // needed to assign RBAC roles to the security groups and identities provisioned by phases 2 and 3
+                        "scope": "subscription"
+                    }
+                ]
+            },
+            "githubEnvironment": {
+                "name": "${environmentCode}",
+                "protectionRules": {
+                    "requiredReviewers": [],
+                    "waitTimerMinutes": 0
+                },
+                "secrets": [
+                    {
+                        "name": "AZURE_CLIENT_ID",
+                        "value": "${clientId}" // populated from the clientId of the userAssignedIdentity created above, once it exists
+                    },
+                    {
+                        "name": "AZURE_SUBSCRIPTION_ID",
+                        "value": "${subscriptionId}"
+                    },
+                    {
+                        "name": "AZURE_TENANT_ID",
+                        "value": "${tenantId}"
+                    }
+                ],
+                "variables": []
+            }
+        },
         {
             "displayName": "Development",
             "environmentCode": "dev",

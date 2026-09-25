@@ -40,8 +40,9 @@ immutable subject claim format), and finally assigns any role from `roleAssignme
 identity doesn't already hold; existing role assignments outside this list are never removed.
 
 Every `resourceGroupId` referenced by a role assignment must already exist, so
-`Set-PlatformResourceGroup` must be run first. Reading the live repository requires the GitHub CLI
-(`gh`) to be installed and signed in.
+`Set-PlatformResourceGroup` must be run first. A role assignment can instead set `scope` to
+`subscription` to assign at the subscription scope rather than a single resource group. Reading
+the live repository requires the GitHub CLI (`gh`) to be installed and signed in.
 
 This cmdlet supports `-WhatIf`/`-Confirm` and requires the `Az.Resources` and
 `Az.ManagedServiceIdentity` modules, signed in via `Connect-AzAccount` with permission to create

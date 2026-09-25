@@ -171,6 +171,58 @@ Describe 'Set-PlatformEnvironmentIdentity' {
     { Set-PlatformEnvironmentIdentity -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*userAssignedIdentity must have a non-empty "roleAssignments" array*'
   }
 
+  It 'throws when a role assignment sets neither resourceGroupId nor scope' {
+    $global = Join-Path $TestDrive 'global.jsonc'
+    $platform = Join-Path $TestDrive 'platform-noscope.jsonc'
+    $script:ValidGlobalConfig | Set-Content -Path $global
+    @"
+{
+  "templateVersion": "1.0.0",
+  "resourceGroups": [],
+  "environments": [
+    {
+      "environmentCode": "dev",
+      "resourceGroupId": "dev",
+      "userAssignedIdentity": {
+        "name": "id-dev",
+        "federatedCredential": { "name": "fic-dev", "issuer": "https://token.actions.githubusercontent.com", "subjectType": "environment", "audiences": ["api://AzureADTokenExchange"] },
+        "roleAssignments": [ { "role": "Contributor" } ]
+      },
+      $script:ValidGitHubEnvironment
+    }
+  ]
+}
+"@ | Set-Content -Path $platform
+
+    { Set-PlatformEnvironmentIdentity -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*must set exactly one of "resourceGroupId" or "scope"*'
+  }
+
+  It 'throws when a role assignment scope is not ''subscription''' {
+    $global = Join-Path $TestDrive 'global.jsonc'
+    $platform = Join-Path $TestDrive 'platform-badscope.jsonc'
+    $script:ValidGlobalConfig | Set-Content -Path $global
+    @"
+{
+  "templateVersion": "1.0.0",
+  "resourceGroups": [],
+  "environments": [
+    {
+      "environmentCode": "dev",
+      "resourceGroupId": "dev",
+      "userAssignedIdentity": {
+        "name": "id-dev",
+        "federatedCredential": { "name": "fic-dev", "issuer": "https://token.actions.githubusercontent.com", "subjectType": "environment", "audiences": ["api://AzureADTokenExchange"] },
+        "roleAssignments": [ { "role": "Contributor", "scope": "managementGroup" } ]
+      },
+      $script:ValidGitHubEnvironment
+    }
+  ]
+}
+"@ | Set-Content -Path $platform
+
+    { Set-PlatformEnvironmentIdentity -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*unsupported "scope" value*'
+  }
+
   It 'reports a role assignment referencing a resource group that does not exist' {
     $global = Join-Path $TestDrive 'global.jsonc'
     $platform = Join-Path $TestDrive 'platform-missing-rg.jsonc'

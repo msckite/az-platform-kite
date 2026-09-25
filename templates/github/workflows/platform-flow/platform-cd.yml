@@ -28,8 +28,10 @@ jobs:
       contents: read
       id-token: write
     with:
-      # Reuse the protected project environment as the approval and OIDC gate. The reusable
-      # workflow reconciles the complete platform configuration in one execution.
-      environment: prd
+      # Dedicated bootstrap environment for the platform pipeline itself: its identity has
+      # subscription-level RBAC, so it can see and reconcile every environment's resource group,
+      # not just one. The reusable workflow reconciles the complete platform configuration in one
+      # execution.
+      environment: platform
       what-if: false
     secrets: inherit

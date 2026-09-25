@@ -39,7 +39,8 @@ resolved against the resource groups created in phase 1 and any role the group d
 hold is assigned; existing role assignments outside this list are never removed.
 
 Every `resourceGroupId` referenced by a role assignment must already exist, so
-`Set-PlatformResourceGroup` must be run first.
+`Set-PlatformResourceGroup` must be run first. A role assignment can instead set `scope` to
+`subscription` to assign at the subscription scope rather than a single resource group.
 
 This cmdlet supports `-WhatIf`/`-Confirm` and requires the `Az.Resources` module, signed in via
 `Connect-AzAccount` with permission to manage Microsoft Entra security groups and assign RBAC

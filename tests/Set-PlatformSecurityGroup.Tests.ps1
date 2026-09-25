@@ -75,6 +75,42 @@ Describe 'Set-PlatformSecurityGroup' {
         { Set-PlatformSecurityGroup -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*must have a non-empty "roleAssignments" array*'
     }
 
+    It 'throws when a role assignment sets neither resourceGroupId nor scope' {
+        $global = Join-Path $TestDrive 'global.jsonc'
+        $platform = Join-Path $TestDrive 'platform-noscope.jsonc'
+        $script:ValidGlobalConfig | Set-Content -Path $global
+        '{"templateVersion":"1.0.0","resourceGroups":[],"securityGroups":[{"displayName":"Devs","mailNickname":"sg-devs","roleAssignments":[{"role":"Contributor"}]}]}' | Set-Content -Path $platform
+
+        { Set-PlatformSecurityGroup -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*must set exactly one of "resourceGroupId" or "scope"*'
+    }
+
+    It 'throws when a role assignment sets both resourceGroupId and scope' {
+        $global = Join-Path $TestDrive 'global.jsonc'
+        $platform = Join-Path $TestDrive 'platform-bothscope.jsonc'
+        $script:ValidGlobalConfig | Set-Content -Path $global
+        '{"templateVersion":"1.0.0","resourceGroups":[],"securityGroups":[{"displayName":"Devs","mailNickname":"sg-devs","roleAssignments":[{"role":"Contributor","resourceGroupId":"dev","scope":"subscription"}]}]}' | Set-Content -Path $platform
+
+        { Set-PlatformSecurityGroup -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*must set exactly one of "resourceGroupId" or "scope"*'
+    }
+
+    It 'throws when a role assignment scope is not ''subscription''' {
+        $global = Join-Path $TestDrive 'global.jsonc'
+        $platform = Join-Path $TestDrive 'platform-badscope.jsonc'
+        $script:ValidGlobalConfig | Set-Content -Path $global
+        '{"templateVersion":"1.0.0","resourceGroups":[],"securityGroups":[{"displayName":"Devs","mailNickname":"sg-devs","roleAssignments":[{"role":"Contributor","scope":"managementGroup"}]}]}' | Set-Content -Path $platform
+
+        { Set-PlatformSecurityGroup -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*unsupported "scope" value*'
+    }
+
+    It 'does not require the referenced resource group to exist when scope is ''subscription''' -Skip {
+        $global = Join-Path $TestDrive 'global.jsonc'
+        $platform = Join-Path $TestDrive 'platform-subscriptionscope.jsonc'
+        $script:ValidGlobalConfig | Set-Content -Path $global
+        '{"templateVersion":"1.0.0","resourceGroups":[],"securityGroups":[{"displayName":"SG Platform","mailNickname":"sg-msckite-tests-platform","roleAssignments":[{"role":"Contributor","scope":"subscription"}]}]}' | Set-Content -Path $platform
+
+        { Set-PlatformSecurityGroup -GlobalConfigPath $global -PlatformConfigPath $platform -WhatIf } | Should -Not -Throw
+    }
+
     It 'reports an unresolved placeholder in a security group displayName' {
         $global = Join-Path $TestDrive 'global.jsonc'
         $platform = Join-Path $TestDrive 'platform-badplaceholder.jsonc'

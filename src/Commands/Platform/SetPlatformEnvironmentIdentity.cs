@@ -118,7 +118,7 @@ namespace MSCKite.Azure.Platform.Commands.Platform
                     continue;
                 }
 
-                SyncRoleAssignments(actionResult, config.UserAssignedIdentity, resourceGroupsById, placeholders);
+                SyncRoleAssignments(actionResult, config.UserAssignedIdentity, resourceGroupsById, globalConfig.SubscriptionId, placeholders);
                 items.Add(actionResult);
             }
 
@@ -325,11 +325,12 @@ namespace MSCKite.Azure.Platform.Commands.Platform
             PlatformEnvironmentIdentityActionResult actionResult,
             PlatformUserAssignedIdentityConfig identityConfig,
             Dictionary<string, AzureResourceGroupInfo> resourceGroupsById,
+            string subscriptionId,
             Dictionary<string, string> placeholders)
         {
             foreach (var roleAssignment in identityConfig.RoleAssignments)
             {
-                if (!resourceGroupsById.TryGetValue(roleAssignment.ResourceGroupId, out var resourceGroup))
+                if (!PlatformResourceGroupResolver.TryResolveRoleAssignmentScope(roleAssignment, resourceGroupsById, subscriptionId, out var scope))
                 {
                     // Missing scope was already reported by PlatformResourceGroupResolver
                     continue;
@@ -345,8 +346,6 @@ namespace MSCKite.Azure.Platform.Commands.Platform
                     WriteError(new ErrorRecord(ex, "PlatformEnvironmentIdentityUnresolvedPlaceholder", ErrorCategory.InvalidData, actionResult.EnvironmentCode));
                     continue;
                 }
-
-                var scope = resourceGroup.ResourceId;
 
                 if (actionResult.Action == "WouldCreate")
                 {

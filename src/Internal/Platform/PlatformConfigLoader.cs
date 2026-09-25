@@ -178,14 +178,13 @@ namespace MSCKite.Azure.Platform.Internal.Platform
                     foreach (var roleElement in roleAssignmentsElement.EnumerateArray())
                     {
                         var role = GetString(roleElement, "role");
-                        var resourceGroupId = GetString(roleElement, "resourceGroupId");
-
-                        if (string.IsNullOrWhiteSpace(role) || string.IsNullOrWhiteSpace(resourceGroupId))
+                        if (string.IsNullOrWhiteSpace(role))
                         {
-                            throw new InvalidOperationException($"Security group '{displayName}' has a role assignment missing \"role\" or \"resourceGroupId\".");
+                            throw new InvalidOperationException($"Security group '{displayName}' has a role assignment missing \"role\".");
                         }
 
-                        securityGroup.RoleAssignments.Add(new PlatformRoleAssignmentConfig { Role = role, ResourceGroupId = resourceGroupId });
+                        var (resourceGroupId, scope) = ParseRoleAssignmentScope(roleElement, $"Security group '{displayName}'");
+                        securityGroup.RoleAssignments.Add(new PlatformRoleAssignmentConfig { Role = role, ResourceGroupId = resourceGroupId, Scope = scope });
                     }
 
                     securityGroups.Add(securityGroup);
@@ -371,17 +370,38 @@ namespace MSCKite.Azure.Platform.Internal.Platform
             foreach (var roleElement in roleAssignmentsElement.EnumerateArray())
             {
                 var role = GetString(roleElement, "role");
-                var resourceGroupId = GetString(roleElement, "resourceGroupId");
-
-                if (string.IsNullOrWhiteSpace(role) || string.IsNullOrWhiteSpace(resourceGroupId))
+                if (string.IsNullOrWhiteSpace(role))
                 {
-                    throw new InvalidOperationException($"Environment '{environmentCode}' has a role assignment missing \"role\" or \"resourceGroupId\".");
+                    throw new InvalidOperationException($"Environment '{environmentCode}' has a role assignment missing \"role\".");
                 }
 
-                identity.RoleAssignments.Add(new PlatformRoleAssignmentConfig { Role = role, ResourceGroupId = resourceGroupId });
+                var (resourceGroupId, scope) = ParseRoleAssignmentScope(roleElement, $"Environment '{environmentCode}'");
+                identity.RoleAssignments.Add(new PlatformRoleAssignmentConfig { Role = role, ResourceGroupId = resourceGroupId, Scope = scope });
             }
 
             return identity;
+        }
+
+        // A role assignment targets either a phase-1 resource group id, or the subscription scope; exactly one must be set
+        private static (string ResourceGroupId, string Scope) ParseRoleAssignmentScope(JsonElement roleElement, string context)
+        {
+            var resourceGroupId = GetString(roleElement, "resourceGroupId");
+            var scope = GetString(roleElement, "scope");
+
+            var hasResourceGroupId = !string.IsNullOrWhiteSpace(resourceGroupId);
+            var hasScope = !string.IsNullOrWhiteSpace(scope);
+
+            if (hasResourceGroupId == hasScope)
+            {
+                throw new InvalidOperationException($"{context} has a role assignment that must set exactly one of \"resourceGroupId\" or \"scope\".");
+            }
+
+            if (hasScope && !string.Equals(scope, PlatformResourceGroupResolver.SubscriptionScope, StringComparison.Ordinal))
+            {
+                throw new InvalidOperationException($"{context} has a role assignment with unsupported \"scope\" value '{scope}'; only 'subscription' is supported.");
+            }
+
+            return (resourceGroupId, scope);
         }
 
         private static PlatformFederatedCredentialConfig ParseFederatedCredential(JsonElement element, string environmentCode)

@@ -19,6 +19,9 @@ namespace MSCKite.Azure.Platform.Internal.Platform
     {
         internal string Role { get; set; }
 
+        // Exactly one of ResourceGroupId or Scope is set; Scope is "subscription" for a subscription-wide role assignment
         internal string ResourceGroupId { get; set; }
+
+        internal string Scope { get; set; }
     }
 }
