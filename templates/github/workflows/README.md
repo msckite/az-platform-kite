@@ -1,9 +1,12 @@
 <!-- omit from toc -->
 # Platform and project workflow templates
 
-Ready-to-copy GitHub Actions workflows for fixed platform reconciliation and project CI/CD
-placeholders. The platform flow is independent of `sourceControl.branchStrategy`; only project
-workflows use the `github` or `release` strategy from `config/global-config.jsonc`.
+Ready-to-copy GitHub Actions workflows for fixed platform reconciliation, project CI/CD
+placeholders, and infra (IaC) CI/CD placeholders. The platform flow is independent of
+`sourceControl.branchStrategy`; project and infra workflows both use the `github` or `release`
+strategy from `config/global-config.jsonc`, but trigger on disjoint paths so that application code
+changes and infrastructure changes deploy independently of each other. Project workflows own
+everything outside `infra/**`; infra workflows own only `infra/**` and their own workflow files.
 
 <!-- omit from toc -->
 ## Table of Contents
@@ -14,6 +17,8 @@ workflows use the `github` or `release` strategy from `config/global-config.json
 - [Platform flow](#platform-flow)
 - [GitHub Flow project strategy (`github`)](#github-flow-project-strategy-github)
 - [Release Flow project strategy (`release`)](#release-flow-project-strategy-release)
+- [GitHub Flow infra strategy (`github`)](#github-flow-infra-strategy-github)
+- [Release Flow infra strategy (`release`)](#release-flow-infra-strategy-release)
 - [Prerequisites](#prerequisites)
 - [Why the environment input is a gate, not a scope](#why-the-environment-input-is-a-gate-not-a-scope)
 
@@ -30,22 +35,30 @@ templates/github/
       platform-provision.yml         Reusable: the four provisioning phases, correctly chained
       project-validate.yml           Reusable: source validation, build and tests
       project-provision.yml          Reusable: project plan/deployment placeholder
+      infra-validate.yml             Reusable: Bicep lint/build placeholder
+      infra-provision.yml            Reusable: infra deployment stack plan/deployment placeholder
     platform-flow/
       platform-ci.yml                 Fixed platform PR validation and WhatIf plan
       platform-cd.yml                 Fixed platform main deployment
     github-flow/
       project-ci.yml                 GitHub Flow project trigger
       project-cd.yml                 GitHub Flow project trigger
+      infra-ci.yml                   GitHub Flow infra trigger
+      infra-cd.yml                   GitHub Flow infra trigger
     release-flow/
       project-ci.yml                 Release Flow project trigger
       project-cd.yml                 Release Flow project trigger
       project-release.yml            Release Flow project trigger
+      infra-ci.yml                   Release Flow infra trigger
+      infra-cd.yml                   Release Flow infra trigger
+      infra-release.yml              Release Flow infra trigger
 ```
 
 The platform workflows have one fixed lifecycle: pull requests validate and run `-WhatIf`, while
-pushes to `main` deploy without `-WhatIf`. Project strategy folders contain thin trigger workflows.
-The shared project workflows provide validation/testing and provisioning capabilities. The
-strategy workflows call them and contain no project implementation logic.
+pushes to `main` deploy without `-WhatIf`. Project and infra strategy folders contain thin trigger
+workflows. The shared project/infra workflows provide validation/testing and provisioning
+capabilities. The strategy workflows call them and contain no project or infra implementation
+logic.
 
 ## Installing the templates
 
@@ -65,6 +78,11 @@ the selected project strategy. The shared workflows use the setup action. Projec
 builds and tests source code, then calls `project-provision.yml` with `what-if: true`. Project CD
 calls the same reusable workflow with `what-if: false` for the actual deployment. Each project
 operation remains a PowerShell placeholder for the developer to replace.
+
+`manifest.jsonc` also declares an `infra` bundle, following the same shape as `project`, for the
+`infra-*.yml` templates described below. `New-PlatformWorkflow`'s `-WorkflowType` parameter does not
+accept `infra` yet, so installing this bundle currently means copying the `infra` entries from
+`manifest.jsonc` into the repository by hand, until that cmdlet is updated.
 
 Reusable workflows referenced with `./.github/workflows/...` must live directly in
 `.github/workflows`, which is why the `shared` and `<strategy>-flow` folders flatten on copy.
@@ -118,6 +136,22 @@ Project CI runs on pull requests targeting `main`, deploys `dev` and runs a `-Wh
 commit, then runs a `-WhatIf` preflight for `prd`. The project release trigger deploys `prd` after a
 published release, first confirming the release commit matches the last `stg-verified` commit.
 Project CI and CD ignore the same platform-only paths as the GitHub Flow strategy.
+
+## GitHub Flow infra strategy (`github`)
+
+Infra CI and CD mirror the GitHub Flow project strategy exactly, but trigger only on `infra/**` and
+`.github/workflows/infra-*.yml` changes, and deploy the `infra-provision.yml` reusable workflow
+instead of `project-provision.yml`. Infra CI validates the Bicep templates, deploys `dev`, and runs
+a `-WhatIf` preflight for `prd`. Infra CD deploys `prd` after a push to `main`.
+
+## Release Flow infra strategy (`release`)
+
+Infra CI and CD mirror the Release Flow project strategy, triggered only on `infra/**` and
+`.github/workflows/infra-*.yml` changes. Infra CD moves its own `infra-stg-verified` tag after
+deploying `stg`, kept separate from the project pipeline's `stg-verified` tag so that an infra-only
+change doesn't need a project deployment to promote, and vice versa. The infra release trigger
+deploys `prd` after a published release, confirming the release commit matches the last
+`infra-stg-verified` commit.
 
 ## Prerequisites
 

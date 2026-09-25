@@ -1,6 +1,8 @@
 {
     "templateVersion": "1.0.0",
-    // Select -WorkflowType platform, project, or both when installing these bundles.
+    // Select -WorkflowType platform, project, infra, or both when installing these bundles.
+    // NOTE: New-PlatformWorkflow does not yet accept -WorkflowType infra; installing the infra
+    // bundle currently requires copying these files by hand until that cmdlet is updated.
     "platform": {
         "shared": [
             {
@@ -68,6 +70,52 @@
                     {
                         "source": "github/workflows/release-flow/project-release.yml",
                         "destination": ".github/workflows/project-flow-release.yml"
+                    }
+                ]
+            }
+        }
+    },
+    "infra": {
+        "shared": [
+            {
+                "source": "github/actions/setup-platform-kite/action.yml",
+                "destination": ".github/actions/setup-platform-kite/action.yml"
+            },
+            {
+                "source": "github/workflows/shared/infra-validate.yml",
+                "destination": ".github/workflows/infra-validate.yml"
+            },
+            {
+                "source": "github/workflows/shared/infra-provision.yml",
+                "destination": ".github/workflows/infra-provision.yml"
+            }
+        ],
+        "strategies": {
+            "github": {
+                "files": [
+                    {
+                        "source": "github/workflows/github-flow/infra-ci.yml",
+                        "destination": ".github/workflows/infra-flow-ci.yml"
+                    },
+                    {
+                        "source": "github/workflows/github-flow/infra-cd.yml",
+                        "destination": ".github/workflows/infra-flow-cd.yml"
+                    }
+                ]
+            },
+            "release": {
+                "files": [
+                    {
+                        "source": "github/workflows/release-flow/infra-ci.yml",
+                        "destination": ".github/workflows/infra-flow-ci.yml"
+                    },
+                    {
+                        "source": "github/workflows/release-flow/infra-cd.yml",
+                        "destination": ".github/workflows/infra-flow-cd.yml"
+                    },
+                    {
+                        "source": "github/workflows/release-flow/infra-release.yml",
+                        "destination": ".github/workflows/infra-flow-release.yml"
                     }
                 ]
             }

@@ -1,14 +1,10 @@
-name: 'Project CD (prd)'
+name: 'Infra CD (prd)'
 
 on:
   push:
     branches:
       - 'main'
-    paths-ignore:
-      - 'config/global-config.jsonc'
-      - 'config/platform-config.jsonc'
-      - '.github/workflows/platform-*.yml'
-      - '.github/actions/setup-platform-kite/**'
+    paths:
       - 'infra/**'
       - '.github/workflows/infra-*.yml'
   # Manual run for a branch if no PR exists
@@ -25,7 +21,7 @@ permissions:
 jobs:
   deploy-prd:
     name: Deploy (prd)
-    uses: ./.github/workflows/project-provision.yml
+    uses: ./.github/workflows/infra-provision.yml
     if: |
       github.event_name == 'push' ||
       github.event_name == 'workflow_dispatch'

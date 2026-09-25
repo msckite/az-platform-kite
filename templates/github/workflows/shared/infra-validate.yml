@@ -1,0 +1,32 @@
+name: 'Jobs: Infra Validate'
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  infra-validate:
+    name: Lint and Build Bicep
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Platform Kite
+        uses: ./.github/actions/setup-platform-kite
+        with:
+          azure-login: 'false'
+
+      - name: Lint Bicep templates
+        shell: pwsh
+        run: |
+          Write-Output '➡️ TODO: Lint the infra/ Bicep templates (e.g. az bicep lint, PSRule for Bicep)'
+
+      - name: Build Bicep templates
+        shell: pwsh
+        run: |
+          Write-Output '➡️ TODO: Build the infra/ Bicep templates (e.g. az bicep build) to catch syntax errors'

@@ -1,14 +1,10 @@
-name: 'Project CI (dev)'
+name: 'Infra CI (dev)'
 
 on:
   pull_request:
     branches:
       - main
-    paths-ignore:
-      - 'config/global-config.jsonc'
-      - 'config/platform-config.jsonc'
-      - '.github/workflows/platform-*.yml'
-      - '.github/actions/setup-platform-kite/**'
+    paths:
       - 'infra/**'
       - '.github/workflows/infra-*.yml'
   # Manual run for a branch before a PR exists
@@ -25,12 +21,12 @@ permissions:
 jobs:
   validate:
     name: Validate
-    uses: ./.github/workflows/project-validate.yml
+    uses: ./.github/workflows/infra-validate.yml
 
   deploy-dev:
     name: Deploy (dev)
     needs: [validate]
-    uses: ./.github/workflows/project-provision.yml
+    uses: ./.github/workflows/infra-provision.yml
     if: |
       github.event_name == 'pull_request' ||
       github.event_name == 'workflow_dispatch'
@@ -45,7 +41,7 @@ jobs:
   plan-stg:
     name: Preflight (stg)
     needs: [validate, deploy-dev]
-    uses: ./.github/workflows/project-provision.yml
+    uses: ./.github/workflows/infra-provision.yml
     permissions:
       contents: read
       id-token: write

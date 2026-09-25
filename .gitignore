@@ -429,6 +429,8 @@ FodyWeavers.xsd
 *.msp
 
 # Additional project files
+.local/
+.local/**
 .tests/
 .tests/**
 .downloads/

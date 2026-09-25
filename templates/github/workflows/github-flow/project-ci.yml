@@ -9,6 +9,8 @@ on:
       - 'config/platform-config.jsonc'
       - '.github/workflows/platform-*.yml'
       - '.github/actions/setup-platform-kite/**'
+      - 'infra/**'
+      - '.github/workflows/infra-*.yml'
   # Manual run for a branch before a PR exists
   workflow_dispatch:
 
