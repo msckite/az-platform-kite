@@ -140,10 +140,15 @@ same platform-only paths as the GitHub Flow strategy.
    `-ErrorAction SilentlyContinue` lookup path, misreports existing groups as missing.
 3. Confirm every environment in `platform-config.jsonc` has a matching GitHub environment holding
    `AZURE_CLIENT_ID`, `AZURE_TENANT_ID` and `AZURE_SUBSCRIPTION_ID`. Phase 4 writes these.
-4. Add a repository or environment secret named `PLATFORM_GITHUB_TOKEN`, a fine-grained personal
-   access token or GitHub App token with administration, environment, secret and variable write
-   access on the repository. The built-in `GITHUB_TOKEN` cannot manage environment secrets, so
-   phase 4 fails without it.
+4. Add `PLATFORM_GITHUB_TOKEN` by hand as an **environment secret** on the `platform` GitHub
+   environment (Settings > Environments > platform > Secrets), not a repository secret, so its
+   access is scoped to just the identity that runs the platform pipeline. Use a fine-grained
+   personal access token or GitHub App token with administration, environment, secret and
+   variable write access on the repository. The built-in `GITHUB_TOKEN` cannot manage environment
+   secrets, so phase 4 fails without it. Deliberately leave it out of `platform-config.jsonc`'s
+   `githubEnvironment.secrets`: every entry in that array is re-applied on each phase 4 run, which
+   would overwrite it with whatever placeholder text sits in the file. Maintain its value only
+   through the GitHub UI (or `gh secret set`), never through the config file.
 5. The federated credential uses `subjectType: environment`, so every job that signs in to Azure
    declares `environment:`. Keep it that way, otherwise the OIDC subject claim no longer matches.
 
