@@ -86,6 +86,38 @@
             {
                 "source": "github/workflows/shared/infra-provision.yml",
                 "destination": ".github/workflows/infra-provision.yml"
+            },
+            {
+                "source": "iac/res/sample/main.bicep",
+                "destination": "iac/res/sample/main.bicep"
+            },
+            {
+                "source": "iac/res/sample/deploy.ps1",
+                "destination": "iac/res/sample/deploy.ps1"
+            },
+            {
+                "source": "iac/res/sample/types/main.bicep",
+                "destination": "iac/res/sample/types/main.bicep"
+            },
+            {
+                "source": "iac/res/sample/modules/.gitkeep",
+                "destination": "iac/res/sample/modules/.gitkeep"
+            },
+            {
+                "source": "iac/res/sample/params/base.bicepparam",
+                "destination": "iac/res/sample/params/base.bicepparam"
+            },
+            {
+                "source": "iac/res/sample/params/dev.bicepparam",
+                "destination": "iac/res/sample/params/dev.bicepparam"
+            },
+            {
+                "source": "iac/res/sample/params/stg.bicepparam",
+                "destination": "iac/res/sample/params/stg.bicepparam"
+            },
+            {
+                "source": "iac/res/sample/params/prd.bicepparam",
+                "destination": "iac/res/sample/params/prd.bicepparam"
             }
         ],
         "strategies": {

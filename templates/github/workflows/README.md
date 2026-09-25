@@ -90,6 +90,14 @@ to install just that bundle, or `-WorkflowType all` to install platform, workloa
 Infra and workload share the same `-BranchStrategy`/`sourceControl.branchStrategy` value, since both
 follow the same promotion strategy (`github` or `release`).
 
+The infra bundle also copies a starter Bicep sample under `iac/res/sample/`: `main.bicep`, its
+`types/main.bicep` import, per-environment `params/*.bicepparam` files, and `deploy.ps1`, the script
+that `infra-provision.yml` invokes to create or update the Azure Deployment Stack. Unlike the
+workflow files, these copy to their own path at the repo root rather than flattening into
+`.github/workflows`, so `infra-ci.yml`/`infra-cd.yml` have something real to lint, build, and deploy
+out of the box. The empty `iac/res/sample/modules/` folder is included too, as a placeholder for
+custom Bicep modules.
+
 Reusable workflows referenced with `./.github/workflows/...` must live directly in
 `.github/workflows`, which is why the `shared` and `<strategy>-flow` folders flatten on copy.
 

@@ -55,7 +55,8 @@ Describe 'New-PlatformWorkflow' {
     "shared": [
       { "source": "github/actions/setup-platform-kite/action.yml", "destination": ".github/actions/setup-platform-kite/action.yml" },
       { "source": "github/workflows/shared/infra-validate.yml", "destination": ".github/workflows/infra-validate.yml" },
-      { "source": "github/workflows/shared/infra-provision.yml", "destination": ".github/workflows/infra-provision.yml" }
+      { "source": "github/workflows/shared/infra-provision.yml", "destination": ".github/workflows/infra-provision.yml" },
+      { "source": "iac/res/sample/main.bicep", "destination": "iac/res/sample/main.bicep" }
     ],
     "strategies": {
       "github": {
@@ -87,6 +88,7 @@ Describe 'New-PlatformWorkflow' {
         'github/workflows/shared/infra-provision.yml'
         'github/workflows/github-flow/infra-ci.yml'
         'github/workflows/release-flow/infra-ci.yml'
+        'iac/res/sample/main.bicep'
       )
 
       foreach ($file in $files) {
@@ -201,6 +203,10 @@ Describe 'New-PlatformWorkflow' {
     Test-Path (Join-Path $script:repoRoot '.github/workflows/infra-flow-ci.yml') | Should -BeTrue
     Test-Path (Join-Path $script:repoRoot '.github/workflows/workload-validate.yml') | Should -BeFalse
     Test-Path (Join-Path $script:repoRoot '.github/workflows/platform-provision.yml') | Should -BeFalse
+
+    # The infra bundle's "shared" files aren't limited to .github/workflows; the sample IaC files
+    # copy to their own path at the repo root so infra-provision.yml has something to deploy.
+    Test-Path (Join-Path $script:repoRoot 'iac/res/sample/main.bicep') | Should -BeTrue
   }
 
   It 'copies platform, workload, and infra bundles for -WorkflowType all' {
