@@ -13,6 +13,11 @@ on:
         type: boolean
         required: false
         default: true
+      deploy-script:
+        description: Path to the deployment script that wraps the Azure Deployment Stack cmdlets.
+        type: string
+        required: false
+        default: iac/res/sample/deploy.ps1
 
 permissions:
   contents: read
@@ -45,15 +50,14 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Deploy Azure Deployment Stack
+      - name: Provision Deployment Stack
         shell: pwsh
         env:
+          ENV_CODE: ${{ inputs.environment }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           RESOURCE_GROUP_NAME: ${{ vars.RESOURCE_GROUP_NAME }}
           DEPLOYMENT_STACK_NAME: ${{ vars.DEPLOYMENT_STACK_NAME }}
         run: |
-          if ($env:WHAT_IF -eq 'true') {
-            Write-Output '➡️ TODO: Plan (preflight) the infra/ Bicep deployment stack with WhatIf = true'
-          }
-          else {
-            Write-Output '➡️ TODO: Deploy the infra/ Bicep deployment stack with WhatIf = false'
-          }
+          $whatIf = $env:WHAT_IF -eq 'true'
+
+          & '${{ inputs.deploy-script }}' -WhatIf:$whatIf -Verbose

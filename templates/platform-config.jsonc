@@ -200,10 +200,6 @@
                 ],
                 "variables": [
                     {
-                        "name": "ENV_CODE",
-                        "value": "${environmentCode}"
-                    },
-                    {
                         "name": "RESOURCE_GROUP_NAME",
                         "value": "rg-${serviceShort}${uniqueId}-${environmentCode}-${regionCode}"
                     },
