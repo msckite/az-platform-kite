@@ -1,4 +1,4 @@
-name: platform-ci
+name: 'Platform CI'
 
 on:
   pull_request:
