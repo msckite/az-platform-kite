@@ -191,8 +191,13 @@ New-PlatformWorkflow
 
 `New-PlatformWorkflow` reads the workflow manifest from `.tmp/templates` and copies the [workflow templates](templates/github/workflows/README.md) for your `sourceControl.branchStrategy` into `.github` of your repository. That ships a CI/CD pipeline staged across `dev`/`prd` (`github`) or `dev`/`stg`/`prd` (`release`), running the same four phases in dependency order. Existing files are left untouched unless you pass `-Force`.
 
+> [!IMPORTANT]
+> Before the pipeline can run phase 4, add `PLATFORM_GITHUB_TOKEN` by hand as an **environment secret** on the `platform` GitHub environment; the built-in `GITHUB_TOKEN` cannot manage environment secrets. See the [prerequisites](templates/github/workflows/README.md#prerequisites) section of the workflow templates README for the full setup steps.
+
 > [!NOTE]
 > The platform pipeline (`platform-ci.yml`/`platform-cd.yml`) signs in as the dedicated `platform` environment declared in `platform-config.jsonc`, not one of your app environments. Its identity holds subscription-level RBAC (`Contributor` and `User Access Administrator`, both scoped to `subscription`), so it can see and reconcile every resource group declared in `resourceGroups`, not just the one it lives in.
+
+
 
 ## License
 
