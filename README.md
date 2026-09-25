@@ -40,7 +40,6 @@ Built on Infrastructure as Code and platform engineering principles, Azure Platf
 <!-- omit from toc -->
 ### Key Capabilities
 
-- Generate documentation for Bicep and PowerShell projects
 - Provision Azure and Microsoft Entra resources from configuration files
 - Create and configure Azure DevOps and GitHub repositories
 - Automate developer onboarding and workspace provisioning
@@ -177,7 +176,7 @@ Then run the four provisioning phases in order:
 ```powershell
 Set-PlatformResourceGroup       # Phase 1: Azure resource groups
 Set-PlatformSecurityGroup       # Phase 2: Entra security groups and their RBAC roles
-Set-PlatformEnvironmentIdentity # Phase 3: federated user-assigned identities and their RBAC roles
+Set-PlatformEnvironmentIdentity # Phase 3: Federated user-assigned identities and their RBAC roles
 Set-PlatformGitHubEnvironment   # Phase 4: GitHub environments, secrets and variables
 ```
 
@@ -196,8 +195,6 @@ New-PlatformWorkflow
 
 > [!NOTE]
 > The platform pipeline (`platform-ci.yml`/`platform-cd.yml`) signs in as the dedicated `platform` environment declared in `platform-config.jsonc`, not one of your app environments. Its identity holds subscription-level RBAC (`Contributor` and `User Access Administrator`, both scoped to `subscription`), so it can see and reconcile every resource group declared in `resourceGroups`, not just the one it lives in.
-
-
 
 ## License
 

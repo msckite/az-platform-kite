@@ -106,16 +106,18 @@ resource group declared in `resourceGroups`, not just the one it lives in.
 
 ## GitHub Flow project strategy (`github`)
 
-Project CI runs on feature/fix branches and pull requests. Project CD runs after a push to `main`.
-Both ignore the platform-only paths (`config/global-config.jsonc`, `config/platform-config.jsonc`,
-`.github/workflows/platform-*.yml`, `.github/actions/setup-platform-kite/**`), which the platform
-flow already covers.
+Project CI runs on pull requests targeting `main`, deploys `dev` and runs a `-WhatIf` preflight for
+`prd`. Project CD runs after a push to `main` and deploys `prd`. Both ignore the platform-only paths
+(`config/global-config.jsonc`, `config/platform-config.jsonc`, `.github/workflows/platform-*.yml`,
+`.github/actions/setup-platform-kite/**`), which the platform flow already covers.
 
 ## Release Flow project strategy (`release`)
 
-Project CI also includes `release/**` branches. Project CD promotes through dev and stg, while the
-project release trigger handles production after a published release. Project CI and CD ignore the
-same platform-only paths as the GitHub Flow strategy.
+Project CI runs on pull requests targeting `main`, deploys `dev` and runs a `-WhatIf` preflight for
+`stg`. Project CD runs after a push to `main`, deploys `stg`, moves the `stg-verified` tag to that
+commit, then runs a `-WhatIf` preflight for `prd`. The project release trigger deploys `prd` after a
+published release, first confirming the release commit matches the last `stg-verified` commit.
+Project CI and CD ignore the same platform-only paths as the GitHub Flow strategy.
 
 ## Prerequisites
 
@@ -132,7 +134,9 @@ same platform-only paths as the GitHub Flow strategy.
    permanently. Using the `PrincipalId` from phase 3's output for the `platform` environment:
 
    ```powershell
-   Grant-PlatformGraphPermission -PrincipalId '<principalId-from-phase-3-platform-environment>' -Permission 'Group.Read.All'
+   Grant-PlatformGraphPermission `
+    -PrincipalId '<principalId-from-phase-3-platform-environment>' `
+    -Permission 'Group.Read.All'
    ```
 
    Add `'Group.ReadWrite.All'` to `-Permission` if CI is ever expected to create or update groups
