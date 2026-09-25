@@ -6,8 +6,9 @@ service/solution code) CI/CD placeholders, and infra (IaC) CI/CD placeholders. T
 independent of `sourceControl.branchStrategy`; workload and infra workflows both use the `github` or
 `release` strategy from `config/global-config.jsonc`, but trigger on disjoint paths so that
 application code changes and infrastructure changes deploy independently of each other. Workload
-workflows own everything outside `infra/**`; infra workflows own only `infra/**` and their own
-workflow files.
+code lives under `src/`; infra (IaC) code lives under `iac/res/`. Each strategy triggers only on its
+own folder (plus its own workflow files): workload workflows trigger on `src/**`, infra workflows
+trigger on `iac/**`.
 
 <!-- omit from toc -->
 ## Table of Contents
@@ -152,9 +153,9 @@ resource group declared in `resourceGroups`, not just the one it lives in.
 ## GitHub Flow workload strategy (`github`)
 
 Workload CI runs on pull requests targeting `main`, deploys `dev` and runs a `-WhatIf` preflight for
-`prd`. Workload CD runs after a push to `main` and deploys `prd`. Both ignore the platform-only paths
-(`config/global-config.jsonc`, `config/platform-config.jsonc`, `.github/workflows/platform-*.yml`,
-`.github/actions/setup-platform-kite/**`), which the platform flow already covers.
+`prd`. Workload CD runs after a push to `main` and deploys `prd`. Both trigger only on `src/**` and
+`.github/workflows/workload-*.yml` changes, so platform and infra changes never run the workload
+pipeline.
 
 ## Release Flow workload strategy (`release`)
 
@@ -162,18 +163,18 @@ Workload CI runs on pull requests targeting `main`, deploys `dev` and runs a `-W
 `stg`. Workload CD runs after a push to `main`, deploys `stg`, moves the `stg-verified` tag to that
 commit, then runs a `-WhatIf` preflight for `prd`. The workload release trigger deploys `prd` after a
 published release, first confirming the release commit matches the last `stg-verified` commit.
-Workload CI and CD ignore the same platform-only paths as the GitHub Flow strategy.
+Workload CI and CD trigger only on the same `src/**` allowlist as the GitHub Flow strategy.
 
 ## GitHub Flow infra strategy (`github`)
 
-Infra CI and CD mirror the GitHub Flow workload strategy exactly, but trigger only on `infra/**` and
-`.github/workflows/infra-*.yml` changes, and deploy the `infra-provision.yml` reusable workflow
+Infra CI and CD mirror the GitHub Flow workload strategy exactly, but trigger only on `iac/**`
+and `.github/workflows/infra-*.yml` changes, and deploy the `infra-provision.yml` reusable workflow
 instead of `workload-provision.yml`. Infra CI validates the Bicep templates, deploys `dev`, and runs
 a `-WhatIf` preflight for `prd`. Infra CD deploys `prd` after a push to `main`.
 
 ## Release Flow infra strategy (`release`)
 
-Infra CI and CD mirror the Release Flow workload strategy, triggered only on `infra/**` and
+Infra CI and CD mirror the Release Flow workload strategy, triggered only on `iac/**` and
 `.github/workflows/infra-*.yml` changes. Infra CD moves its own `infra-stg-verified` tag after
 deploying `stg`, kept separate from the workload pipeline's `stg-verified` tag so that an infra-only
 change doesn't need a workload deployment to promote, and vice versa. The infra release trigger

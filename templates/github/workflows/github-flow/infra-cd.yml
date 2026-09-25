@@ -5,7 +5,7 @@ on:
     branches:
       - 'main'
     paths:
-      - 'infra/**'
+      - 'iac/**'
       - '.github/workflows/infra-*.yml'
   # Manual run for a branch if no PR exists
   workflow_dispatch:

@@ -4,13 +4,9 @@ on:
   pull_request:
     branches:
       - main
-    paths-ignore:
-      - 'config/global-config.jsonc'
-      - 'config/platform-config.jsonc'
-      - '.github/workflows/platform-*.yml'
-      - '.github/actions/setup-platform-kite/**'
-      - 'infra/**'
-      - '.github/workflows/infra-*.yml'
+    paths:
+      - 'src/**'
+      - '.github/workflows/workload-*.yml'
   # Manual run for a branch before a PR exists
   workflow_dispatch:
 
