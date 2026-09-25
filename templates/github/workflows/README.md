@@ -134,7 +134,9 @@ Project CI and CD ignore the same platform-only paths as the GitHub Flow strateg
    permanently. Using the `PrincipalId` from phase 3's output for the `platform` environment:
 
    ```powershell
-   Grant-PlatformGraphPermission -PrincipalId '<principalId-from-phase-3-platform-environment>' -Permission 'Group.Read.All'
+   Grant-PlatformGraphPermission `
+    -PrincipalId '<principalId-from-phase-3-platform-environment>' `
+    -Permission 'Group.Read.All'
    ```
 
    Add `'Group.ReadWrite.All'` to `-Permission` if CI is ever expected to create or update groups
