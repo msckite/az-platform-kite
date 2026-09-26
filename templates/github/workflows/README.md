@@ -121,17 +121,23 @@ Set the `what-if` input to `true` to run every phase with `-WhatIf`, which is wh
 ## Workload and infra identity split
 
 Each `dev`/`stg`/`prd` environment in `platform-config.jsonc` can declare two identities instead of
-one: `userAssignedIdentity` (paired with `githubEnvironment`, named e.g. `dev`) and an optional
-`workloadUserAssignedIdentity` (paired with `workloadGithubEnvironment`, named e.g. `dev-workload`).
-Phases 3 and 4 process both when the workload pair is present.
+one: `userAssignedIdentity` (paired with `githubEnvironment`, named e.g. `dev-infra`) and an
+optional `workloadUserAssignedIdentity` (paired with `workloadGithubEnvironment`, named e.g.
+`dev-workload`). Phases 3 and 4 process both when the workload pair is present.
 
 - **Infra identity** (`userAssignedIdentity`): broader rights, including `Azure Deployment Stack
   Contributor`, so it can create, update, and delete resources through a deployment stack. Used by
-  the `infra-*.yml` workflows, which sign in with `environment: dev` (no `-workload` suffix).
+  the `infra-*.yml` workflows, which sign in with `environment: dev-infra`.
 - **Workload identity** (`workloadUserAssignedIdentity`): narrower rights, `Contributor` only, no
   deployment-stack role, so pushing application/service/solution code cannot alter infrastructure
   through this identity. Used by the `workload-*.yml` workflows, which sign in with
   `environment: dev-workload`.
+
+Both suffixes name the GitHub environment (and, through the OIDC `environment` subject, the
+federated credential) only. `environmentCode` (`dev`, `stg`, `prd`) stays unsuffixed everywhere
+else: resource group ids, Azure resource names, and the `ENV_CODE` environment variable that
+`platform-config.jsonc` sets on the `githubEnvironment`, which `infra-provision.yml` reads via
+`vars.ENV_CODE` instead of deriving it from the (now `-infra`-suffixed) `environment` input.
 
 This is what actually enforces "developers deploy code, platform/cloud engineers deploy
 infrastructure": two separate GitHub environments with two separate federated identities, not just
@@ -177,8 +183,10 @@ Workload CI and CD trigger only on the same `src/**` allowlist as the GitHub Flo
 
 Infra CI and CD mirror the GitHub Flow workload strategy exactly, but trigger only on `iac/**`
 and `.github/workflows/infra-*.yml` changes, and deploy the `infra-provision.yml` reusable workflow
-instead of `workload-provision.yml`. Infra CI validates the Bicep templates, deploys `dev`, and runs
-a `-WhatIf` preflight for `prd`. Infra CD deploys `prd` after a push to `main`.
+instead of `workload-provision.yml`, signing in to the `dev-infra`/`stg-infra`/`prd-infra` GitHub
+environments instead of their `-workload` counterparts. Infra CI validates the Bicep templates,
+deploys `dev`, and runs a `-WhatIf` preflight for `prd`. Infra CD deploys `prd` after a push to
+`main`.
 
 ## Release Flow infra strategy (`release`)
 
@@ -213,10 +221,11 @@ deploys `prd` after a published release, confirming the release commit matches t
    outside `-WhatIf`. Without this grant, `Set-PlatformSecurityGroup` fails, or in CI's
    `-ErrorAction SilentlyContinue` lookup path, misreports existing groups as missing.
 3. Confirm every environment in `platform-config.jsonc` has a matching GitHub environment holding
-   `AZURE_CLIENT_ID`, `AZURE_TENANT_ID` and `AZURE_SUBSCRIPTION_ID`. Phase 4 writes these. If an
+   `AZURE_CLIENT_ID`, `AZURE_TENANT_ID` and `AZURE_SUBSCRIPTION_ID`. Phase 4 writes these. The
+   `infra-*.yml` workflows sign in to the `-infra`-suffixed environment (e.g. `dev-infra`). If an
    environment declares `workloadUserAssignedIdentity`/`workloadGithubEnvironment`, confirm the
    `-workload`-suffixed environment (e.g. `dev-workload`) exists too; the `workload-*.yml` workflows
-   sign in to that one, not the plain `dev` environment used by `infra-*.yml`.
+   sign in to that one instead.
 4. Add `PLATFORM_GITHUB_TOKEN` by hand as an **environment secret** on the `platform` GitHub
    environment (Settings > Environments > platform > Secrets), not a repository secret, so its
    access is scoped to just the identity that runs the platform pipeline. Use a fine-grained

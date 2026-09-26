@@ -52,6 +52,6 @@ jobs:
       contents: read
       id-token: write
     with:
-      environment: prd
+      environment: prd-infra
       what-if: false
     secrets: inherit
