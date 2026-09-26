@@ -7,7 +7,7 @@ on:
         description: GitHub environment used as the approval and OIDC gate.
         type: string
         required: false
-        default: dev
+        default: dev-infra
       what-if:
         description: Plan the infra deployment stack without applying changes.
         type: boolean
@@ -53,7 +53,7 @@ jobs:
       - name: Provision Deployment Stack
         shell: pwsh
         env:
-          ENV_CODE: ${{ inputs.environment }}
+          ENV_CODE: ${{ vars.ENV_CODE }}
           AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           RESOURCE_GROUP_NAME: ${{ vars.RESOURCE_GROUP_NAME }}
           DEPLOYMENT_STACK_NAME: ${{ vars.DEPLOYMENT_STACK_NAME }}
