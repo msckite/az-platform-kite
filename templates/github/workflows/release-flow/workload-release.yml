@@ -12,8 +12,10 @@ permissions:
 jobs:
   verify-stg-promotion:
     name: Verify release matches the last verified commit
+    # Only 'workload/*' tagged releases trigger workload deploys; 'infra/*' releases are ignored here.
     if: |
-      github.event.release.target_commitish == 'main' ||
+      (github.event_name == 'release' && github.event.release.target_commitish == 'main' &&
+        startsWith(github.event.release.tag_name, 'workload/')) ||
       (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
     permissions:
