@@ -175,7 +175,9 @@ Workload CI runs on pull requests targeting `main`, deploys `dev` and runs a `-W
 `stg`. Workload CD runs after a push to `main`, deploys `stg`, moves the `stg-workload-verified` tag
 to that commit, then runs a `-WhatIf` preflight for `prd`. The workload release trigger deploys `prd`
 after a published release, first confirming the release commit matches the last
-`stg-workload-verified` commit.
+`stg-workload-verified` commit. Since the `release` event has no tag pattern filter, the workload
+release trigger runs for every published release but only proceeds when the release tag starts with
+`workload/`, for example `workload/v1.2.0`; releases tagged `infra/...` are skipped.
 Workload CI and CD trigger only on the same `src/**` allowlist as the GitHub Flow strategy.
 
 ## GitHub Flow infra strategy (`github`)
@@ -194,7 +196,9 @@ Infra CI and CD mirror the Release Flow workload strategy, triggered only on `ia
 deploying `stg`, kept separate from the workload pipeline's `stg-workload-verified` tag so that an
 infra-only change doesn't need a workload deployment to promote, and vice versa. The infra release
 trigger deploys `prd` after a published release, confirming the release commit matches the last
-`stg-infra-verified` commit.
+`stg-infra-verified` commit. Just like the workload release trigger, it only proceeds when the
+release tag starts with `infra/`, for example `infra/v1.2.0`; releases tagged `workload/...` are
+skipped.
 
 ## Prerequisites
 
