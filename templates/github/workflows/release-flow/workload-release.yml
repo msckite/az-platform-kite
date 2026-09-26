@@ -29,12 +29,12 @@ jobs:
       - name: Confirm this commit was promoted through staging
         shell: bash
         run: |
-          if ! git fetch origin refs/tags/stg-verified:refs/tags/stg-verified; then
-            echo "::error::No 'stg-verified' tag found. Promote a commit through staging before releasing to prd."
+          if ! git fetch origin refs/tags/stg-workload-verified:refs/tags/stg-workload-verified; then
+            echo "::error::No 'stg-workload-verified' tag found. Promote a commit through staging before releasing to prd."
             exit 1
           fi
           released_sha=$(git rev-parse HEAD)
-          verified_sha=$(git rev-list -n 1 stg-verified)
+          verified_sha=$(git rev-list -n 1 stg-workload-verified)
           if [ "$released_sha" != "$verified_sha" ]; then
             echo "::error::Release '${{ github.event.release.tag_name }}' ($released_sha) is not the last verified commit ($verified_sha). Cut the release from the verified commit instead."
             exit 1

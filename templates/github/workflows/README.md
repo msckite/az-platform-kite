@@ -2,13 +2,13 @@
 # Platform, workload, and infra workflow templates
 
 Ready-to-copy GitHub Actions workflows for fixed platform reconciliation, workload (application/
-service/solution code) CI/CD placeholders, and infra (IaC) CI/CD placeholders. The platform flow is
-independent of `sourceControl.branchStrategy`; workload and infra workflows both use the `github` or
-`release` strategy from `config/global-config.jsonc`, but trigger on disjoint paths so that
-application code changes and infrastructure changes deploy independently of each other. Workload
-code lives under `src/`; infra (IaC) code lives under `iac/res/`. Each strategy triggers only on its
-own folder (plus its own workflow files): workload workflows trigger on `src/**`, infra workflows
-trigger on `iac/**`.
+service/solution code) CI/CD placeholders, and infra (IaC) CI/CD placeholders. The platform flow
+is independent of `sourceControl.branchStrategy`; workload and infra workflows both use the `github`
+or `release` strategy from `config/global-config.jsonc`, but trigger on disjoint paths so that
+application code changes and infrastructure changes deploy independently of each other.
+Workload code lives under `src/`; infra (IaC) code lives under `iac/res/`. Each strategy triggers
+only on its own folder (plus its own workflow files): workload workflows trigger on `src/**`,
+infra workflows trigger on `iac/**`.
 
 <!-- omit from toc -->
 ## Table of Contents
@@ -98,8 +98,8 @@ workflow files, these copy to their own path at the repo root rather than flatte
 out of the box. The empty `iac/res/sample/modules/` folder is included too, as a placeholder for
 custom Bicep modules.
 
-Reusable workflows referenced with `./.github/workflows/...` must live directly in
-`.github/workflows`, which is why the `shared` and `<strategy>-flow` folders flatten on copy.
+Reusable workflows referenced with `./.github/workflows/...` must live directly in `.github/workflows`,
+which is why the `shared` and `<strategy>-flow` folders flatten on copy.
 
 ## Provisioning phases and dependencies
 
@@ -112,8 +112,8 @@ flowchart LR
   P3 --> P4["Phase 4<br/>Set-PlatformGitHubEnvironment"]
 ```
 
-- Phase 2 and phase 3 both need the resource groups from phase 1 for their role assignments, and
-  are independent of each other, so they run in parallel.
+- Phase 2 and phase 3 both need the resource groups from phase 1 for their role assignments,
+  and are independent of each other, so they run in parallel.
 - Phase 4 resolves `${clientId}` from the identity created in phase 3, so it must wait for it.
 
 Set the `what-if` input to `true` to run every phase with `-WhatIf`, which is what the CI workflows do.
@@ -121,35 +121,33 @@ Set the `what-if` input to `true` to run every phase with `-WhatIf`, which is wh
 ## Workload and infra identity split
 
 Each `dev`/`stg`/`prd` environment in `platform-config.jsonc` can declare two identities instead of
-one: `userAssignedIdentity` (paired with `githubEnvironment`, named e.g. `dev-infra`) and an
-optional `workloadUserAssignedIdentity` (paired with `workloadGithubEnvironment`, named e.g.
-`dev-workload`). Phases 3 and 4 process both when the workload pair is present.
+one: `userAssignedIdentity` (paired with `githubEnvironment`, named e.g. `dev-infra`) and an optional
+`workloadUserAssignedIdentity` (paired with `workloadGithubEnvironment`, named e.g. `dev-workload`).
+Phases 3 and 4 process both when the workload pair is present.
 
-- **Infra identity** (`userAssignedIdentity`): broader rights, including `Azure Deployment Stack
-  Contributor`, so it can create, update, and delete resources through a deployment stack. Used by
-  the `infra-*.yml` workflows, which sign in with `environment: dev-infra`.
+- **Infra identity** (`userAssignedIdentity`): broader rights, including `Azure Deployment Stack Contributor`,
+  so it can create, update, and delete resources through a deployment stack. Used by the `infra-*.yml` workflows,
+  which sign in with `environment: dev-infra`.
 - **Workload identity** (`workloadUserAssignedIdentity`): narrower rights, `Contributor` only, no
-  deployment-stack role, so pushing application/service/solution code cannot alter infrastructure
-  through this identity. Used by the `workload-*.yml` workflows, which sign in with
-  `environment: dev-workload`.
+  deployment-stack role, so pushing application/service/solution code cannot alter infrastructure through
+  this identity. Used by the `workload-*.yml` workflows, which sign in with `environment: dev-workload`.
 
 Both suffixes name the GitHub environment (and, through the OIDC `environment` subject, the
-federated credential) only. `environmentCode` (`dev`, `stg`, `prd`) stays unsuffixed everywhere
-else: resource group ids, Azure resource names, and the `ENV_CODE` environment variable that
-`platform-config.jsonc` sets on the `githubEnvironment`, which `infra-provision.yml` reads via
-`vars.ENV_CODE` instead of deriving it from the (now `-infra`-suffixed) `environment` input.
+federated credential) only. `environmentCode` (`dev`, `stg`, `prd`) stays unsuffixed everywhere else:
+resource group ids, Azure resource names, and the `ENV_CODE` environment variable that
+`platform-config.jsonc` sets on the `githubEnvironment`, which `infra-provision.yml` reads
+via `vars.ENV_CODE` instead of deriving it from the (now `-infra`-suffixed) `environment` input.
 
 This is what actually enforces "developers deploy code, platform/cloud engineers deploy
-infrastructure": two separate GitHub environments with two separate federated identities, not just
-two separate workflow files. Declaring `workloadUserAssignedIdentity` without
+infrastructure": two separate GitHub environments with two separate federated identities, not just two
+separate workflow files. Declaring `workloadUserAssignedIdentity` without
 `workloadGithubEnvironment` (or the reverse) is rejected, since their secrets would otherwise
 collide with the infra environment's. Omitting both is still valid: the environment then has a
 single identity for both pipelines, as before.
 
 ## Platform flow
 
-Pull requests run validation and a `-WhatIf` platform reconciliation. A push to `main` runs the
-same validation and reconciles the complete platform configuration once.
+Pull requests run validation and a `-WhatIf` platform reconciliation. A push to `main` runs the same validation and reconciles the complete platform configuration once.
 
 ```mermaid
 flowchart LR
@@ -174,9 +172,10 @@ pipeline.
 ## Release Flow workload strategy (`release`)
 
 Workload CI runs on pull requests targeting `main`, deploys `dev` and runs a `-WhatIf` preflight for
-`stg`. Workload CD runs after a push to `main`, deploys `stg`, moves the `stg-verified` tag to that
-commit, then runs a `-WhatIf` preflight for `prd`. The workload release trigger deploys `prd` after a
-published release, first confirming the release commit matches the last `stg-verified` commit.
+`stg`. Workload CD runs after a push to `main`, deploys `stg`, moves the `stg-workload-verified` tag
+to that commit, then runs a `-WhatIf` preflight for `prd`. The workload release trigger deploys `prd`
+after a published release, first confirming the release commit matches the last
+`stg-workload-verified` commit.
 Workload CI and CD trigger only on the same `src/**` allowlist as the GitHub Flow strategy.
 
 ## GitHub Flow infra strategy (`github`)
@@ -191,11 +190,11 @@ deploys `dev`, and runs a `-WhatIf` preflight for `prd`. Infra CD deploys `prd` 
 ## Release Flow infra strategy (`release`)
 
 Infra CI and CD mirror the Release Flow workload strategy, triggered only on `iac/**` and
-`.github/workflows/infra-*.yml` changes. Infra CD moves its own `infra-stg-verified` tag after
-deploying `stg`, kept separate from the workload pipeline's `stg-verified` tag so that an infra-only
-change doesn't need a workload deployment to promote, and vice versa. The infra release trigger
-deploys `prd` after a published release, confirming the release commit matches the last
-`infra-stg-verified` commit.
+`.github/workflows/infra-*.yml` changes. Infra CD moves its own `stg-infra-verified` tag after
+deploying `stg`, kept separate from the workload pipeline's `stg-workload-verified` tag so that an
+infra-only change doesn't need a workload deployment to promote, and vice versa. The infra release
+trigger deploys `prd` after a published release, confirming the release commit matches the last
+`stg-infra-verified` commit.
 
 ## Prerequisites
 

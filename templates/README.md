@@ -23,8 +23,6 @@ Test-PlatformTemplate `
 > [!NOTE]
 > `-SchemaPath` always points at a local schema file, never the `$schema` URL embedded in the
 template, so this check runs offline. It's primarily useful when maintaining templates and
-schemas in this repo (keeping a pair's versions in sync as changes are made) and for anyone who
-has downloaded both a template and its matching schema and wants to confirm compatibility, or
-check for a newer template, before adopting it.
+schemas in this repo (keeping a pair's versions in sync as changes are made) and for anyone who has downloaded both a template and its matching schema and wants to confirm compatibility, or check for a newer template, before adopting it.
 
 Increment the major version for breaking contract changes and increment minor or patch versions for compatible additions or corrections, updating the template and schema together. All template consumers require the versioned object format with `templateVersion`.

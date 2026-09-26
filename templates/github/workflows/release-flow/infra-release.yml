@@ -29,12 +29,12 @@ jobs:
       - name: Confirm this commit was promoted through staging
         shell: bash
         run: |
-          if ! git fetch origin refs/tags/infra-stg-verified:refs/tags/infra-stg-verified; then
-            echo "::error::No 'infra-stg-verified' tag found. Promote a commit through staging before releasing infra to prd."
+          if ! git fetch origin refs/tags/stg-infra-verified:refs/tags/stg-infra-verified; then
+            echo "::error::No 'stg-infra-verified' tag found. Promote a commit through staging before releasing infra to prd."
             exit 1
           fi
           released_sha=$(git rev-parse HEAD)
-          verified_sha=$(git rev-list -n 1 infra-stg-verified)
+          verified_sha=$(git rev-list -n 1 stg-infra-verified)
           if [ "$released_sha" != "$verified_sha" ]; then
             echo "::error::Release '${{ github.event.release.tag_name }}' ($released_sha) is not the last verified commit ($verified_sha). Cut the release from the verified commit instead."
             exit 1

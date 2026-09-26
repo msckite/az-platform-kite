@@ -47,10 +47,10 @@ jobs:
         uses: actions/checkout@v7
 
       # workload-flow-release checks this tag before deploying prd
-      - name: Move stg-verified tag to this commit
+      - name: Move stg-workload-verified tag to this commit
         run: |
-          git tag -f stg-verified
-          git push origin stg-verified --force
+          git tag -f stg-workload-verified
+          git push origin stg-workload-verified --force
 
   plan-prd:
     name: Preflight (prd)
