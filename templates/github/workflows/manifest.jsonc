@@ -14,6 +14,10 @@
             {
                 "source": "github/workflows/shared/platform-provision.yml",
                 "destination": ".github/workflows/platform-provision.yml"
+            },
+            {
+                "source": "platform-config.jsonc",
+                "destination": "config/platform-config.jsonc"
             }
         ],
         "files": [
@@ -40,6 +44,10 @@
             {
                 "source": "github/workflows/shared/workload-provision.yml",
                 "destination": ".github/workflows/workload-provision.yml"
+            },
+            {
+                "source": "src/README.md",
+                "destination": "src/README.md"
             }
         ],
         "strategies": {
@@ -118,6 +126,14 @@
             {
                 "source": "iac/res/sample/params/prd.bicepparam",
                 "destination": "iac/res/sample/params/prd.bicepparam"
+            },
+            {
+                "source": "iac/bicepconfig.json",
+                "destination": "iac/bicepconfig.json"
+            },
+            {
+                "source": "iac/README.md",
+                "destination": "iac/README.md"
             }
         ],
         "strategies": {

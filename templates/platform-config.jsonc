@@ -4,7 +4,7 @@
     // Phase 1: Azure resource groups are created first, independently of security groups, environments, identities, and GitHub environments.
     "resourceGroups": [
         {
-            // Hosts the identity that runs the platform-config.jsonc provisioning pipeline itself (see the "platform" environment below).
+            // Hosts the identity that runs the platform-config.jsonc provisioning pipeline itself.
             "id": "platform",
             "name": "rg-${serviceShort}${uniqueId}-platform-${regionCode}",
             "location": "${location}",
@@ -14,7 +14,8 @@
                 "location": "${location}",
                 "owner": "engineering-team",
                 "criticality": "high",
-                "cost-center": "engineering"
+                "cost-center": "engineering",
+                "public": "false"
             }
         },
         {
@@ -32,6 +33,20 @@
             }
         },
         {
+            "id": "stg",
+            "name": "rg-${serviceShort}${uniqueId}-stg-${regionCode}",
+            "location": "${location}",
+            "tags": {
+                "service": "${serviceShort}",
+                "environment": "staging",
+                "location": "${location}",
+                "owner": "operational-team",
+                "criticality": "medium",
+                "cost-center": "operations",
+                "public": "true"
+            }
+        },
+        {
             "id": "prd",
             "name": "rg-${serviceShort}${uniqueId}-prd-${regionCode}",
             "location": "${location}",
@@ -39,9 +54,9 @@
                 "service": "${serviceShort}",
                 "environment": "production",
                 "location": "${location}",
-                "owner": "engineering-team",
+                "owner": "business-team",
                 "criticality": "high",
-                "cost-center": "engineering",
+                "cost-center": "business",
                 "public": "false"
             }
         }
@@ -56,6 +71,10 @@
                 {
                     "role": "Contributor",
                     "resourceGroupId": "dev"
+                },
+                {
+                    "role": "Contributor",
+                    "resourceGroupId": "stg"
                 },
                 {
                     "role": "Reader",
@@ -74,6 +93,10 @@
                 },
                 {
                     "role": "Owner",
+                    "resourceGroupId": "stg"
+                },
+                {
+                    "role": "Owner",
                     "resourceGroupId": "prd"
                 }
             ]
@@ -89,6 +112,10 @@
                 },
                 {
                     "role": "Reader",
+                    "resourceGroupId": "stg"
+                },
+                {
+                    "role": "Reader",
                     "resourceGroupId": "prd"
                 }
             ]
@@ -98,8 +125,7 @@
     "environments": [
         {
             // The bootstrap environment: platform-ci.yml/platform-cd.yml sign in as this identity to run all four
-            // phases. Its role assignments are scoped to the whole subscription (not a single resource group), so it
-            // can see and reconcile every resource group declared above, not just the one it lives in.
+            // phases. Its role assignments are scoped to the whole subscription (not a single resource group).
             "displayName": "Platform",
             "environmentCode": "platform",
             "description": "Bootstrap environment whose identity runs the platform-config.jsonc provisioning pipeline",
@@ -120,7 +146,7 @@
                         "scope": "subscription"
                     },
                     {
-                        "role": "User Access Administrator", // needed to assign RBAC roles to the security groups and identities provisioned by phases 2 and 3
+                        "role": "User Access Administrator", // Needed to assign RBAC roles to the security groups and identities provisioned by phases 2 and 3
                         "scope": "subscription"
                     }
                 ]
@@ -134,7 +160,7 @@
                 "secrets": [
                     {
                         "name": "AZURE_CLIENT_ID",
-                        "value": "${clientId}" // populated from the clientId of the userAssignedIdentity created above, once it exists
+                        "value": "${clientId}" // Populated from the clientId of the userAssignedIdentity created above, once it exists
                     },
                     {
                         "name": "AZURE_SUBSCRIPTION_ID",
@@ -169,8 +195,8 @@
                         "resourceGroupId": "dev"
                     },
                     {
-                        "role": "Contributor", // cross-environment contributor role assignment, resolved via the "prd" resourceGroupId (no duplicated naming logic)
-                        "resourceGroupId": "prd"
+                        "role": "Contributor", // Cross-environment role assignment, to run preflight -WhatIf checks
+                        "resourceGroupId": "stg"
                     },
                     {
                         "role": "Azure Deployment Stack Contributor",
@@ -187,7 +213,7 @@
                 "secrets": [
                     {
                         "name": "AZURE_CLIENT_ID",
-                        "value": "${clientId}" // populated from the clientId of the userAssignedIdentity created above, once it exists
+                        "value": "${clientId}"
                     },
                     {
                         "name": "AZURE_SUBSCRIPTION_ID",
@@ -211,7 +237,7 @@
             },
             // Narrower identity/environment for the workload (application/service/solution code) pipeline: no
             // deployment-stack rights, so developers pushing workload code cannot alter infrastructure through
-            // this identity. Falls back to userAssignedIdentity/githubEnvironment above when omitted.
+            // this identity.
             "workloadUserAssignedIdentity": {
                 "name": "id-${serviceShort}${uniqueId}-${tool}-${environmentCode}-workload",
                 "federatedCredential": {
@@ -238,7 +264,223 @@
                 "secrets": [
                     {
                         "name": "AZURE_CLIENT_ID",
-                        "value": "${clientId}" // populated from the clientId of the workloadUserAssignedIdentity created above, once it exists
+                        "value": "${clientId}"
+                    },
+                    {
+                        "name": "AZURE_SUBSCRIPTION_ID",
+                        "value": "${subscriptionId}"
+                    },
+                    {
+                        "name": "AZURE_TENANT_ID",
+                        "value": "${tenantId}"
+                    }
+                ],
+                "variables": [
+                    {
+                        "name": "ENV_CODE",
+                        "value": "${environmentCode}"
+                    },
+                    {
+                        "name": "RESOURCE_GROUP_NAME",
+                        "value": "rg-${serviceShort}${uniqueId}-${environmentCode}-${regionCode}"
+                    }
+                ]
+            }
+        },
+        {
+            "displayName": "Staging",
+            "environmentCode": "stg",
+            "description": "Staging environment for the ${displayName} service",
+            "resourceGroupId": "stg",
+            "userAssignedIdentity": {
+                "name": "id-${serviceShort}${uniqueId}-${tool}-${environmentCode}",
+                "federatedCredential": {
+                    "name": "fic-${serviceShort}${uniqueId}-${tool}-${environmentCode}",
+                    "issuer": "https://token.actions.githubusercontent.com",
+                    "subjectType": "environment",
+                    "audiences": [
+                        "api://AzureADTokenExchange"
+                    ]
+                },
+                "roleAssignments": [
+                    {
+                        "role": "Contributor",
+                        "resourceGroupId": "stg"
+                    },
+                    {
+                        "role": "Contributor",
+                        "resourceGroupId": "prd"
+                    },
+                    {
+                        "role": "Azure Deployment Stack Contributor",
+                        "resourceGroupId": "stg"
+                    }
+                ]
+            },
+            "githubEnvironment": {
+                "name": "${environmentCode}",
+                "protectionRules": {
+                    "requiredReviewers": [],
+                    "waitTimerMinutes": 0
+                },
+                "secrets": [
+                    {
+                        "name": "AZURE_CLIENT_ID",
+                        "value": "${clientId}"
+                    },
+                    {
+                        "name": "AZURE_SUBSCRIPTION_ID",
+                        "value": "${subscriptionId}"
+                    },
+                    {
+                        "name": "AZURE_TENANT_ID",
+                        "value": "${tenantId}"
+                    }
+                ],
+                "variables": [
+                    {
+                        "name": "RESOURCE_GROUP_NAME",
+                        "value": "rg-${serviceShort}${uniqueId}-${environmentCode}-${regionCode}"
+                    },
+                    {
+                        "name": "DEPLOYMENT_STACK_NAME",
+                        "value": "rgds-${serviceShort}${uniqueId}-${environmentCode}-${regionCode}"
+                    }
+                ]
+            },
+            "workloadUserAssignedIdentity": {
+                "name": "id-${serviceShort}${uniqueId}-${tool}-${environmentCode}-workload",
+                "federatedCredential": {
+                    "name": "fic-${serviceShort}${uniqueId}-${tool}-${environmentCode}-workload",
+                    "issuer": "https://token.actions.githubusercontent.com",
+                    "subjectType": "environment",
+                    "audiences": [
+                        "api://AzureADTokenExchange"
+                    ]
+                },
+                "roleAssignments": [
+                    {
+                        "role": "Contributor",
+                        "resourceGroupId": "stg"
+                    }
+                ]
+            },
+            "workloadGithubEnvironment": {
+                "name": "${environmentCode}-workload",
+                "protectionRules": {
+                    "requiredReviewers": [],
+                    "waitTimerMinutes": 0
+                },
+                "secrets": [
+                    {
+                        "name": "AZURE_CLIENT_ID",
+                        "value": "${clientId}"
+                    },
+                    {
+                        "name": "AZURE_SUBSCRIPTION_ID",
+                        "value": "${subscriptionId}"
+                    },
+                    {
+                        "name": "AZURE_TENANT_ID",
+                        "value": "${tenantId}"
+                    }
+                ],
+                "variables": [
+                    {
+                        "name": "ENV_CODE",
+                        "value": "${environmentCode}"
+                    },
+                    {
+                        "name": "RESOURCE_GROUP_NAME",
+                        "value": "rg-${serviceShort}${uniqueId}-${environmentCode}-${regionCode}"
+                    }
+                ]
+            }
+        },
+        {
+            "displayName": "Production",
+            "environmentCode": "prd",
+            "description": "Production environment for the ${displayName} service",
+            "resourceGroupId": "prd",
+            "userAssignedIdentity": {
+                "name": "id-${serviceShort}${uniqueId}-${tool}-${environmentCode}",
+                "federatedCredential": {
+                    "name": "fic-${serviceShort}${uniqueId}-${tool}-${environmentCode}",
+                    "issuer": "https://token.actions.githubusercontent.com",
+                    "subjectType": "environment",
+                    "audiences": [
+                        "api://AzureADTokenExchange"
+                    ]
+                },
+                "roleAssignments": [
+                    {
+                        "role": "Contributor",
+                        "resourceGroupId": "prd"
+                    },
+                    {
+                        "role": "Azure Deployment Stack Contributor",
+                        "resourceGroupId": "prd"
+                    }
+                ]
+            },
+            "githubEnvironment": {
+                "name": "${environmentCode}",
+                "protectionRules": {
+                    "requiredReviewers": [],
+                    "waitTimerMinutes": 0
+                },
+                "secrets": [
+                    {
+                        "name": "AZURE_CLIENT_ID",
+                        "value": "${clientId}"
+                    },
+                    {
+                        "name": "AZURE_SUBSCRIPTION_ID",
+                        "value": "${subscriptionId}"
+                    },
+                    {
+                        "name": "AZURE_TENANT_ID",
+                        "value": "${tenantId}"
+                    }
+                ],
+                "variables": [
+                    {
+                        "name": "RESOURCE_GROUP_NAME",
+                        "value": "rg-${serviceShort}${uniqueId}-${environmentCode}-${regionCode}"
+                    },
+                    {
+                        "name": "DEPLOYMENT_STACK_NAME",
+                        "value": "rgds-${serviceShort}${uniqueId}-${environmentCode}-${regionCode}"
+                    }
+                ]
+            },
+            "workloadUserAssignedIdentity": {
+                "name": "id-${serviceShort}${uniqueId}-${tool}-${environmentCode}-workload",
+                "federatedCredential": {
+                    "name": "fic-${serviceShort}${uniqueId}-${tool}-${environmentCode}-workload",
+                    "issuer": "https://token.actions.githubusercontent.com",
+                    "subjectType": "environment",
+                    "audiences": [
+                        "api://AzureADTokenExchange"
+                    ]
+                },
+                "roleAssignments": [
+                    {
+                        "role": "Contributor",
+                        "resourceGroupId": "prd"
+                    }
+                ]
+            },
+            "workloadGithubEnvironment": {
+                "name": "${environmentCode}-workload",
+                "protectionRules": {
+                    "requiredReviewers": [],
+                    "waitTimerMinutes": 0
+                },
+                "secrets": [
+                    {
+                        "name": "AZURE_CLIENT_ID",
+                        "value": "${clientId}"
                     },
                     {
                         "name": "AZURE_SUBSCRIPTION_ID",
