@@ -22,6 +22,7 @@ infra workflows trigger on `iac/**`.
 - [Release Flow workload strategy (`release`)](#release-flow-workload-strategy-release)
 - [GitHub Flow infra strategy (`github`)](#github-flow-infra-strategy-github)
 - [Release Flow infra strategy (`release`)](#release-flow-infra-strategy-release)
+- [Manual runs and concurrency](#manual-runs-and-concurrency)
 - [Prerequisites](#prerequisites)
 - [Why the environment input is a gate, not a scope](#why-the-environment-input-is-a-gate-not-a-scope)
 
@@ -157,10 +158,19 @@ flowchart LR
   CD --> D["reconcile platform without -WhatIf"]
 ```
 
-Make `platform-ci` a required status check on `main`. Both workflows sign in as the dedicated
-`platform` environment declared in `platform-config.jsonc`, not one of the workload's `dev`/`stg`/
-`prd` environments. Its identity holds subscription-level RBAC, so it can see and reconcile every
-resource group declared in `resourceGroups`, not just the one it lives in.
+Make `platform-ci` a required status check on `main`. The two workflows sign in with different
+identities, both declared in `platform-config.jsonc` rather than being one of the workload's `dev`/
+`stg`/`prd` environments:
+
+| Workflow | GitHub environment | Identity rights | Who may use it |
+| --- | --- | --- | --- |
+| `platform-cd` | `platform` | `Contributor` + `User Access Administrator` on the subscription | Runs from `main` only (`deploymentBranchPolicy`) |
+| `platform-ci` | `platform-plan` | `Reader` on the subscription | Any branch, including pull requests |
+
+A `-WhatIf` run of the four phases only reads, so the plan identity never needs write access. This
+keeps the subscription-wide identity out of reach of pull requests: a workflow edited in a pull
+request can request the `platform-plan` environment, but GitHub refuses to hand out the `platform`
+environment's OIDC token or secrets to any run that is not on `main`.
 
 ## GitHub Flow workload strategy (`github`)
 
@@ -174,9 +184,14 @@ pipeline.
 Workload CI runs on pull requests targeting `main`, deploys `dev` and runs a `-WhatIf` preflight for
 `stg`. Workload CD runs after a push to `main`, deploys `stg`, moves the `stg-workload-verified` tag
 to that commit, then runs a `-WhatIf` preflight for `prd`. The workload release trigger deploys `prd`
-after a published release, first confirming the release commit matches the last
-`stg-workload-verified` commit. Since the `release` event has no tag pattern filter, the workload
-release trigger runs for every published release but only proceeds when the release tag starts with
+after a published release, first confirming the release commit is an ancestor of (or equal to) the
+`stg-workload-verified` commit, not necessarily the exact tip. Since `main` only moves forward and
+`stg-workload-verified` only ever advances to a newer commit, any commit that has already reached
+`stg` passes this check even if a later commit was promoted in the meantime, for example while an
+older release is still waiting to be published. An exact-equality check would fail that release for
+no reason: the tag can legitimately move past the released commit between release creation and the
+release trigger running. Since the `release` event has no tag pattern filter, the workload release
+trigger runs for every published release but only proceeds when the release tag starts with
 `workload/`, for example `workload/v1.2.0`; releases tagged `infra/...` are skipped.
 Workload CI and CD trigger only on the same `src/**` allowlist as the GitHub Flow strategy.
 
@@ -195,10 +210,31 @@ Infra CI and CD mirror the Release Flow workload strategy, triggered only on `ia
 `.github/workflows/infra-*.yml` changes. Infra CD moves its own `stg-infra-verified` tag after
 deploying `stg`, kept separate from the workload pipeline's `stg-workload-verified` tag so that an
 infra-only change doesn't need a workload deployment to promote, and vice versa. The infra release
-trigger deploys `prd` after a published release, confirming the release commit matches the last
-`stg-infra-verified` commit. Just like the workload release trigger, it only proceeds when the
-release tag starts with `infra/`, for example `infra/v1.2.0`; releases tagged `workload/...` are
-skipped.
+trigger deploys `prd` after a published release, confirming the release commit is an ancestor of (or
+equal to) the `stg-infra-verified` commit, using the same ancestor check as the workload release
+trigger and for the same reason: the tag can move on before an older release is published. Just like
+the workload release trigger, it only proceeds when the release tag starts with `infra/`, for
+example `infra/v1.2.0`; releases tagged `workload/...` are skipped.
+
+## Manual runs and concurrency
+
+Every workflow keeps a `workflow_dispatch` trigger, but a manual run can never deploy something
+the automatic trigger would not:
+
+- **CD workflows** (`*-cd.yml`) only deploy when run from `main`. A manual run from any other branch
+  skips every deploy job, so a feature branch can never reach `stg` or `prd`, nor move a
+  `stg-*-verified` tag.
+- **Release workflows** (`*-release.yml`) take a required `tag` input, for example `infra/v1.2.0`,
+  to redeploy an existing release to `prd` (e.g. after a failed run). The manual run goes through the
+  same staging verification as a published release, and `deploy-prd` only runs when that
+  verification succeeded, deploying exactly the verified tag.
+
+CI workflows cancel an outdated run when a branch receives a new commit, since a newer plan
+supersedes the old one. Deploying workflows (CD, release, and platform CD) never cancel a run that
+is in progress: a deployment stack or RBAC reconciliation stopped halfway can leave Azure partially
+updated. A newer run waits instead. GitHub keeps at most one waiting run per concurrency group, so a
+third run replaces the waiting one; that is safe, because the newest commit on `main` includes the
+older ones.
 
 ## Prerequisites
 
@@ -223,6 +259,9 @@ skipped.
    Add `'Group.ReadWrite.All'` to `-Permission` if CI is ever expected to create or update groups
    outside `-WhatIf`. Without this grant, `Set-PlatformSecurityGroup` fails, or in CI's
    `-ErrorAction SilentlyContinue` lookup path, misreports existing groups as missing.
+
+   Grant the `platform-plan` identity (`Platform (plan)` in phase 3's output) `Group.Read.All` as
+   well, and never more: `platform-ci` runs phase 2 as that identity on pull requests.
 3. Confirm every environment in `platform-config.jsonc` has a matching GitHub environment holding
    `AZURE_CLIENT_ID`, `AZURE_TENANT_ID` and `AZURE_SUBSCRIPTION_ID`. Phase 4 writes these. The
    `infra-*.yml` workflows sign in to the `-infra`-suffixed environment (e.g. `dev-infra`). If an
@@ -238,7 +277,17 @@ skipped.
    `githubEnvironment.secrets`: every entry in that array is re-applied on each phase 4 run, which
    would overwrite it with whatever placeholder text sits in the file. Maintain its value only
    through the GitHub UI (or `gh secret set`), never through the config file.
-5. The federated credential uses `subjectType: environment`, so every job that signs in to Azure
+
+   Add a **second, read-only** token under the same name, `PLATFORM_GITHUB_TOKEN`, as an environment
+   secret on the `platform-plan` environment: a fine-grained personal access token limited to this
+   repository with **read-only** access to actions, administration, environments, secrets, and
+   variables. Phase 4 under `-WhatIf` only lists environments, branch policies, secrets, and
+   variables, so the read-only token is enough, and a pull request can never use it to change them.
+5. The `platform` environment only accepts runs from `main` (its `deploymentBranchPolicy`), so the
+   first pull request that adds `platform-plan` cannot create it through `platform-ci`. Create it
+   from your workstation as in step 1 (phases 3 and 4), then complete steps 2 and 4 for it before
+   opening that pull request.
+6. The federated credential uses `subjectType: environment`, so every job that signs in to Azure
    declares `environment:`. Keep it that way, otherwise the OIDC subject claim no longer matches.
 
 ## Why the environment input is a gate, not a scope

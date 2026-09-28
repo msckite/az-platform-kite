@@ -39,6 +39,7 @@
     "js/ts.preferences.quoteStyle": "single",
     "yaml.format.singleQuote": true,
     "cSpell.words": [
+        "commitish",
         "contoso",
         "Dont",
         "LASTEXITCODE",

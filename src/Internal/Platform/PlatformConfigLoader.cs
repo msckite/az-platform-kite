@@ -304,6 +304,53 @@ namespace MSCKite.Azure.Platform.Internal.Platform
             }
         }
 
+        // An empty policy would block every deployment to the environment, so require at least one branch or tag pattern
+        private static PlatformDeploymentBranchPolicyConfig ParseDeploymentBranchPolicy(JsonElement element, string environmentName)
+        {
+            if (element.ValueKind != JsonValueKind.Object)
+            {
+                throw new InvalidOperationException($"GitHub environment '{environmentName}' protectionRules.deploymentBranchPolicy must be an object with \"branches\" and/or \"tags\" arrays.");
+            }
+
+            var policy = new PlatformDeploymentBranchPolicyConfig();
+            ParsePatterns(element, "branches", policy.Branches, environmentName);
+            ParsePatterns(element, "tags", policy.Tags, environmentName);
+
+            if (policy.Branches.Count == 0 && policy.Tags.Count == 0)
+            {
+                throw new InvalidOperationException($"GitHub environment '{environmentName}' protectionRules.deploymentBranchPolicy must list at least one branch or tag pattern; omit deploymentBranchPolicy to leave the environment's branch policy unmanaged.");
+            }
+
+            return policy;
+        }
+
+        private static void ParsePatterns(JsonElement element, string propertyName, List<string> patterns, string environmentName)
+        {
+            if (!element.TryGetProperty(propertyName, out var patternsElement))
+            {
+                return;
+            }
+
+            if (patternsElement.ValueKind != JsonValueKind.Array)
+            {
+                throw new InvalidOperationException($"GitHub environment '{environmentName}' protectionRules.deploymentBranchPolicy.{propertyName} must be an array of name patterns.");
+            }
+
+            foreach (var patternElement in patternsElement.EnumerateArray())
+            {
+                var pattern = patternElement.ValueKind == JsonValueKind.String ? patternElement.GetString() : null;
+                if (string.IsNullOrWhiteSpace(pattern))
+                {
+                    throw new InvalidOperationException($"GitHub environment '{environmentName}' protectionRules.deploymentBranchPolicy.{propertyName} must only contain non-empty name patterns.");
+                }
+
+                if (!patterns.Contains(pattern))
+                {
+                    patterns.Add(pattern);
+                }
+            }
+        }
+
         private static PlatformGitHubEnvironmentConfig ParseGitHubEnvironment(JsonElement element, string environmentCode)
         {
             var name = GetString(element, "name");
@@ -330,6 +377,11 @@ namespace MSCKite.Azure.Platform.Internal.Platform
                 if (protectionRulesElement.TryGetProperty("waitTimerMinutes", out var waitTimerElement) && waitTimerElement.ValueKind == JsonValueKind.Number)
                 {
                     githubEnvironment.WaitTimerMinutes = waitTimerElement.GetInt32();
+                }
+
+                if (protectionRulesElement.TryGetProperty("deploymentBranchPolicy", out var branchPolicyElement) && branchPolicyElement.ValueKind != JsonValueKind.Null)
+                {
+                    githubEnvironment.DeploymentBranchPolicy = ParseDeploymentBranchPolicy(branchPolicyElement, name);
                 }
             }
 

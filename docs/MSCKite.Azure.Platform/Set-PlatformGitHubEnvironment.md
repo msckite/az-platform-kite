@@ -46,6 +46,16 @@ service/solution code) pipeline: `workloadGithubEnvironment`, paired with
 environment (`githubEnvironment`) and the workload GitHub environment in the same run, each
 resolving `${clientId}` from its own identity so their secrets never collide.
 
+`protectionRules.deploymentBranchPolicy` restricts which branches and tags may deploy to the GitHub
+environment, for example `{ "branches": ["main"], "tags": ["infra/*"] }`. GitHub enforces this before
+a job receives the environment's secrets or its OIDC token, so a workflow on any other branch cannot
+sign in as that environment's identity. The environment is switched to "selected branches and tags",
+missing patterns are added, and patterns no longer listed are removed; `DeploymentBranchPolicies` in
+the result reports each pattern as `branch:<pattern>` or `tag:<pattern>`. A published release runs
+on its tag, so an environment deployed from a release workflow needs that tag prefix listed. Omit
+`deploymentBranchPolicy` to leave the environment's branch policy unmanaged. Like required reviewers,
+branch policies on private repositories need a GitHub plan that supports them.
+
 This cmdlet supports `-WhatIf`/`-Confirm` and requires the `Az.Resources` and
 `Az.ManagedServiceIdentity` modules, signed in via `Connect-AzAccount`, and the GitHub CLI (`gh`)
 signed in with permission to manage environments, secrets, and variables on the target repository.

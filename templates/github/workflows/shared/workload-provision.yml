@@ -13,6 +13,11 @@ on:
         type: boolean
         required: false
         default: true
+      ref:
+        description: Git ref (tag or commit) to deploy. Defaults to the published release tag, or the triggering commit.
+        type: string
+        required: false
+        default: ''
 
 permissions:
   contents: read
@@ -36,7 +41,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v7
         with:
-          ref: ${{ github.event.release.tag_name || github.sha }}
+          ref: ${{ inputs.ref || github.event.release.tag_name || github.sha }}
 
       - name: Set up Platform Kite
         uses: ./.github/actions/setup-platform-kite

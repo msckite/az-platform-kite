@@ -242,4 +242,57 @@ Describe 'Set-PlatformGitHubEnvironment' {
     # The resource group intentionally does not exist, so this only exercises config parsing (both slots build without error) before the resolver reports the missing resource group.
     { Set-PlatformGitHubEnvironment -GlobalConfigPath $global -PlatformConfigPath $platform -ErrorAction Stop } | Should -Throw '*does not exist. Run Set-PlatformResourceGroup first*'
   }
+
+  Context 'deploymentBranchPolicy' {
+    BeforeAll {
+      # Builds a single-environment platform config whose githubEnvironment carries the given protectionRules JSON
+      function New-PlatformConfigWithProtectionRules([string] $Path, [string] $ProtectionRules) {
+        @"
+{
+  "templateVersion": "1.1.0",
+  "resourceGroups": [
+    { "id": "prd", "name": "rg-does-not-exist-msckite-tests-zzz", "location": "westeurope" }
+  ],
+  "environments": [
+    {
+      "environmentCode": "prd",
+      "resourceGroupId": "prd",
+      $script:ValidIdentity,
+      "githubEnvironment": { "name": "prd-infra", "protectionRules": $ProtectionRules, "secrets": [], "variables": [] }
+    }
+  ]
+}
+"@ | Set-Content -Path $Path
+      }
+    }
+
+    It 'throws when <Case>' -ForEach @(
+      @{ Case = 'the policy lists no patterns'; Rules = '{ "deploymentBranchPolicy": { "branches": [], "tags": [] } }'; Message = '*must list at least one branch or tag pattern*' }
+      @{ Case = 'the policy is not an object'; Rules = '{ "deploymentBranchPolicy": "main" }'; Message = '*deploymentBranchPolicy must be an object*' }
+      @{ Case = 'branches is not an array'; Rules = '{ "deploymentBranchPolicy": { "branches": "main" } }'; Message = '*deploymentBranchPolicy.branches must be an array*' }
+      @{ Case = 'a tag pattern is empty'; Rules = '{ "deploymentBranchPolicy": { "tags": [ " " ] } }'; Message = '*deploymentBranchPolicy.tags must only contain non-empty name patterns*' }
+    ) {
+      $global = Join-Path $TestDrive 'global.jsonc'
+      $platform = Join-Path $TestDrive 'platform-branch-policy-invalid.jsonc'
+      $script:ValidGlobalConfig | Set-Content -Path $global
+      New-PlatformConfigWithProtectionRules -Path $platform -ProtectionRules $Rules
+
+      { Set-PlatformGitHubEnvironment -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw $Message
+    }
+
+    It 'accepts a policy with <Case>' -ForEach @(
+      @{ Case = 'branches and tags'; Rules = '{ "requiredReviewers": [], "deploymentBranchPolicy": { "branches": [ "main" ], "tags": [ "infra/*" ] } }' }
+      @{ Case = 'branches only'; Rules = '{ "deploymentBranchPolicy": { "branches": [ "main" ] } }' }
+      @{ Case = 'tags only'; Rules = '{ "deploymentBranchPolicy": { "tags": [ "infra/*" ] } }' }
+      @{ Case = 'an explicit null (unmanaged)'; Rules = '{ "deploymentBranchPolicy": null }' }
+    ) {
+      $global = Join-Path $TestDrive 'global.jsonc'
+      $platform = Join-Path $TestDrive 'platform-branch-policy-valid.jsonc'
+      $script:ValidGlobalConfig | Set-Content -Path $global
+      New-PlatformConfigWithProtectionRules -Path $platform -ProtectionRules $Rules
+
+      # The resource group intentionally does not exist, so a valid policy gets past config parsing and fails only at the resolver
+      { Set-PlatformGitHubEnvironment -GlobalConfigPath $global -PlatformConfigPath $platform -ErrorAction Stop } | Should -Throw '*does not exist. Run Set-PlatformResourceGroup first*'
+    }
+  }
 }

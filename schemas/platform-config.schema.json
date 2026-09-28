@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://raw.githubusercontent.com/msckite/az-platform-kite/refs/heads/main/schemas/platform-config.schema.json",
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "1.1.0",
   "title": "Platform Config Schema",
   "description": "Per-service configuration describing the Azure and GitHub environments to provision for a repository.",
   "type": "object",
@@ -19,7 +19,7 @@
     },
     "templateVersion": {
       "description": "Version of the template contract.",
-      "const": "1.0.0"
+      "const": "1.1.0"
     },
     "resourceGroups": {
       "description": "Azure resource groups to create first, ahead of any security group, environment, identity, or GitHub environment resources. Each represents a stage in the deployment (e.g. dev, stg, prd).",
@@ -316,8 +316,69 @@
           "description": "Minutes to wait before allowing deployments to proceed.",
           "type": "integer",
           "minimum": 0
+        },
+        "deploymentBranchPolicy": {
+          "$ref": "#/definitions/deploymentBranchPolicy"
         }
       }
+    },
+    "deploymentBranchPolicy": {
+      "description": "Restricts which branches and tags may deploy to this GitHub environment. Enforced by GitHub before the job receives the environment's secrets or its OIDC token, so a workflow on any other branch cannot use this environment's identity. Unlisted patterns already on the environment are removed. Omit to leave the environment's branch policy unmanaged (any branch may deploy, unless set by hand).",
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "branches": {
+          "description": "Branch name patterns (fnmatch syntax, e.g. 'main' or 'release/*') whose workflow runs may deploy.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "examples": [
+            [
+              "main"
+            ]
+          ]
+        },
+        "tags": {
+          "description": "Tag name patterns (fnmatch syntax) whose workflow runs may deploy. A published release runs on its tag, so a release-triggered deployment needs its tag prefix here, e.g. 'infra/*'.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "examples": [
+            [
+              "infra/*"
+            ]
+          ]
+        }
+      },
+      "anyOf": [
+        {
+          "required": [
+            "branches"
+          ],
+          "properties": {
+            "branches": {
+              "minItems": 1
+            }
+          }
+        },
+        {
+          "required": [
+            "tags"
+          ],
+          "properties": {
+            "tags": {
+              "minItems": 1
+            }
+          }
+        }
+      ]
     },
     "keyValue": {
       "type": "object",

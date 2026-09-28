@@ -30,9 +30,20 @@ namespace MSCKite.Azure.Platform.Internal.Platform
 
         internal int WaitTimerMinutes { get; set; }
 
+        // Null when "deploymentBranchPolicy" is omitted, in which case the environment's existing branch policy is left untouched
+        internal PlatformDeploymentBranchPolicyConfig DeploymentBranchPolicy { get; set; }
+
         internal List<PlatformKeyValueConfig> Secrets { get; } = new List<PlatformKeyValueConfig>();
 
         internal List<PlatformKeyValueConfig> Variables { get; } = new List<PlatformKeyValueConfig>();
+    }
+
+    // Branch and tag name patterns (fnmatch, e.g. "main", "release/*", "infra/*") allowed to deploy to a GitHub environment
+    internal class PlatformDeploymentBranchPolicyConfig
+    {
+        internal List<string> Branches { get; } = new List<string>();
+
+        internal List<string> Tags { get; } = new List<string>();
     }
 
     // Raw (unresolved) name/value pair, used for both githubEnvironment secrets and variables

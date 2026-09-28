@@ -1,6 +1,6 @@
 {
     "$schema": "https://raw.githubusercontent.com/msckite/az-platform-kite/refs/heads/main/schemas/platform-config.schema.json",
-    "templateVersion": "1.0.0",
+    "templateVersion": "1.1.0",
     // Phase 1: Azure resource groups are created first, independently of security groups, environments, identities, and GitHub environments.
     "resourceGroups": [
         {
@@ -155,7 +155,13 @@
                 "name": "${environmentCode}",
                 "protectionRules": {
                     "requiredReviewers": [],
-                    "waitTimerMinutes": 0
+                    "waitTimerMinutes": 0,
+                    // Only runs from main may sign in as this subscription-wide identity; pull requests use 'platform-plan' below
+                    "deploymentBranchPolicy": {
+                        "branches": [
+                            "main"
+                        ]
+                    }
                 },
                 "secrets": [
                     {
@@ -175,14 +181,61 @@
             }
         },
         {
+            // Read-only twin of the platform environment: platform-ci.yml signs in as this identity on pull requests to
+            // run all four phases with -WhatIf, which only reads. Every branch may use it, so it must never get write access.
+            "displayName": "Platform (plan)",
+            "environmentCode": "platform",
+            "description": "Read-only environment whose identity previews the platform-config.jsonc provisioning pipeline",
+            "resourceGroupId": "platform",
+            "userAssignedIdentity": {
+                "name": "id-${serviceShort}${uniqueId}-${tool}-${environmentCode}-plan",
+                "federatedCredential": {
+                    "name": "fic-${serviceShort}${uniqueId}-${tool}-${environmentCode}-plan",
+                    "issuer": "https://token.actions.githubusercontent.com",
+                    "subjectType": "environment",
+                    "audiences": [
+                        "api://AzureADTokenExchange"
+                    ]
+                },
+                "roleAssignments": [
+                    {
+                        "role": "Reader", // Reads resource groups, identities, federated credentials, and role assignments across the subscription
+                        "scope": "subscription"
+                    }
+                ]
+            },
+            "githubEnvironment": {
+                "name": "${environmentCode}-plan",
+                "protectionRules": {
+                    "requiredReviewers": [],
+                    "waitTimerMinutes": 0
+                },
+                "secrets": [
+                    {
+                        "name": "AZURE_CLIENT_ID",
+                        "value": "${clientId}"
+                    },
+                    {
+                        "name": "AZURE_SUBSCRIPTION_ID",
+                        "value": "${subscriptionId}"
+                    },
+                    {
+                        "name": "AZURE_TENANT_ID",
+                        "value": "${tenantId}"
+                    }
+                ],
+                "variables": []
+            }
+        },
+        {
             "displayName": "Development",
             "environmentCode": "dev",
             "description": "Development environment for the ${displayName} service",
             "resourceGroupId": "dev",
             "userAssignedIdentity": {
-                "name": "id-${serviceShort}${uniqueId}-${tool}-${environmentCode}",
+                "name": "id-${serviceShort}${uniqueId}-${tool}-${environmentCode}-infra",
                 "federatedCredential": {
-                    "name": "fic-${serviceShort}${uniqueId}-${tool}-${environmentCode}",
+                    "name": "fic-${serviceShort}${uniqueId}-${tool}-${environmentCode}-infra",
                     "issuer": "https://token.actions.githubusercontent.com",
                     "subjectType": "environment",
                     "audiences": [
@@ -193,10 +246,6 @@
                     {
                         "role": "Contributor",
                         "resourceGroupId": "dev"
-                    },
-                    {
-                        "role": "Contributor", // Cross-environment role assignment, to run preflight -WhatIf checks
-                        "resourceGroupId": "stg"
                     },
                     {
                         "role": "Azure Deployment Stack Contributor",
@@ -297,9 +346,9 @@
             "description": "Staging environment for the ${displayName} service",
             "resourceGroupId": "stg",
             "userAssignedIdentity": {
-                "name": "id-${serviceShort}${uniqueId}-${tool}-${environmentCode}",
+                "name": "id-${serviceShort}${uniqueId}-${tool}-${environmentCode}-infra",
                 "federatedCredential": {
-                    "name": "fic-${serviceShort}${uniqueId}-${tool}-${environmentCode}",
+                    "name": "fic-${serviceShort}${uniqueId}-${tool}-${environmentCode}-infra",
                     "issuer": "https://token.actions.githubusercontent.com",
                     "subjectType": "environment",
                     "audiences": [
@@ -310,10 +359,6 @@
                     {
                         "role": "Contributor",
                         "resourceGroupId": "stg"
-                    },
-                    {
-                        "role": "Contributor",
-                        "resourceGroupId": "prd"
                     },
                     {
                         "role": "Azure Deployment Stack Contributor",
@@ -411,9 +456,9 @@
             "description": "Production environment for the ${displayName} service",
             "resourceGroupId": "prd",
             "userAssignedIdentity": {
-                "name": "id-${serviceShort}${uniqueId}-${tool}-${environmentCode}",
+                "name": "id-${serviceShort}${uniqueId}-${tool}-${environmentCode}-infra",
                 "federatedCredential": {
-                    "name": "fic-${serviceShort}${uniqueId}-${tool}-${environmentCode}",
+                    "name": "fic-${serviceShort}${uniqueId}-${tool}-${environmentCode}-infra",
                     "issuer": "https://token.actions.githubusercontent.com",
                     "subjectType": "environment",
                     "audiences": [

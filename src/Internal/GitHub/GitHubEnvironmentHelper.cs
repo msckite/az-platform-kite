@@ -23,10 +23,16 @@ namespace MSCKite.Azure.Platform.Internal.GitHub
         }
 
         // Always reconciles the environment to the desired state (idempotent PUT); GitHub doesn't expose a cheap way to diff protection_rules beforehand
-        internal static bool CreateOrUpdate(string owner, string repository, string name, int waitTimerMinutes, List<GitHubReviewer> reviewers, out string error)
+        internal static bool CreateOrUpdate(string owner, string repository, string name, int waitTimerMinutes, List<GitHubReviewer> reviewers, bool customBranchPolicies, out string error)
         {
             // wait_timer/reviewers are premium-plan-only protection rules on private repos; sending them (even as 0/empty) triggers a 422 on plans that don't support them, so only include what's actually configured
             var body = new JsonObject();
+
+            // Restricts deployments to the environment's custom branch/tag policies, which GitHubDeploymentBranchPolicyHelper reconciles afterwards
+            if (customBranchPolicies)
+            {
+                body["deployment_branch_policy"] = new JsonObject { ["protected_branches"] = false, ["custom_branch_policies"] = true };
+            }
 
             if (waitTimerMinutes > 0)
             {

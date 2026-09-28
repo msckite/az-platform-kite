@@ -132,6 +132,7 @@ namespace MSCKite.Azure.Platform.Commands.Platform
                         continue;
                     }
 
+                    SyncDeploymentBranchPolicies(actionResult, slot.Item3, owner, repository);
                     SyncSecrets(actionResult, slot.Item3, owner, repository, placeholders);
                     SyncVariables(actionResult, slot.Item3, owner, repository, placeholders);
                     items.Add(actionResult);
@@ -231,8 +232,10 @@ namespace MSCKite.Azure.Platform.Commands.Platform
                 };
             }
 
-            WriteVerbose($"Applying protection rules to GitHub environment '{name}' (wait timer {githubConfig.WaitTimerMinutes}m, {reviewers.Count} reviewer(s)).");
-            if (!GitHubEnvironmentHelper.CreateOrUpdate(owner, repository, name, githubConfig.WaitTimerMinutes, reviewers, out var applyError))
+            var branchPolicy = githubConfig.DeploymentBranchPolicy;
+            WriteVerbose($"Applying protection rules to GitHub environment '{name}' (wait timer {githubConfig.WaitTimerMinutes}m, {reviewers.Count} reviewer(s), " +
+                (branchPolicy == null ? "branch policy unmanaged)." : $"{branchPolicy.Branches.Count} branch and {branchPolicy.Tags.Count} tag pattern(s))."));
+            if (!GitHubEnvironmentHelper.CreateOrUpdate(owner, repository, name, githubConfig.WaitTimerMinutes, reviewers, branchPolicy != null, out var applyError))
             {
                 WriteError(new ErrorRecord(
                     new InvalidOperationException($"Failed to configure GitHub environment '{name}': {applyError}"),
@@ -247,6 +250,95 @@ namespace MSCKite.Azure.Platform.Commands.Platform
                 Name = name,
                 Action = existed ? "Updated" : "Created"
             };
+        }
+
+        // Reconciles the environment's custom branch/tag policies to exactly the configured patterns: missing ones are created, unlisted ones deleted
+        private void SyncDeploymentBranchPolicies(
+            PlatformGitHubEnvironmentActionResult actionResult, PlatformGitHubEnvironmentConfig githubConfig, string owner, string repository)
+        {
+            var policyConfig = githubConfig.DeploymentBranchPolicy;
+            if (policyConfig == null)
+            {
+                return;
+            }
+
+            // A not-yet-created environment (WhatIf) has no policies to list, and listing it would only produce a misleading 404 warning
+            var existing = new List<GitHubDeploymentBranchPolicy>();
+            if (actionResult.Action != "WouldCreate")
+            {
+                existing = GitHubDeploymentBranchPolicyHelper.List(owner, repository, actionResult.Name, out var listError);
+
+                // GitHub answers 404 while custom branch policies aren't enabled yet on the environment (only reachable under WhatIf, since the PUT above enables them)
+                if (existing == null && listError != null && listError.Contains("HTTP 404"))
+                {
+                    existing = new List<GitHubDeploymentBranchPolicy>();
+                }
+
+                if (existing == null)
+                {
+                    WriteError(new ErrorRecord(
+                        new InvalidOperationException($"Could not list deployment branch policies for '{actionResult.Name}': {listError}"),
+                        "PlatformGitHubEnvironmentBranchPolicyListFailed", ErrorCategory.ReadError, actionResult.Name));
+                    return;
+                }
+            }
+
+            var desired = new List<Tuple<string, string>>();
+            policyConfig.Branches.ForEach(pattern => desired.Add(Tuple.Create("branch", pattern)));
+            policyConfig.Tags.ForEach(pattern => desired.Add(Tuple.Create("tag", pattern)));
+
+            foreach (var policy in desired)
+            {
+                var label = $"{policy.Item1}:{policy.Item2}";
+                if (existing.Exists(e => e.Type == policy.Item1 && e.Name == policy.Item2))
+                {
+                    actionResult.DeploymentBranchPolicies.Add(new PlatformKeyValueActionResult { Name = label, Action = "Unchanged" });
+                    continue;
+                }
+
+                if (!ShouldProcess($"{actionResult.Name}/{label}", "Allow deployments from"))
+                {
+                    actionResult.DeploymentBranchPolicies.Add(new PlatformKeyValueActionResult { Name = label, Action = "WouldCreate" });
+                    continue;
+                }
+
+                WriteVerbose($"Allowing deployments from {policy.Item1} pattern '{policy.Item2}' on GitHub environment '{actionResult.Name}'.");
+                if (!GitHubDeploymentBranchPolicyHelper.Create(owner, repository, actionResult.Name, policy.Item2, policy.Item1, out var createError))
+                {
+                    WriteError(new ErrorRecord(
+                        new InvalidOperationException($"Failed to add deployment {policy.Item1} policy '{policy.Item2}': {createError}"),
+                        "PlatformGitHubEnvironmentBranchPolicyFailed", ErrorCategory.WriteError, label));
+                    continue;
+                }
+
+                actionResult.DeploymentBranchPolicies.Add(new PlatformKeyValueActionResult { Name = label, Action = "Created" });
+            }
+
+            foreach (var policy in existing)
+            {
+                var label = $"{policy.Type}:{policy.Name}";
+                if (desired.Exists(d => d.Item1 == policy.Type && d.Item2 == policy.Name))
+                {
+                    continue;
+                }
+
+                if (!ShouldProcess($"{actionResult.Name}/{label}", "Stop allowing deployments from"))
+                {
+                    actionResult.DeploymentBranchPolicies.Add(new PlatformKeyValueActionResult { Name = label, Action = "WouldDelete" });
+                    continue;
+                }
+
+                WriteVerbose($"Removing {policy.Type} pattern '{policy.Name}' from GitHub environment '{actionResult.Name}', since the config no longer lists it.");
+                if (!GitHubDeploymentBranchPolicyHelper.Delete(owner, repository, actionResult.Name, policy.Id, out var deleteError))
+                {
+                    WriteError(new ErrorRecord(
+                        new InvalidOperationException($"Failed to remove deployment {policy.Type} policy '{policy.Name}': {deleteError}"),
+                        "PlatformGitHubEnvironmentBranchPolicyFailed", ErrorCategory.WriteError, label));
+                    continue;
+                }
+
+                actionResult.DeploymentBranchPolicies.Add(new PlatformKeyValueActionResult { Name = label, Action = "Deleted" });
+            }
         }
 
         // Sets every configured secret; GitHub never exposes secret values, so each run always (re-)sets them rather than diffing
