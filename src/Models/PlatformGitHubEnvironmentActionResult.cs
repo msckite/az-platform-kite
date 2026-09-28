@@ -17,5 +17,8 @@ namespace MSCKite.Azure.Platform.Models
         public List<PlatformKeyValueActionResult> Secrets { get; } = new List<PlatformKeyValueActionResult>();
 
         public List<PlatformKeyValueActionResult> Variables { get; } = new List<PlatformKeyValueActionResult>();
+
+        // Branch/tag patterns allowed to deploy, named "branch:<pattern>" or "tag:<pattern>"; empty when the config leaves the branch policy unmanaged
+        public List<PlatformKeyValueActionResult> DeploymentBranchPolicies { get; } = new List<PlatformKeyValueActionResult>();
     }
 }

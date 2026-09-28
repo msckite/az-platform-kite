@@ -1057,22 +1057,25 @@ New-PlatformConfigStructure -OutputFolder ./config -Force
     <command:details>
       <command:name>New-PlatformWorkflow</command:name>
       <maml:description>
-        <maml:para>Copies the GitHub Actions workflow templates for the configured branch strategy into the
-repository.</maml:para>
+        <maml:para>Copies the selected GitHub Actions workflow templates into the repository. Platform workflows use
+a fixed drift-management flow; workload and infra workflows use the configured branch strategy.</maml:para>
       </maml:description>
       <command:verb>New</command:verb>
       <command:noun>PlatformWorkflow</command:noun>
     </command:details>
     <maml:description>
-      <maml:para>Reads `github/workflows/manifest.jsonc` from a downloaded templates folder and copies the shared
-workflow templates, plus the ones belonging to the selected branch strategy, to their destination
-in the repository. The manifest maps every template to a fixed path under `.github`, because
+      <maml:para>Reads `github/workflows/manifest.jsonc` from a downloaded templates folder and copies the selected
+platform, workload, and/or infra workflow bundles to their destination in the repository. Only
+workload and infra workflows use the `sourceControl.branchStrategy` value. The manifest maps every
+template to a fixed path under `.github`, because
 reusable workflows referenced as `./.github/workflows/&lt;name&gt;.yml` must sit directly in
 `.github/workflows`.
 
-The branch strategy is read from `sourceControl.branchStrategy` in global-config.jsonc unless
-`-BranchStrategy` is specified. Files that already exist at the destination are reported and left
-untouched unless `-Force` is specified, so local edits are never lost by accident.
+For workload and infra workflows, the branch strategy is read from `sourceControl.branchStrategy` in
+global-config.jsonc unless `-BranchStrategy` is specified; both use the same strategy value.
+Platform-only installation does not read global configuration. Files that already exist at the
+destination are reported and left untouched unless `-Force` is specified, so local edits are never
+lost by accident.
 
 Run `Get-PlatformTemplate` first to download the templates. This cmdlet only copies files, so it
 needs no Azure or GitHub sign-in.</maml:para>
@@ -1139,9 +1142,9 @@ needs no Azure or GitHub sign-in.</maml:para>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="true (ByPropertyName)" position="Named" aliases="none">
         <maml:name>BranchStrategy</maml:name>
         <maml:description>
-          <maml:para>The branch strategy whose workflow templates are installed, matching a strategy declared in the
-manifest (`github` or `release`).
-Defaults to `sourceControl.branchStrategy` in global-config.jsonc.</maml:para>
+          <maml:para>The workload/infra branch strategy whose workflow templates are installed, matching a strategy
+declared in the manifest (`github` or `release`). It is ignored for `-WorkflowType platform` and
+defaults to `sourceControl.branchStrategy` in global-config.jsonc for workload and infra workflows.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
         <dev:type>
@@ -1210,6 +1213,24 @@ Defaults to the current folder.</maml:para>
           <maml:name>System.Management.Automation.SwitchParameter</maml:name>
         </dev:type>
       </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="true (ByPropertyName)" position="Named" aliases="none">
+        <maml:name>WorkflowType</maml:name>
+        <maml:description>
+          <maml:para>Selects the workflow bundle to install: `platform`, `workload`, `infra`, `both` (platform +
+workload), or `all` (platform + workload + infra). Defaults to `both`.</maml:para>
+        </maml:description>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">platform</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">workload</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">infra</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">both</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">all</command:parameterValue>
+        </command:parameterValueGroup>
+        <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:parameter>
     </command:parameters>
     <command:inputTypes>
       <command:inputType>
@@ -1268,6 +1289,36 @@ New-PlatformWorkflow -InputFolder ./.tmp/templates -OutputFolder . -BranchStrate
         <maml:introduction>
           <maml:para>```powershell
 New-PlatformWorkflow -BranchStrategy github -WhatIf
+```</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 4 - Install only workload workflow placeholders ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+New-PlatformWorkflow -WorkflowType workload -BranchStrategy github
+```</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 5 - Install only infra workflow placeholders ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+New-PlatformWorkflow -WorkflowType infra -BranchStrategy github
+```</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 6 - Install platform, workload, and infra together ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+New-PlatformWorkflow -WorkflowType all -BranchStrategy release
 ```</maml:para>
         </maml:introduction>
         <dev:code />
@@ -2827,14 +2878,23 @@ immutable subject claim format), and finally assigns any role from `roleAssignme
 identity doesn't already hold; existing role assignments outside this list are never removed.
 
 Every `resourceGroupId` referenced by a role assignment must already exist, so
-`Set-PlatformResourceGroup` must be run first. Reading the live repository requires the GitHub CLI
-(`gh`) to be installed and signed in.
+`Set-PlatformResourceGroup` must be run first. A role assignment can instead set `scope` to
+`subscription` to assign at the subscription scope rather than a single resource group. Reading
+the live repository requires the GitHub CLI (`gh`) to be installed and signed in.
 
 This cmdlet supports `-WhatIf`/`-Confirm` and requires the `Az.Resources` and
 `Az.ManagedServiceIdentity` modules, signed in via `Connect-AzAccount` with permission to create
 managed identities, federated credentials, and RBAC role assignments. The active Az context
 tenant and subscription must match the `tenantId` and `subscriptionId` in global-config.jsonc
 before processing begins.
+
+An environment can declare a second, narrower identity for the workload (application/service/
+solution code) pipeline: `workloadUserAssignedIdentity`, paired with `workloadGithubEnvironment`.
+When present, this cmdlet processes both the infra identity (`userAssignedIdentity`) and the
+workload identity in the same run, each with its own federated credential and role assignments.
+`workloadUserAssignedIdentity` and `workloadGithubEnvironment` must be declared together; declaring
+only one of them is a configuration error. Omitting both is still valid: the environment then has a
+single identity for both pipelines, as before.
 
 By default, each environment's result is emitted once processing finishes; under `-WhatIf`,
 `Action` reports actions that would happen instead of applying a mutation. Pass `-AsHashtable` to collect
@@ -3042,6 +3102,22 @@ since GitHub never exposes secret values so they can't be diffed), and syncs its
 
 The identity referenced by each environment must already exist, so
 `Set-PlatformEnvironmentIdentity` must be run first.
+
+An environment can declare a second, narrower GitHub environment for the workload (application/
+service/solution code) pipeline: `workloadGithubEnvironment`, paired with
+`workloadUserAssignedIdentity`. When present, this cmdlet creates or updates both the infra GitHub
+environment (`githubEnvironment`) and the workload GitHub environment in the same run, each
+resolving `${clientId}` from its own identity so their secrets never collide.
+
+`protectionRules.deploymentBranchPolicy` restricts which branches and tags may deploy to the GitHub
+environment, for example `{ "branches": ["main"], "tags": ["infra/*"] }`. GitHub enforces this before
+a job receives the environment's secrets or its OIDC token, so a workflow on any other branch cannot
+sign in as that environment's identity. The environment is switched to "selected branches and tags",
+missing patterns are added, and patterns no longer listed are removed; `DeploymentBranchPolicies` in
+the result reports each pattern as `branch:&lt;pattern&gt;` or `tag:&lt;pattern&gt;`. A published release runs
+on its tag, so an environment deployed from a release workflow needs that tag prefix listed. Omit
+`deploymentBranchPolicy` to leave the environment's branch policy unmanaged. Like required reviewers,
+branch policies on private repositories need a GitHub plan that supports them.
 
 This cmdlet supports `-WhatIf`/`-Confirm` and requires the `Az.Resources` and
 `Az.ManagedServiceIdentity` modules, signed in via `Connect-AzAccount`, and the GitHub CLI (`gh`)
@@ -3445,7 +3521,8 @@ resolved against the resource groups created in phase 1 and any role the group d
 hold is assigned; existing role assignments outside this list are never removed.
 
 Every `resourceGroupId` referenced by a role assignment must already exist, so
-`Set-PlatformResourceGroup` must be run first.
+`Set-PlatformResourceGroup` must be run first. A role assignment can instead set `scope` to
+`subscription` to assign at the subscription scope rather than a single resource group.
 
 This cmdlet supports `-WhatIf`/`-Confirm` and requires the `Az.Resources` module, signed in via
 `Connect-AzAccount` with permission to manage Microsoft Entra security groups and assign RBAC

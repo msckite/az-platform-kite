@@ -1,6 +1,6 @@
 {
     "$schema": "https://raw.githubusercontent.com/msckite/az-platform-kite/refs/heads/main/schemas/platform-config.schema.json",
-    "templateVersion": "1.0.0",
+    "templateVersion": "1.1.0",
     // Phase 1: Azure resource groups are created first, independently of security groups, environments, identities, and GitHub environments.
     "resourceGroups": [
         {

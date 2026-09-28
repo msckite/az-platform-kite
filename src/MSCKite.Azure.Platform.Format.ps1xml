@@ -76,6 +76,7 @@
               <ListItem><PropertyName>EnvironmentCode</PropertyName></ListItem>
               <ListItem><PropertyName>Name</PropertyName></ListItem>
               <ListItem><PropertyName>Action</PropertyName></ListItem>
+              <ListItem><PropertyName>DeploymentBranchPolicies</PropertyName></ListItem>
               <ListItem><PropertyName>Secrets</PropertyName></ListItem>
               <ListItem><PropertyName>Variables</PropertyName></ListItem>
             </ListItems>
