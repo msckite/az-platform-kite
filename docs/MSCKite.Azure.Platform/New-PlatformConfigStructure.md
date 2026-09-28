@@ -33,6 +33,12 @@ file into it. Without `-InputFolder`, a default template is written. With `-Inpu
 cmdlet copies `global-config.jsonc` from that folder instead, for example the `templates` folder
 downloaded by `Get-PlatformTemplate`.
 
+When the template's `kiteVersion` is empty, the cmdlet fills it in with the version of the
+MSCKite.Azure.Platform module that is running, for example `1.1.0` or `1.1.0-prev1`. That pins the
+new repository's pipelines to the Kite release it was set up with: the `setup-platform-kite` action
+installs exactly that module version, so a newer Kite release only reaches the pipelines when
+`kiteVersion` is changed in a pull request. A `kiteVersion` that the template already sets is kept.
+
 Fails if the output folder already contains a platform configuration structure, unless `-Force`
 is specified to overwrite it.
 

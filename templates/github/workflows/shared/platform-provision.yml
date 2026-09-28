@@ -37,12 +37,12 @@ on:
         required: false
         default: false
       module-version:
-        description: Exact version of MSCKite.Azure.Platform to install. Installs the latest version when empty.
+        description: Exact version of MSCKite.Azure.Platform to install. Overrides 'kiteVersion' in global-config.jsonc; leave empty to use that pinned version.
         type: string
         required: false
         default: ''
       allow-prerelease:
-        description: Allow a prerelease version of MSCKite.Azure.Platform to be installed.
+        description: Allow a prerelease version when no version is pinned. A pinned prerelease version is always allowed.
         type: boolean
         required: false
         default: false
@@ -73,6 +73,7 @@ jobs:
         uses: ./.github/actions/setup-platform-kite
         with:
           module-version: ${{ inputs.module-version }}
+          global-config-path: ${{ inputs.global-config-path }}
           allow-prerelease: ${{ inputs.allow-prerelease }}
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -107,6 +108,7 @@ jobs:
         uses: ./.github/actions/setup-platform-kite
         with:
           module-version: ${{ inputs.module-version }}
+          global-config-path: ${{ inputs.global-config-path }}
           allow-prerelease: ${{ inputs.allow-prerelease }}
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -141,6 +143,7 @@ jobs:
         uses: ./.github/actions/setup-platform-kite
         with:
           module-version: ${{ inputs.module-version }}
+          global-config-path: ${{ inputs.global-config-path }}
           allow-prerelease: ${{ inputs.allow-prerelease }}
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -178,6 +181,7 @@ jobs:
         uses: ./.github/actions/setup-platform-kite
         with:
           module-version: ${{ inputs.module-version }}
+          global-config-path: ${{ inputs.global-config-path }}
           allow-prerelease: ${{ inputs.allow-prerelease }}
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}

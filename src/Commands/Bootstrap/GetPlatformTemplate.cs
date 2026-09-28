@@ -13,7 +13,9 @@ namespace MSCKite.Azure.Platform.Commands.Bootstrap
     {
         private const string DefaultRepositoryUrl = "https://github.com/msckite/az-platform-kite.git";
 
-        private const string DefaultBranch = "main";
+        private const string FallbackBranch = "main";
+
+        private const string LatestReference = "latest";
 
         [Parameter(Position = 0, ValueFromPipelineByPropertyName = true)]
         [ValidateNotNullOrEmpty]
@@ -28,9 +30,11 @@ namespace MSCKite.Azure.Platform.Commands.Bootstrap
         [ValidateNotNullOrEmpty]
         public string RepositoryUrl { get; set; } = DefaultRepositoryUrl;
 
+        // Branch or tag to download. Defaults to the release tag of the running module (e.g. "v1.1.0"), so templates and schemas always match
+        // the module that consumes them; "latest" resolves to the newest stable release tag
         [Parameter]
         [ValidateNotNullOrEmpty]
-        public string Branch { get; set; } = DefaultBranch;
+        public string Branch { get; set; }
 
         // Overwrites files that already exist at the destination instead of failing
         [Parameter]
@@ -47,16 +51,20 @@ namespace MSCKite.Azure.Platform.Commands.Bootstrap
                 return;
             }
 
-            var result = new RepoTemplateDownloadResult { RepositoryUrl = RepositoryUrl, Branch = Branch, OutputFolder = outputRootPath };
+            var reference = ResolveReference();
+            var result = new RepoTemplateDownloadResult { RepositoryUrl = RepositoryUrl, Branch = reference, OutputFolder = outputRootPath };
 
             try
             {
-                WriteVerbose($"Cloning '{RepositoryUrl}' (branch '{Branch}') to '{tempClonePath}'.");
+                WriteVerbose($"Cloning '{RepositoryUrl}' (ref '{reference}') to '{tempClonePath}'.");
 
-                if (!GitRepositoryHelper.Clone(RepositoryUrl, Branch, tempClonePath, out var cloneError))
+                if (!GitRepositoryHelper.Clone(RepositoryUrl, reference, tempClonePath, out var cloneError))
                 {
+                    var hint = string.IsNullOrEmpty(Branch) && GitRepositoryHelper.IsReleaseTag(reference)
+                        ? $" Release tag '{reference}' matches the running module version; pass -Branch latest or -Branch main to download another version."
+                        : string.Empty;
                     ThrowTerminatingError(new ErrorRecord(
-                        new InvalidOperationException($"Failed to clone '{RepositoryUrl}': {cloneError}"),
+                        new InvalidOperationException($"Failed to clone '{RepositoryUrl}': {cloneError?.Trim()}{hint}"),
                         "PlatformTemplateCloneFailed",
                         ErrorCategory.ReadError,
                         RepositoryUrl));
@@ -71,7 +79,7 @@ namespace MSCKite.Azure.Platform.Commands.Bootstrap
                     if (!Directory.Exists(sourcePath))
                     {
                         WriteError(new ErrorRecord(
-                            new DirectoryNotFoundException($"Folder '{normalizedFolder}' was not found in '{RepositoryUrl}' (branch '{Branch}')."),
+                            new DirectoryNotFoundException($"Folder '{normalizedFolder}' was not found in '{RepositoryUrl}' (ref '{reference}')."),
                             "PlatformTemplateFolderNotFound",
                             ErrorCategory.ObjectNotFound,
                             normalizedFolder));
@@ -79,7 +87,8 @@ namespace MSCKite.Azure.Platform.Commands.Bootstrap
                     }
 
                     var destinationPath = Path.Combine(outputRootPath, normalizedFolder.Replace('/', Path.DirectorySeparatorChar));
-                    CopyDirectory(sourcePath, destinationPath, Force.IsPresent, result.CopiedFiles);
+                    var pinTag = GitRepositoryHelper.IsReleaseTag(reference) ? reference : null;
+                    CopyDirectory(sourcePath, destinationPath, Force.IsPresent, pinTag, result.CopiedFiles);
                     result.CopiedFolders.Add(destinationPath);
                     WriteVerbose($"Copied '{sourcePath}' to '{destinationPath}'.");
                 }
@@ -126,7 +135,41 @@ namespace MSCKite.Azure.Platform.Commands.Bootstrap
             }
         }
 
-        private static void CopyDirectory(string sourceDir, string destinationDir, bool force, List<string> copiedFiles)
+        // Explicit -Branch wins; otherwise the running module's release tag, falling back to main for a development build without a release version
+        private string ResolveReference()
+        {
+            if (string.Equals(Branch, LatestReference, StringComparison.OrdinalIgnoreCase))
+            {
+                var latestTag = GitRepositoryHelper.GetLatestReleaseTag(RepositoryUrl, out var tagError);
+                if (latestTag == null)
+                {
+                    ThrowTerminatingError(new ErrorRecord(
+                        new InvalidOperationException($"Could not resolve the latest release of '{RepositoryUrl}': {tagError?.Trim()}"),
+                        "PlatformTemplateLatestReleaseNotFound",
+                        ErrorCategory.ReadError,
+                        RepositoryUrl));
+                }
+
+                WriteVerbose($"Resolved 'latest' to release tag '{latestTag}'.");
+                return latestTag;
+            }
+
+            if (!string.IsNullOrEmpty(Branch))
+            {
+                return Branch;
+            }
+
+            var kiteVersion = ModuleVersionHelper.GetKiteVersion(MyInvocation.MyCommand.Module);
+            if (kiteVersion == null)
+            {
+                WriteWarning($"The running MSCKite.Azure.Platform module has no release version (development build); downloading from '{FallbackBranch}'. Pass -Branch to choose a release tag.");
+                return FallbackBranch;
+            }
+
+            return $"v{kiteVersion}";
+        }
+
+        private static void CopyDirectory(string sourceDir, string destinationDir, bool force, string pinTag, List<string> copiedFiles)
         {
             Directory.CreateDirectory(destinationDir);
 
@@ -134,13 +177,26 @@ namespace MSCKite.Azure.Platform.Commands.Bootstrap
             {
                 var destinationFile = Path.Combine(destinationDir, Path.GetFileName(filePath));
                 File.Copy(filePath, destinationFile, force);
+
+                // Point $schema/$id references at the downloaded release instead of main
+                var extension = Path.GetExtension(filePath);
+                if (pinTag != null && (extension == ".json" || extension == ".jsonc"))
+                {
+                    var content = File.ReadAllText(destinationFile);
+                    var pinned = SchemaUrlHelper.PinToTag(content, pinTag);
+                    if (content != pinned)
+                    {
+                        File.WriteAllText(destinationFile, pinned);
+                    }
+                }
+
                 copiedFiles.Add(destinationFile);
             }
 
             foreach (var subDirectory in Directory.GetDirectories(sourceDir))
             {
                 var destinationSubDirectory = Path.Combine(destinationDir, Path.GetFileName(subDirectory));
-                CopyDirectory(subDirectory, destinationSubDirectory, force, copiedFiles);
+                CopyDirectory(subDirectory, destinationSubDirectory, force, pinTag, copiedFiles);
             }
         }
     }

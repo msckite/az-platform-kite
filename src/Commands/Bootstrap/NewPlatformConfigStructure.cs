@@ -1,6 +1,8 @@
 using System;
 using System.IO;
 using System.Management.Automation;
+using System.Text.RegularExpressions;
+using MSCKite.Azure.Platform.Internal.Common;
 using MSCKite.Azure.Platform.Models;
 
 namespace MSCKite.Azure.Platform.Commands.Bootstrap
@@ -13,10 +15,14 @@ namespace MSCKite.Azure.Platform.Commands.Bootstrap
 
         private const string GlobalConfigFileName = "global-config.jsonc";
 
+        // Matches an empty "kiteVersion" value, capturing everything up to the value so only the quotes are replaced
+        private static readonly Regex EmptyKiteVersionPattern = new Regex("(\"kiteVersion\"\\s*:\\s*)\"\"");
+
         private const string DefaultGlobalConfigTemplate =
 @"{
   ""$schema"": ""https://raw.githubusercontent.com/msckite/az-platform-kite/refs/heads/main/schemas/global-config.schema.json"",
-    ""templateVersion"": ""1.0.0"",
+  ""templateVersion"": ""1.1.0"",
+  ""kiteVersion"": """", // Kite release the pipelines install, e.g. ""1.1.0""; filled in by New-PlatformConfigStructure
   ""tenantId"": """",
   ""subscriptionId"": """",
   ""uniqueId"": """",
@@ -112,16 +118,26 @@ namespace MSCKite.Azure.Platform.Commands.Bootstrap
                     result.CreatedFolders.Add(subFolderPath);
                 }
 
-                if (hasInputFolder)
+                var globalConfigContent = hasInputFolder ? File.ReadAllText(sourceGlobalSettingsPath) : DefaultGlobalConfigTemplate;
+
+                // Pin the new repository to the Kite release that scaffolded it, unless the template already names one
+                var kiteVersion = ModuleVersionHelper.GetKiteVersion(MyInvocation.MyCommand.Module);
+                if (kiteVersion != null && EmptyKiteVersionPattern.IsMatch(globalConfigContent))
                 {
-                    File.Copy(sourceGlobalSettingsPath, globalConfigPath, Force.IsPresent);
-                    WriteVerbose($"Copied '{sourceGlobalSettingsPath}' to '{globalConfigPath}'.");
+                    globalConfigContent = EmptyKiteVersionPattern.Replace(globalConfigContent, "${1}\"" + kiteVersion + "\"", 1);
+                    WriteVerbose($"Pinned 'kiteVersion' to '{kiteVersion}'.");
                 }
-                else
+
+                // Validate against the schema of the same release instead of main (a no-op for templates Get-PlatformTemplate already pinned)
+                if (kiteVersion != null)
                 {
-                    File.WriteAllText(globalConfigPath, DefaultGlobalConfigTemplate);
-                    WriteVerbose($"Created configuration file '{globalConfigPath}'.");
+                    globalConfigContent = SchemaUrlHelper.PinToTag(globalConfigContent, $"v{kiteVersion}");
                 }
+
+                File.WriteAllText(globalConfigPath, globalConfigContent);
+                WriteVerbose(hasInputFolder
+                    ? $"Copied '{sourceGlobalSettingsPath}' to '{globalConfigPath}'."
+                    : $"Created configuration file '{globalConfigPath}'.");
 
                 result.GlobalConfigPath = globalConfigPath;
                 result.Success = true;

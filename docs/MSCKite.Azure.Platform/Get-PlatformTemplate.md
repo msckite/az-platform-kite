@@ -32,6 +32,12 @@ Shallow-clones the `az-platform-kite` repository (or `-RepositoryUrl`/`-Branch` 
 temporary folder, copies the folder(s) listed in `-IncludedFolders` into `-OutputFolder`
 (preserving their relative path and subfolders/files), then deletes the temporary clone.
 
+Without `-Branch`, the cmdlet downloads the release tag of the running module (for example `v1.1.0`),
+so templates, schemas, and module always belong to the same Kite release. When the download comes
+from a release tag, the `$schema` and `$id` references in the copied `.json`/`.jsonc` files are
+rewritten from `refs/heads/main` to that tag, so an editor validates the configuration against the
+schema of the same release.
+
 By default, `-IncludedFolders` is `templates` and `-OutputFolder` is `.tmp`, a
 dedicated folder so rerunning the cmdlet never overwrites configuration files already in use
 elsewhere in the workspace. Use `-Force` to overwrite files that already exist at the
@@ -45,7 +51,8 @@ destination.
 Get-PlatformTemplate
 ```
 
-Copies the repository's `templates` folder into `.tmp\templates`.
+Copies the `templates` folder of the running module's release (for example tag `v1.1.0`) into
+`.tmp\templates`.
 
 ### Example 2 - Download specific folders to a custom location
 
@@ -53,48 +60,30 @@ Copies the repository's `templates` folder into `.tmp\templates`.
 Get-PlatformTemplate -IncludedFolders 'templates', 'templates/github' -OutputFolder ./config-src -Force
 ```
 
-### Example 3 - Download from a specific branch and feed New-PlatformConfigStructure
+### Example 3 - Check whether the newest release has a newer template
 
 ```powershell
-Get-PlatformTemplate -Branch release -OutputFolder ./config-src
-New-PlatformConfigStructure -InputFolder ./config-src/templates -OutputFolder ./config
+Get-PlatformTemplate -IncludedFolders 'schemas' -Force
+Get-PlatformTemplate -Branch latest -OutputFolder ./.tmp/latest -Force
+Test-PlatformTemplate `
+  -TemplatePath ./config/platform-config.jsonc `
+  -SchemaPath ./.tmp/schemas/platform-config.schema.json `
+  -LatestTemplatePath ./.tmp/latest/templates/platform-config.jsonc
 ```
+
+Downloads the templates of the newest stable release next to the ones of your pinned release, then
+reports whether your configuration is compatible with its own release's schema and whether the newest
+release ships a newer template version. Raise `kiteVersion` to adopt it.
 
 ## PARAMETERS
 
 ### -Branch
 
-The repository branch to clone. Defaults to `main`.
-The repository branch to clone.
-Defaults to `main`.
-The repository branch to clone.
-Defaults to `main`.
-The repository branch to clone.
-Defaults to `main`.
-The repository branch to clone.
-Defaults to `main`.
-The repository branch to clone.
-Defaults to `main`.
-The repository branch to clone.
-Defaults to `main`.
-The repository branch to clone.
-Defaults to `main`.
-The repository branch to clone.
-Defaults to `main`.
-The repository branch to clone.
-Defaults to `main`.
-The repository branch to clone.
-Defaults to `main`.
-The repository branch to clone.
-Defaults to `main`.
-The repository branch to clone.
-Defaults to `main`.
-The repository branch to clone.
-Defaults to `main`.
-The repository branch to clone.
-Defaults to `main`.
-The repository branch to clone.
-Defaults to `main`.
+The branch or tag to download. Defaults to the release tag of the running module, for example
+`v1.1.0` for module version `1.1.0`, so the downloaded templates and schemas always match the module
+that consumes them. Pass `latest` for the newest stable release, or a branch such as `main` for
+unreleased changes. A development build without a release version falls back to `main` with a
+warning.
 
 ```yaml
 Type: System.String

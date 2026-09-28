@@ -162,7 +162,7 @@ New-PlatformConfigStructure -InputFolder ./.tmp/templates -OutputFolder ./config
 Copy-Item ./.tmp/templates/platform-config.jsonc ./config
 ```
 
-`Get-PlatformTemplate` downloads the latest `global-config.jsonc` and other available templates, into `.tmp`. `New-PlatformConfigStructure` seeds your repository's `config` folder with the downloaded `global-config.jsonc`, so nothing you edit later is ever overwritten by a new download.
+`Get-PlatformTemplate` downloads `global-config.jsonc` and the other templates of the Kite release you are running (its release tag, not `main`) into `.tmp`. `New-PlatformConfigStructure` seeds your repository's `config` folder with the downloaded `global-config.jsonc`, so nothing you edit later is ever overwritten by a new download. It also sets `kiteVersion` to the module version you are running, which pins your pipelines to this Kite release until you change it in a pull request (see [Pinning the Kite version](templates/github/workflows/README.md#pinning-the-kite-version)).
 
 <br/>
 

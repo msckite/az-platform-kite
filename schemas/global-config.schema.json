@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://raw.githubusercontent.com/msckite/az-platform-kite/refs/heads/main/schemas/global-config.schema.json",
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "1.1.0",
   "title": "Global Config Schema",
   "description": "Global configuration for the New-PlatformConfigStructure command.",
   "type": "object",
@@ -23,7 +23,16 @@
     },
     "templateVersion": {
       "description": "Version of the template contract.",
-      "const": "1.0.0"
+      "const": "1.1.0"
+    },
+    "kiteVersion": {
+      "description": "Azure Platform Kite release this repository is pinned to, without the leading 'v' (e.g. '1.1.0' or '1.1.0-prev1'). Pipelines install exactly this MSCKite.Azure.Platform module version, so a new Kite release only reaches the pipelines when this value is changed in a pull request. Leave empty to always install the latest release (unpinned, not recommended).",
+      "type": "string",
+      "pattern": "^$|^[0-9]+\\.[0-9]+\\.[0-9]+(-[0-9A-Za-z.]+)?$",
+      "examples": [
+        "1.1.0",
+        "1.1.0-prev1"
+      ]
     },
     "tenantId": {
       "description": "The Azure tenant ID (GUID) for the deployment. Accepts a GUID or a placeholder token (e.g. ${TenantId}).",

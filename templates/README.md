@@ -26,3 +26,5 @@ template, so this check runs offline. It's primarily useful when maintaining tem
 schemas in this repo (keeping a pair's versions in sync as changes are made) and for anyone who has downloaded both a template and its matching schema and wants to confirm compatibility, or check for a newer template, before adopting it.
 
 Increment the major version for breaking contract changes and increment minor or patch versions for compatible additions or corrections, updating the template and schema together. All template consumers require the versioned object format with `templateVersion`.
+
+Template versions travel with Kite releases: a consuming repository adopts a new `templateVersion` by raising `kiteVersion` in its `global-config.jsonc` to the Kite release that ships it, since `Get-PlatformTemplate` and the `platform-validate` workflow read templates and schemas from that release's tag rather than `main`. Changing a template or schema on `main` therefore affects no consumer until it is released and adopted.
