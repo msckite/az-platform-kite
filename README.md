@@ -194,7 +194,7 @@ New-PlatformWorkflow
 > Before the pipeline can run phase 4, add `PLATFORM_GITHUB_TOKEN` by hand as an **environment secret** on the `platform` GitHub environment; the built-in `GITHUB_TOKEN` cannot manage environment secrets. See the [prerequisites](templates/github/workflows/README.md#prerequisites) section of the workflow templates README for the full setup steps.
 
 > [!NOTE]
-> The platform pipeline (`platform-ci.yml`/`platform-cd.yml`) signs in as the dedicated `platform` environment declared in `platform-config.jsonc`, not one of your app environments. Its identity holds subscription-level RBAC (`Contributor` and `User Access Administrator`, both scoped to `subscription`), so it can see and reconcile every resource group declared in `resourceGroups`, not just the one it lives in.
+> The platform pipeline signs in as dedicated environments declared in `platform-config.jsonc`, not one of your app environments. `platform-cd.yml` uses `platform`, whose identity holds subscription-level RBAC (`Contributor` and `User Access Administrator`, both scoped to `subscription`) and which only accepts runs from `main`. `platform-ci.yml` previews pull requests as `platform-plan`, a read-only twin with subscription-level `Reader`. See the [prerequisites](templates/github/workflows/README.md#prerequisites) for the one-time setup of both.
 
 ## License
 

@@ -158,10 +158,19 @@ flowchart LR
   CD --> D["reconcile platform without -WhatIf"]
 ```
 
-Make `platform-ci` a required status check on `main`. Both workflows sign in as the dedicated
-`platform` environment declared in `platform-config.jsonc`, not one of the workload's `dev`/`stg`/
-`prd` environments. Its identity holds subscription-level RBAC, so it can see and reconcile every
-resource group declared in `resourceGroups`, not just the one it lives in.
+Make `platform-ci` a required status check on `main`. The two workflows sign in with different
+identities, both declared in `platform-config.jsonc` rather than being one of the workload's `dev`/
+`stg`/`prd` environments:
+
+| Workflow | GitHub environment | Identity rights | Who may use it |
+| --- | --- | --- | --- |
+| `platform-cd` | `platform` | `Contributor` + `User Access Administrator` on the subscription | Runs from `main` only (`deploymentBranchPolicy`) |
+| `platform-ci` | `platform-plan` | `Reader` on the subscription | Any branch, including pull requests |
+
+A `-WhatIf` run of the four phases only reads, so the plan identity never needs write access. This
+keeps the subscription-wide identity out of reach of pull requests: a workflow edited in a pull
+request can request the `platform-plan` environment, but GitHub refuses to hand out the `platform`
+environment's OIDC token or secrets to any run that is not on `main`.
 
 ## GitHub Flow workload strategy (`github`)
 
@@ -250,6 +259,9 @@ older ones.
    Add `'Group.ReadWrite.All'` to `-Permission` if CI is ever expected to create or update groups
    outside `-WhatIf`. Without this grant, `Set-PlatformSecurityGroup` fails, or in CI's
    `-ErrorAction SilentlyContinue` lookup path, misreports existing groups as missing.
+
+   Grant the `platform-plan` identity (`Platform (plan)` in phase 3's output) `Group.Read.All` as
+   well, and never more: `platform-ci` runs phase 2 as that identity on pull requests.
 3. Confirm every environment in `platform-config.jsonc` has a matching GitHub environment holding
    `AZURE_CLIENT_ID`, `AZURE_TENANT_ID` and `AZURE_SUBSCRIPTION_ID`. Phase 4 writes these. The
    `infra-*.yml` workflows sign in to the `-infra`-suffixed environment (e.g. `dev-infra`). If an
@@ -265,7 +277,17 @@ older ones.
    `githubEnvironment.secrets`: every entry in that array is re-applied on each phase 4 run, which
    would overwrite it with whatever placeholder text sits in the file. Maintain its value only
    through the GitHub UI (or `gh secret set`), never through the config file.
-5. The federated credential uses `subjectType: environment`, so every job that signs in to Azure
+
+   Add a **second, read-only** token under the same name, `PLATFORM_GITHUB_TOKEN`, as an environment
+   secret on the `platform-plan` environment: a fine-grained personal access token limited to this
+   repository with **read-only** access to actions, administration, environments, secrets, and
+   variables. Phase 4 under `-WhatIf` only lists environments, branch policies, secrets, and
+   variables, so the read-only token is enough, and a pull request can never use it to change them.
+5. The `platform` environment only accepts runs from `main` (its `deploymentBranchPolicy`), so the
+   first pull request that adds `platform-plan` cannot create it through `platform-ci`. Create it
+   from your workstation as in step 1 (phases 3 and 4), then complete steps 2 and 4 for it before
+   opening that pull request.
+6. The federated credential uses `subjectType: environment`, so every job that signs in to Azure
    declares `environment:`. Keep it that way, otherwise the OIDC subject claim no longer matches.
 
 ## Why the environment input is a gate, not a scope

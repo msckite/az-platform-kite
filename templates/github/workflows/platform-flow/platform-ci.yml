@@ -34,10 +34,10 @@ jobs:
       contents: read
       id-token: write
     with:
-      # Dedicated bootstrap environment for the platform pipeline itself: its identity has
-      # subscription-level RBAC, so it can see and preview every environment's resource group,
-      # not just one. The WhatIf run evaluates the complete platform configuration and does not
-      # deploy changes.
-      environment: platform
+      # Read-only twin of the 'platform' environment: its identity holds subscription-level Reader,
+      # so it can preview every environment's resource group, but cannot change anything. The
+      # 'platform' environment itself only accepts runs from main, so a pull request can never
+      # sign in with its Contributor/User Access Administrator identity.
+      environment: platform-plan
       what-if: true
     secrets: inherit
