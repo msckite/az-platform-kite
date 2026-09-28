@@ -22,6 +22,7 @@ infra workflows trigger on `iac/**`.
 - [Release Flow workload strategy (`release`)](#release-flow-workload-strategy-release)
 - [GitHub Flow infra strategy (`github`)](#github-flow-infra-strategy-github)
 - [Release Flow infra strategy (`release`)](#release-flow-infra-strategy-release)
+- [Manual runs and concurrency](#manual-runs-and-concurrency)
 - [Prerequisites](#prerequisites)
 - [Why the environment input is a gate, not a scope](#why-the-environment-input-is-a-gate-not-a-scope)
 
@@ -174,9 +175,14 @@ pipeline.
 Workload CI runs on pull requests targeting `main`, deploys `dev` and runs a `-WhatIf` preflight for
 `stg`. Workload CD runs after a push to `main`, deploys `stg`, moves the `stg-workload-verified` tag
 to that commit, then runs a `-WhatIf` preflight for `prd`. The workload release trigger deploys `prd`
-after a published release, first confirming the release commit matches the last
-`stg-workload-verified` commit. Since the `release` event has no tag pattern filter, the workload
-release trigger runs for every published release but only proceeds when the release tag starts with
+after a published release, first confirming the release commit is an ancestor of (or equal to) the
+`stg-workload-verified` commit, not necessarily the exact tip. Since `main` only moves forward and
+`stg-workload-verified` only ever advances to a newer commit, any commit that has already reached
+`stg` passes this check even if a later commit was promoted in the meantime, for example while an
+older release is still waiting to be published. An exact-equality check would fail that release for
+no reason: the tag can legitimately move past the released commit between release creation and the
+release trigger running. Since the `release` event has no tag pattern filter, the workload release
+trigger runs for every published release but only proceeds when the release tag starts with
 `workload/`, for example `workload/v1.2.0`; releases tagged `infra/...` are skipped.
 Workload CI and CD trigger only on the same `src/**` allowlist as the GitHub Flow strategy.
 
@@ -195,10 +201,31 @@ Infra CI and CD mirror the Release Flow workload strategy, triggered only on `ia
 `.github/workflows/infra-*.yml` changes. Infra CD moves its own `stg-infra-verified` tag after
 deploying `stg`, kept separate from the workload pipeline's `stg-workload-verified` tag so that an
 infra-only change doesn't need a workload deployment to promote, and vice versa. The infra release
-trigger deploys `prd` after a published release, confirming the release commit matches the last
-`stg-infra-verified` commit. Just like the workload release trigger, it only proceeds when the
-release tag starts with `infra/`, for example `infra/v1.2.0`; releases tagged `workload/...` are
-skipped.
+trigger deploys `prd` after a published release, confirming the release commit is an ancestor of (or
+equal to) the `stg-infra-verified` commit, using the same ancestor check as the workload release
+trigger and for the same reason: the tag can move on before an older release is published. Just like
+the workload release trigger, it only proceeds when the release tag starts with `infra/`, for
+example `infra/v1.2.0`; releases tagged `workload/...` are skipped.
+
+## Manual runs and concurrency
+
+Every workflow keeps a `workflow_dispatch` trigger, but a manual run can never deploy something
+the automatic trigger would not:
+
+- **CD workflows** (`*-cd.yml`) only deploy when run from `main`. A manual run from any other branch
+  skips every deploy job, so a feature branch can never reach `stg` or `prd`, nor move a
+  `stg-*-verified` tag.
+- **Release workflows** (`*-release.yml`) take a required `tag` input, for example `infra/v1.2.0`,
+  to redeploy an existing release to `prd` (e.g. after a failed run). The manual run goes through the
+  same staging verification as a published release, and `deploy-prd` only runs when that
+  verification succeeded, deploying exactly the verified tag.
+
+CI workflows cancel an outdated run when a branch receives a new commit, since a newer plan
+supersedes the old one. Deploying workflows (CD, release, and platform CD) never cancel a run that
+is in progress: a deployment stack or RBAC reconciliation stopped halfway can leave Azure partially
+updated. A newer run waits instead. GitHub keeps at most one waiting run per concurrency group, so a
+third run replaces the waiting one; that is safe, because the newest commit on `main` includes the
+older ones.
 
 ## Prerequisites
 

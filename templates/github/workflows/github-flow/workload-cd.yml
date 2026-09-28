@@ -7,13 +7,13 @@ on:
     paths:
       - 'src/**'
       - '.github/workflows/workload-*.yml'
-  # Manual run for a branch if no PR exists
+  # Manual rerun from main only; other branches are skipped by the job conditions below
   workflow_dispatch:
 
 concurrency:
-  # Ensure only one CD workflow runs per branch at a time
+  # Queue deployments instead of cancelling one that is already applying changes
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 permissions:
   contents: read
@@ -22,9 +22,9 @@ jobs:
   deploy-prd:
     name: Deploy (prd)
     uses: ./.github/workflows/workload-provision.yml
+    # Never deploy a feature branch, also not through a manual run
     if: |
-      github.event_name == 'push' ||
-      github.event_name == 'workflow_dispatch'
+      github.ref == 'refs/heads/main'
     permissions:
       contents: read
       id-token: write
