@@ -23,7 +23,7 @@ permissions:
 
 jobs:
   verify-stg-promotion:
-    name: Verify release was promoted through staging
+    name: Verify release content was deployed to staging
     # Only 'workload/*' tagged releases trigger workload deploys; 'infra/*' releases are ignored here.
     if: |
       (github.event_name == 'release' && github.event.release.target_commitish == 'main' &&
@@ -32,6 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      statuses: read
     outputs:
       tag: ${{ steps.verify.outputs.tag }}
 
@@ -42,26 +43,15 @@ jobs:
           ref: ${{ github.event.release.tag_name || inputs.tag }}
           fetch-depth: 0
 
-      - name: Confirm this commit was promoted through staging
+      - name: Confirm this content was deployed to staging
         id: verify
         shell: bash
         # Pass the tag through the environment, never inline it into the script (script injection)
         env:
           RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag }}
+          GH_TOKEN: ${{ github.token }}
         run: |
-          if ! git fetch origin refs/tags/stg-workload-verified:refs/tags/stg-workload-verified; then
-            echo "::error::No 'stg-workload-verified' tag found. Promote a commit through staging before releasing to prd."
-            exit 1
-          fi
-          released_sha=$(git rev-parse HEAD)
-          verified_sha=$(git rev-list -n 1 stg-workload-verified)
-          # An ancestor check (not exact equality) tolerates the tag moving past $released_sha
-          # between release creation and this run, since later stg deploys include earlier commits.
-          if ! git merge-base --is-ancestor "$released_sha" "$verified_sha"; then
-            echo "::error::Release '$RELEASE_TAG' ($released_sha) was not promoted through staging: it is not an ancestor of the last verified commit ($verified_sha). Cut the release from a commit that has been deployed to stg."
-            exit 1
-          fi
-          echo "Release commit ($released_sha) has been verified in staging (stg is at $verified_sha)."
+          bash .github/scripts/stg-verification.sh verify src kite/stg-workload "refs/tags/$RELEASE_TAG"
           echo "tag=$RELEASE_TAG" >> "$GITHUB_OUTPUT"
 
   deploy-prd:

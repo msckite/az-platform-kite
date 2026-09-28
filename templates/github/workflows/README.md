@@ -22,6 +22,7 @@ infra workflows trigger on `iac/**`.
 - [Release Flow workload strategy (`release`)](#release-flow-workload-strategy-release)
 - [GitHub Flow infra strategy (`github`)](#github-flow-infra-strategy-github)
 - [Release Flow infra strategy (`release`)](#release-flow-infra-strategy-release)
+- [Staging verification](#staging-verification)
 - [Pinning the Kite version](#pinning-the-kite-version)
 - [Manual runs and concurrency](#manual-runs-and-concurrency)
 - [Prerequisites](#prerequisites)
@@ -33,6 +34,8 @@ infra workflows trigger on `iac/**`.
 templates/github/
   actions/
     setup-platform-kite/action.yml   Composite action: installs the module and signs in to Azure (OIDC)
+  scripts/
+    stg-verification.sh              Release Flow: records and verifies content deployed to stg
   workflows/
     manifest.jsonc                   Source/destination map used by the install command
     shared/
@@ -183,18 +186,14 @@ pipeline.
 ## Release Flow workload strategy (`release`)
 
 Workload CI runs on pull requests targeting `main`, deploys `dev` and runs a `-WhatIf` preflight for
-`stg`. Workload CD runs after a push to `main`, deploys `stg`, moves the `stg-workload-verified` tag
-to that commit, then runs a `-WhatIf` preflight for `prd`. The workload release trigger deploys `prd`
-after a published release, first confirming the release commit is an ancestor of (or equal to) the
-`stg-workload-verified` commit, not necessarily the exact tip. Since `main` only moves forward and
-`stg-workload-verified` only ever advances to a newer commit, any commit that has already reached
-`stg` passes this check even if a later commit was promoted in the meantime, for example while an
-older release is still waiting to be published. An exact-equality check would fail that release for
-no reason: the tag can legitimately move past the released commit between release creation and the
-release trigger running. Since the `release` event has no tag pattern filter, the workload release
-trigger runs for every published release but only proceeds when the release tag starts with
-`workload/`, for example `workload/v1.2.0`; releases tagged `infra/...` are skipped.
-Workload CI and CD trigger only on the same `src/**` allowlist as the GitHub Flow strategy.
+`stg`. Workload CD runs after a push to `main`, deploys `stg`, records that deployment as a
+`kite/stg-workload` commit status, then runs a `-WhatIf` preflight for `prd`. The workload release
+trigger deploys `prd` after a published release, but only when the release's `src/` content has been
+deployed to `stg` successfully (see [Staging verification](#staging-verification)). Since the
+`release` event has no tag pattern filter, the workload release trigger runs for every published
+release but only proceeds when the release tag starts with `workload/`, for example
+`workload/v1.2.0`; releases tagged `infra/...` are skipped. Workload CI and CD trigger only on the
+same `src/**` allowlist as the GitHub Flow strategy.
 
 ## GitHub Flow infra strategy (`github`)
 
@@ -208,14 +207,36 @@ deploys `dev`, and runs a `-WhatIf` preflight for `prd`. Infra CD deploys `prd` 
 ## Release Flow infra strategy (`release`)
 
 Infra CI and CD mirror the Release Flow workload strategy, triggered only on `iac/**` and
-`.github/workflows/infra-*.yml` changes. Infra CD moves its own `stg-infra-verified` tag after
-deploying `stg`, kept separate from the workload pipeline's `stg-workload-verified` tag so that an
+`.github/workflows/infra-*.yml` changes. Infra CD records its own `kite/stg-infra` commit status after
+deploying `stg`, kept separate from the workload pipeline's `kite/stg-workload` status so that an
 infra-only change doesn't need a workload deployment to promote, and vice versa. The infra release
-trigger deploys `prd` after a published release, confirming the release commit is an ancestor of (or
-equal to) the `stg-infra-verified` commit, using the same ancestor check as the workload release
-trigger and for the same reason: the tag can move on before an older release is published. Just like
-the workload release trigger, it only proceeds when the release tag starts with `infra/`, for
-example `infra/v1.2.0`; releases tagged `workload/...` are skipped.
+trigger deploys `prd` after a published release, but only when the release's `iac/` content has been
+deployed to `stg` successfully. Just like the workload release trigger, it only proceeds when the
+release tag starts with `infra/`, for example `infra/v1.2.0`; releases tagged `workload/...` are
+skipped.
+
+## Staging verification
+
+Release Flow only lets content reach `prd` that `stg` has run successfully. Both the CD and the
+release workflows use `.github/scripts/stg-verification.sh`:
+
+- After a successful `stg` deployment, CD runs `stg-verification.sh mark`. It computes a fingerprint
+  of the deliverable's content (every file under `iac/` or `src/`) and records it as a commit status
+  on the deployed commit, `kite/stg-infra` or `kite/stg-workload`, visible as a check on the commit.
+- Before deploying `prd`, the release workflow runs `stg-verification.sh verify`. It computes the same
+  fingerprint for the release commit and looks on `main` for a commit with identical content and a
+  successful status. Without one, `prd` is not deployed.
+
+The check compares **content**, not the position of a commit in history:
+
+- A release cut from a later commit that did not change the deliverable (for example a workload-only
+  change, or a release commit that only updates `CHANGELOG.md` or `version.txt`) still passes, since
+  its content is the one `stg` ran. Both files are left out of the fingerprint for that reason.
+- Content whose `stg` deployment failed never passes, even after a later commit deployed
+  successfully.
+
+Changes outside the deliverable folder, such as workflow files, are not part of the fingerprint.
+Adapt the folder or the ignored files in the script when your deliverables live elsewhere.
 
 ## Pinning the Kite version
 
@@ -244,8 +265,8 @@ Every workflow keeps a `workflow_dispatch` trigger, but a manual run can never d
 the automatic trigger would not:
 
 - **CD workflows** (`*-cd.yml`) only deploy when run from `main`. A manual run from any other branch
-  skips every deploy job, so a feature branch can never reach `stg` or `prd`, nor move a
-  `stg-*-verified` tag.
+  skips every deploy job, so a feature branch can never reach `stg` or `prd`, nor record a
+  `kite/stg-*` status.
 - **Release workflows** (`*-release.yml`) take a required `tag` input, for example `infra/v1.2.0`,
   to redeploy an existing release to `prd` (e.g. after a failed run). The manual run goes through the
   same staging verification as a published release, and `deploy-prd` only runs when that

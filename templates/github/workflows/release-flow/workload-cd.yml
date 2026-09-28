@@ -34,23 +34,25 @@ jobs:
     secrets: inherit
 
   mark-stg-verified:
-    name: Mark commit as verified
+    name: Record staging deployment
     needs: [deploy-stg]
     if: |
       needs.deploy-stg.result == 'success'
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
+      statuses: write
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
 
-      # workload-flow-release checks this tag before deploying prd
-      - name: Move stg-workload-verified tag to this commit
-        run: |
-          git tag -f stg-workload-verified
-          git push origin stg-workload-verified --force
+      # workload-flow-release only deploys prd content that carries this status. Kept separate from the
+      # infra pipeline's own status, since infra and workload changes promote independently.
+      - name: Record 'src' content as deployed to staging
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/stg-verification.sh mark src kite/stg-workload
 
   plan-prd:
     name: Preflight (prd)

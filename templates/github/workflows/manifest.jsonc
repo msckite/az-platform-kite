@@ -66,6 +66,10 @@
             "release": {
                 "files": [
                     {
+                        "source": "github/scripts/stg-verification.sh",
+                        "destination": ".github/scripts/stg-verification.sh"
+                    },
+                    {
                         "source": "github/workflows/release-flow/workload-ci.yml",
                         "destination": ".github/workflows/workload-flow-ci.yml"
                     },
@@ -151,6 +155,10 @@
             },
             "release": {
                 "files": [
+                    {
+                        "source": "github/scripts/stg-verification.sh",
+                        "destination": ".github/scripts/stg-verification.sh"
+                    },
                     {
                         "source": "github/workflows/release-flow/infra-ci.yml",
                         "destination": ".github/workflows/infra-flow-ci.yml"
