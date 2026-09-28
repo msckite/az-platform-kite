@@ -1,13 +1,17 @@
 name: Setup Platform Kite
-description: Installs the MSCKite.Azure.Platform module and optionally signs in to Azure with OIDC federated credentials.
+description: Installs the pinned MSCKite.Azure.Platform module version and optionally signs in to Azure with OIDC federated credentials.
 
 inputs:
   module-version:
-    description: Exact version of MSCKite.Azure.Platform to install. Installs the latest version when empty.
+    description: Exact version of MSCKite.Azure.Platform to install, e.g. '1.1.0' or '1.1.0-prev1'. Overrides 'kiteVersion' in the global config; leave empty to use that pinned version.
     required: false
     default: ''
+  global-config-path:
+    description: Path to global-config.jsonc, whose 'kiteVersion' pins the module version when 'module-version' is empty.
+    required: false
+    default: config/global-config.jsonc
   allow-prerelease:
-    description: Allow a prerelease version of MSCKite.Azure.Platform to be installed.
+    description: Allow a prerelease version when installing the latest (unpinned) version. A pinned prerelease version such as '1.1.0-prev1' is always allowed.
     required: false
     default: 'false'
   azure-login:
@@ -27,21 +31,58 @@ inputs:
     required: false
     default: ''
 
+outputs:
+  module-version:
+    description: The MSCKite.Azure.Platform version that was installed.
+    value: ${{ steps.install.outputs.version }}
+
 runs:
   using: composite
   steps:
+    # The module version is resolved before the cache, so a pinned version gets its own cache entry
+    - name: Resolve module version
+      id: resolve
+      shell: pwsh
+      env:
+        MODULE_VERSION: ${{ inputs.module-version }}
+        GLOBAL_CONFIG_PATH: ${{ inputs.global-config-path }}
+      run: |
+        $ErrorActionPreference = 'Stop'
+        $version = $env:MODULE_VERSION
+        $source = "the 'module-version' input"
+
+        if ([string]::IsNullOrWhiteSpace($version) -and (Test-Path -Path $env:GLOBAL_CONFIG_PATH)) {
+          # ConvertFrom-Json accepts the // comments used in .jsonc files
+          $version = (Get-Content -Path $env:GLOBAL_CONFIG_PATH -Raw | ConvertFrom-Json).kiteVersion
+          $source = "'kiteVersion' in $env:GLOBAL_CONFIG_PATH"
+        }
+
+        if ([string]::IsNullOrWhiteSpace($version)) {
+          Write-Host "::warning title=Platform Kite not pinned::No 'kiteVersion' set in $env:GLOBAL_CONFIG_PATH, installing the latest MSCKite.Azure.Platform release. Pin a version so a new Kite release cannot change this pipeline unreviewed."
+          $version = ''
+        }
+        elseif ($version -notmatch '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$') {
+          throw "Invalid MSCKite.Azure.Platform version '$version' from $source. Expected e.g. '1.1.0' or '1.1.0-prev1'."
+        }
+        else {
+          Write-Host "Using pinned MSCKite.Azure.Platform version '$version' from $source."
+        }
+
+        "version=$version" >> $env:GITHUB_OUTPUT
+
     - name: Cache PowerShell modules
       uses: actions/cache@v5
       with:
         path: ~/.local/share/powershell/Modules
-        key: psmodules-${{ runner.os }}-msckite-${{ inputs.module-version || 'latest' }}-${{ inputs.allow-prerelease }}
+        key: psmodules-${{ runner.os }}-msckite-${{ steps.resolve.outputs.version || 'latest' }}-${{ inputs.allow-prerelease }}
         restore-keys: |
           psmodules-${{ runner.os }}-msckite-
 
     - name: Install MSCKite.Azure.Platform
+      id: install
       shell: pwsh
       env:
-        MODULE_VERSION: ${{ inputs.module-version }}
+        MODULE_VERSION: ${{ steps.resolve.outputs.version }}
         ALLOW_PRERELEASE: ${{ inputs.allow-prerelease }}
       run: |
         $ErrorActionPreference = 'Stop'
@@ -52,12 +93,27 @@ runs:
           Force         = $true
           AcceptLicense = $true
         }
-        if (-not [string]::IsNullOrWhiteSpace($env:MODULE_VERSION)) { $parameters.RequiredVersion = $env:MODULE_VERSION }
+        if (-not [string]::IsNullOrWhiteSpace($env:MODULE_VERSION)) {
+          $parameters.RequiredVersion = $env:MODULE_VERSION
+          # Install-Module only finds a prerelease such as '1.1.0-prev1' with -AllowPrerelease
+          if ($env:MODULE_VERSION.Contains('-')) { $parameters.AllowPrerelease = $true }
+        }
         if ($env:ALLOW_PRERELEASE -eq 'true') { $parameters.AllowPrerelease = $true }
 
         Install-Module @parameters
-        Import-Module -Name 'MSCKite.Azure.Platform' -Force
-        Get-Module -Name 'MSCKite.Azure.Platform' | Select-Object -Property Name, Version | Format-Table | Out-String | Write-Host
+
+        # The cache may also restore an older version next to the pinned one, so import the pinned version explicitly
+        if ([string]::IsNullOrWhiteSpace($env:MODULE_VERSION)) {
+          Import-Module -Name 'MSCKite.Azure.Platform' -Force
+        }
+        else {
+          Import-Module -Name 'MSCKite.Azure.Platform' -RequiredVersion ($env:MODULE_VERSION -split '-')[0] -Force
+        }
+
+        $module = Get-Module -Name 'MSCKite.Azure.Platform'
+        $module | Select-Object -Property Name, Version | Format-Table | Out-String | Write-Host
+        $installed = if ($module.PrivateData.PSData.Prerelease) { "$($module.Version)-$($module.PrivateData.PSData.Prerelease)" } else { "$($module.Version)" }
+        "version=$installed" >> $env:GITHUB_OUTPUT
 
     - name: Sign in to Azure
       if: inputs.azure-login == 'true'

@@ -18,17 +18,17 @@ on:
         required: false
         default: config/platform-config.jsonc
       template-branch:
-        description: Branch of the az-platform-kite repository to compare schemas and templates against.
+        description: Branch or tag of the az-platform-kite repository whose schemas the configuration must match. Defaults to the release tag of the pinned module version ('kiteVersion').
         type: string
         required: false
-        default: main
+        default: ''
       module-version:
-        description: Exact version of MSCKite.Azure.Platform to install. Installs the latest version when empty.
+        description: Exact version of MSCKite.Azure.Platform to install. Overrides 'kiteVersion' in global-config.jsonc; leave empty to use that pinned version.
         type: string
         required: false
         default: ''
       allow-prerelease:
-        description: Allow a prerelease version of MSCKite.Azure.Platform to be installed.
+        description: Allow a prerelease version when no version is pinned. A pinned prerelease version is always allowed.
         type: boolean
         required: false
         default: false
@@ -57,16 +57,31 @@ jobs:
         uses: ./.github/actions/setup-platform-kite
         with:
           module-version: ${{ inputs.module-version }}
+          global-config-path: ${{ inputs.global-config-path }}
           allow-prerelease: ${{ inputs.allow-prerelease }}
           azure-login: 'false'
 
-      - name: Download upstream schemas and templates
+      # Compatibility is checked against the schemas of the pinned release, not main, so a Kite change that is
+      # merged but not yet released (or adopted through kiteVersion) never breaks this check
+      - name: Download schemas of the pinned release
+        id: pinned
         shell: pwsh
         env:
           TEMPLATE_BRANCH: ${{ inputs.template-branch }}
         run: |
           $ErrorActionPreference = 'Stop'
-          Get-PlatformTemplate -IncludedFolders 'schemas', 'templates' -OutputFolder '.tmp' -Branch $env:TEMPLATE_BRANCH -Force
+          $parameters = @{ IncludedFolders = 'schemas'; OutputFolder = '.tmp/pinned'; Force = $true }
+          if (-not [string]::IsNullOrWhiteSpace($env:TEMPLATE_BRANCH)) { $parameters.Branch = $env:TEMPLATE_BRANCH }
+          $download = Get-PlatformTemplate @parameters
+          "ref=$($download.Branch)" >> $env:GITHUB_OUTPUT
+
+      - name: Download templates of the latest release
+        id: latest
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $download = Get-PlatformTemplate -IncludedFolders 'templates' -OutputFolder '.tmp/latest' -Branch latest -Force
+          "ref=$($download.Branch)" >> $env:GITHUB_OUTPUT
 
       - name: Validate template and schema versions
         shell: pwsh
@@ -74,19 +89,22 @@ jobs:
           GLOBAL_CONFIG_PATH: ${{ inputs.global-config-path }}
           PLATFORM_CONFIG_PATH: ${{ inputs.platform-config-path }}
           FAIL_ON_UPDATE: ${{ inputs.fail-on-update-available }}
+          PINNED_REF: ${{ steps.pinned.outputs.ref }}
+          LATEST_REF: ${{ steps.latest.outputs.ref }}
         run: |
           $ErrorActionPreference = 'Stop'
+          Write-Host "Validating against schemas of '$env:PINNED_REF'; checking for updates against release '$env:LATEST_REF'."
 
           $pairs = @(
             @{
               Template = $env:GLOBAL_CONFIG_PATH
-              Schema   = '.tmp/schemas/global-config.schema.json'
-              Latest   = '.tmp/templates/global-config.jsonc'
+              Schema   = '.tmp/pinned/schemas/global-config.schema.json'
+              Latest   = '.tmp/latest/templates/global-config.jsonc'
             }
             @{
               Template = $env:PLATFORM_CONFIG_PATH
-              Schema   = '.tmp/schemas/platform-config.schema.json'
-              Latest   = '.tmp/templates/platform-config.jsonc'
+              Schema   = '.tmp/pinned/schemas/platform-config.schema.json'
+              Latest   = '.tmp/latest/templates/platform-config.jsonc'
             }
           )
 
@@ -110,7 +128,7 @@ jobs:
 
           $outdated = $results | Where-Object { $_.IsUpdateAvailable }
           foreach ($result in $outdated) {
-            Write-Host "::warning file=$($result.TemplatePath)::A newer template version ($($result.LatestTemplateVersion)) is available."
+            Write-Host "::warning file=$($result.TemplatePath)::A newer template version ($($result.LatestTemplateVersion)) is available in Kite release '$env:LATEST_REF'. Raise 'kiteVersion' to adopt it."
           }
 
           if ($outdated -and $env:FAIL_ON_UPDATE -eq 'true') {

@@ -471,6 +471,12 @@ Get-PlatformContext -All
 temporary folder, copies the folder(s) listed in `-IncludedFolders` into `-OutputFolder`
 (preserving their relative path and subfolders/files), then deletes the temporary clone.
 
+Without `-Branch`, the cmdlet downloads the release tag of the running module (for example `v1.1.0`),
+so templates, schemas, and module always belong to the same Kite release. When the download comes
+from a release tag, the `$schema` and `$id` references in the copied `.json`/`.jsonc` files are
+rewritten from `refs/heads/main` to that tag, so an editor validates the configuration against the
+schema of the same release.
+
 By default, `-IncludedFolders` is `templates` and `-OutputFolder` is `.tmp`, a
 dedicated folder so rerunning the cmdlet never overwrites configuration files already in use
 elsewhere in the workspace. Use `-Force` to overwrite files that already exist at the
@@ -538,37 +544,11 @@ destination.</maml:para>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>Branch</maml:name>
         <maml:description>
-          <maml:para>The repository branch to clone. Defaults to `main`.
-The repository branch to clone.
-Defaults to `main`.
-The repository branch to clone.
-Defaults to `main`.
-The repository branch to clone.
-Defaults to `main`.
-The repository branch to clone.
-Defaults to `main`.
-The repository branch to clone.
-Defaults to `main`.
-The repository branch to clone.
-Defaults to `main`.
-The repository branch to clone.
-Defaults to `main`.
-The repository branch to clone.
-Defaults to `main`.
-The repository branch to clone.
-Defaults to `main`.
-The repository branch to clone.
-Defaults to `main`.
-The repository branch to clone.
-Defaults to `main`.
-The repository branch to clone.
-Defaults to `main`.
-The repository branch to clone.
-Defaults to `main`.
-The repository branch to clone.
-Defaults to `main`.
-The repository branch to clone.
-Defaults to `main`.</maml:para>
+          <maml:para>The branch or tag to download. Defaults to the release tag of the running module, for example
+`v1.1.0` for module version `1.1.0`, so the downloaded templates and schemas always match the module
+that consumes them. Pass `latest` for the newest stable release, or a branch such as `main` for
+unreleased changes. A development build without a release version falls back to `main` with a
+warning.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
         <dev:type>
@@ -752,7 +732,8 @@ whether the download succeeded.</maml:para>
 Get-PlatformTemplate
 ```</maml:para>
           <maml:para>&#x80;</maml:para>
-          <maml:para>Copies the repository's `templates` folder into `.tmp\templates`.</maml:para>
+          <maml:para>Copies the `templates` folder of the running module's release (for example tag `v1.1.0`) into
+`.tmp\templates`.</maml:para>
         </maml:introduction>
         <dev:code />
         <dev:remarks />
@@ -768,12 +749,20 @@ Get-PlatformTemplate -IncludedFolders 'templates', 'templates/github' -OutputFol
         <dev:remarks />
       </command:example>
       <command:example>
-        <maml:title>--------- Example 3 - Download from a specific branch and feed New-PlatformConfigStructure ---------</maml:title>
+        <maml:title>--------- Example 3 - Check whether the newest release has a newer template ---------</maml:title>
         <maml:introduction>
           <maml:para>```powershell
-Get-PlatformTemplate -Branch release -OutputFolder ./config-src
-New-PlatformConfigStructure -InputFolder ./config-src/templates -OutputFolder ./config
+Get-PlatformTemplate -IncludedFolders 'schemas' -Force
+Get-PlatformTemplate -Branch latest -OutputFolder ./.tmp/latest -Force
+Test-PlatformTemplate `
+  -TemplatePath ./config/platform-config.jsonc `
+  -SchemaPath ./.tmp/schemas/platform-config.schema.json `
+  -LatestTemplatePath ./.tmp/latest/templates/platform-config.jsonc
 ```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Downloads the templates of the newest stable release next to the ones of your pinned release, then
+reports whether your configuration is compatible with its own release's schema and whether the newest
+release ships a newer template version. Raise `kiteVersion` to adopt it.</maml:para>
         </maml:introduction>
         <dev:code />
         <dev:remarks />
@@ -808,6 +797,12 @@ New-PlatformConfigStructure -InputFolder ./config-src/templates -OutputFolder ./
 file into it. Without `-InputFolder`, a default template is written. With `-InputFolder`, the
 cmdlet copies `global-config.jsonc` from that folder instead, for example the `templates` folder
 downloaded by `Get-PlatformTemplate`.
+
+When the template's `kiteVersion` is empty, the cmdlet fills it in with the version of the
+MSCKite.Azure.Platform module that is running, for example `1.1.0` or `1.1.0-prev1`. That pins the
+new repository's pipelines to the Kite release it was set up with: the `setup-platform-kite` action
+installs exactly that module version, so a newer Kite release only reaches the pipelines when
+`kiteVersion` is changed in a pull request. A `kiteVersion` that the template already sets is kept.
 
 Fails if the output folder already contains a platform configuration structure, unless `-Force`
 is specified to overwrite it.</maml:para>

@@ -22,6 +22,7 @@ infra workflows trigger on `iac/**`.
 - [Release Flow workload strategy (`release`)](#release-flow-workload-strategy-release)
 - [GitHub Flow infra strategy (`github`)](#github-flow-infra-strategy-github)
 - [Release Flow infra strategy (`release`)](#release-flow-infra-strategy-release)
+- [Pinning the Kite version](#pinning-the-kite-version)
 - [Manual runs and concurrency](#manual-runs-and-concurrency)
 - [Prerequisites](#prerequisites)
 - [Why the environment input is a gate, not a scope](#why-the-environment-input-is-a-gate-not-a-scope)
@@ -215,6 +216,27 @@ equal to) the `stg-infra-verified` commit, using the same ancestor check as the 
 trigger and for the same reason: the tag can move on before an older release is published. Just like
 the workload release trigger, it only proceeds when the release tag starts with `infra/`, for
 example `infra/v1.2.0`; releases tagged `workload/...` are skipped.
+
+## Pinning the Kite version
+
+`kiteVersion` in `config/global-config.jsonc` pins every pipeline to one Kite release, for example
+`"kiteVersion": "1.1.0"`. The `setup-platform-kite` action reads it and installs exactly that
+`MSCKite.Azure.Platform` module version (a prerelease such as `1.1.0-prev1` included), so publishing a
+new Kite release never changes a running pipeline on its own. `New-PlatformConfigStructure` fills it
+in with the module version you run it with.
+
+To upgrade, change `kiteVersion` in a pull request: `platform-ci` then previews the platform
+configuration with the new module before anything is applied. A `module-version` input on a workflow
+or on the action overrides `kiteVersion` for that run only. When `kiteVersion` is empty, the action
+installs the latest release and reports a `Platform Kite not pinned` warning.
+
+Templates and schemas follow the same pin. `Get-PlatformTemplate` downloads from the release tag of
+the module that runs it (for example `v1.1.0`) rather than `main`, and rewrites the `$schema`
+references in the downloaded files to that tag. `platform-validate.yml` therefore checks your
+configuration against the schemas of your pinned release, so a Kite change that is merged but not
+yet released, or not yet adopted through `kiteVersion`, never breaks it. It separately compares your
+templates with the newest stable release and reports a warning when that release ships a newer
+template version; set its `fail-on-update-available` input to turn that warning into a failure.
 
 ## Manual runs and concurrency
 
