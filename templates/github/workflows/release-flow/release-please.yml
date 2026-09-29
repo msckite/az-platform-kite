@@ -5,7 +5,7 @@ name: 'Release Please'
 # request is the decision to go to production: release-please then creates the tag (e.g. 'infra/v1.3.0') and
 # GitHub release, and this workflow starts the matching production deployment for it.
 #
-# Deliverables and tag format: release-please-config.json. Current versions: .release-please-manifest.json.
+# Deliverables and tag format: .github/release-please/config.json. Current versions: .github/release-please/manifest.json.
 
 on:
   push:
@@ -26,18 +26,18 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
-      contents: write        # create tags and releases, update CHANGELOG.md/version.txt on the release branches
-      pull-requests: write   # open and update the release pull requests
-      issues: write          # manage the 'autorelease: pending'/'autorelease: tagged' labels
-      actions: write         # start the production deployment workflows
+      contents: write # create tags and releases, update CHANGELOG.md/version.txt on the release branches
+      pull-requests: write # open and update the release pull requests
+      issues: write # manage the 'autorelease: pending'/'autorelease: tagged' labels
+      actions: write # start the production deployment workflows
 
     steps:
       - name: Run release-please
         id: release
-        uses: googleapis/release-please-action@v4
+        uses: googleapis/release-please-action@v5
         with:
-          config-file: release-please-config.json
-          manifest-file: .release-please-manifest.json
+          config-file: .github/release-please/config.json
+          manifest-file: .github/release-please/manifest.json
 
       # A release created with the built-in GITHUB_TOKEN does not trigger the 'release' event of other workflows,
       # but a workflow_dispatch started with it does. The release workflows then verify the released content was

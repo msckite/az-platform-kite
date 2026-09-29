@@ -66,12 +66,12 @@
             "release": {
                 "files": [
                     {
-                        "source": "github/release-please/release-please-config.json",
-                        "destination": "release-please-config.json"
+                        "source": "github/release-please/config.json",
+                        "destination": ".github/release-please/config.json"
                     },
                     {
-                        "source": "github/release-please/.release-please-manifest.json",
-                        "destination": ".release-please-manifest.json"
+                        "source": "github/release-please/manifest.json",
+                        "destination": ".github/release-please/manifest.json"
                     },
                     {
                         "source": "github/workflows/release-flow/release-please.yml",
@@ -168,12 +168,12 @@
             "release": {
                 "files": [
                     {
-                        "source": "github/release-please/release-please-config.json",
-                        "destination": "release-please-config.json"
+                        "source": "github/release-please/config.json",
+                        "destination": ".github/release-please/config.json"
                     },
                     {
-                        "source": "github/release-please/.release-please-manifest.json",
-                        "destination": ".release-please-manifest.json"
+                        "source": "github/release-please/manifest.json",
+                        "destination": ".github/release-please/manifest.json"
                     },
                     {
                         "source": "github/workflows/release-flow/release-please.yml",

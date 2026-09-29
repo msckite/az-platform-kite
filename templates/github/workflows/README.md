@@ -38,8 +38,8 @@ templates/github/
   scripts/
     stg-verification.sh              Release Flow: records and verifies content deployed to stg
   release-please/
-    release-please-config.json       Release Flow: deliverables and tag format for release-please
-    .release-please-manifest.json    Release Flow: current version per deliverable
+    config.json                      Release Flow: deliverables and tag format for release-please
+    manifest.json                    Release Flow: current version per deliverable
   workflows/
     manifest.jsonc                   Source/destination map used by the install command
     shared/
@@ -250,8 +250,8 @@ versions and releases `infra` and `workload` independently. Three files set it u
 
 | File | Purpose |
 | --- | --- |
-| `release-please-config.json` | Declares the deliverables: `iac/` as component `infra`, `src/` as component `workload`, one release pull request each, tags such as `infra/v1.3.0`. |
-| `.release-please-manifest.json` | The current version of each deliverable; release-please updates it with every release. |
+| `.github/release-please/config.json` | Declares the deliverables: `iac/` as component `infra`, `src/` as component `workload`, one release pull request each, tags such as `infra/v1.3.0`. |
+| `.github/release-please/manifest.json` | The current version of each deliverable; release-please updates it with every release. |
 | `.github/workflows/release-please.yml` | Runs on every push to `main`. |
 
 How a release works:
@@ -284,12 +284,32 @@ Setup, once per repository:
 
 - Allow release-please to open pull requests: **Settings > Actions > General > Workflow permissions >
   Allow GitHub Actions to create and approve pull requests**.
-- Set each deliverable's version in `.release-please-manifest.json` to its latest existing release,
+- Set each deliverable's version in `.github/release-please/manifest.json` to its latest existing release,
   for example `"iac": "1.2.0"` when `infra/v1.2.0` exists, so release-please continues from there.
   For a deliverable without releases, keep `0.0.0`; to choose the first version yourself, add a
   `Release-As: 1.0.0` footer to a commit message.
-- Remove the package of a deliverable you do not use from `release-please-config.json`, or change
+- Remove the package of a deliverable you do not use from `.github/release-please/config.json`, or change
   `release-type` (for example to `node`) so release-please also bumps your project's own version file.
+
+The configuration lives in `.github/release-please/` instead of release-please's default location in
+the repository root, so `release-please.yml` passes both paths explicitly through the action's
+`config-file` and `manifest-file` inputs. The package paths inside `config.json` (`iac`, `src`) stay
+relative to the repository root.
+
+### Adapting the release sample
+
+Most names in this sample can be changed freely, but some are referenced elsewhere and must be changed
+together:
+
+| When you change | Also update |
+| --- | --- |
+| The location or name of `config.json` or `manifest.json` | `config-file` and `manifest-file` in `release-please.yml`. |
+| A deliverable folder, for example `iac` to `infra` | Its package key in `config.json` and in `manifest.json` (both must match the folder path), the `iac--release_created` and `iac--tag_name` outputs in `release-please.yml`, the folder argument of the `stg-verification.sh` calls in the CD and release workflows, and the `iac/**` path filters of CI and CD. |
+| A component name (the tag prefix), for example `infra` | The `startsWith(..., 'infra/')` conditions in the matching release workflow. |
+| A release workflow file name, for example `infra-flow-release.yml` | The `gh workflow run` line in `release-please.yml`. |
+| The changelog or version file (`changelog-path`, `version-file`, or another `release-type`) | The `!` exclusions in the CI and CD path filters, and the ignored files in `stg-verification.sh`, so release commits still skip `stg` and pass the staging verification. |
+
+The workflow file name `release-please.yml` itself is free: nothing refers to it.
 
 ## Pinning the Kite version
 
