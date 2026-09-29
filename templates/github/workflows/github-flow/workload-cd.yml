@@ -19,8 +19,16 @@ permissions:
   contents: read
 
 jobs:
+  build:
+    name: Build
+    # Builds and tests the package on the main commit once; every deploy job below reuses it
+    if: |
+      github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/workload-validate.yml
+
   deploy-prd:
     name: Deploy (prd)
+    needs: [build]
     uses: ./.github/workflows/workload-provision.yml
     # Never deploy a feature branch, also not through a manual run
     if: |
@@ -28,6 +36,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
+      actions: read
     with:
       environment: prd-workload
       what-if: false

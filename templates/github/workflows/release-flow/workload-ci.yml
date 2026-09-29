@@ -36,6 +36,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
+      actions: read
     with:
       environment: dev-workload
       what-if: false
@@ -48,6 +49,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
+      actions: read
     with:
       environment: stg-workload
       what-if: true

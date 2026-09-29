@@ -5,8 +5,9 @@
 #   stg-verification.sh mark   <folder> <status-context>                 after a successful staging deployment
 #   stg-verification.sh verify <folder> <status-context> <release-ref>   before a production deployment
 #
-# 'mark' sets a commit status (<status-context>, e.g. 'kite/stg-infra') on the deployed commit. 'verify' looks on
-# main for a commit whose deliverable content is identical to the release and that carries a successful status.
+# 'mark' sets a commit status (<status-context>, e.g. 'kite/stg-infra') on the deployed commit, linking to the deploying
+# run. 'verify' looks on main for a commit whose deliverable content is identical to the release and that carries a
+# successful status, and writes that commit and run as 'stg-commit' and 'stg-run-id' step outputs.
 # Content is compared, not commit position: a release commit that only updates the changelog or version file
 # (as a release PR does) passes, and a commit whose content failed in staging does not.
 #
@@ -63,10 +64,21 @@ case "$command" in
     for candidate in $candidates; do
       [ "$(fingerprint "$candidate")" = "$release_content" ] || continue
 
-      state="$(gh api "repos/${GITHUB_REPOSITORY}/commits/${candidate}/statuses?per_page=100" \
-        --jq "[.[] | select(.context == \"${context}\")][0].state // \"\"")"
-      if [ "$state" = "success" ]; then
-        echo "Release '${release_ref}' (${release_sha}) matches content deployed to staging by ${candidate} ('${context}', content ${release_content})."
+      # Newest status of this context: "<state> <target_url>"; 'mark' points target_url at the deploying run
+      if ! status="$(gh api "repos/${GITHUB_REPOSITORY}/commits/${candidate}/statuses?per_page=100" \
+        --jq "[.[] | select(.context == \"${context}\")][0] | if . == null then \"\" else \"\(.state) \(.target_url // \"\")\" end")"; then
+        echo "::error::Could not read the commit statuses of ${candidate}. The job needs 'statuses: read' and GH_TOKEN."
+        exit 1
+      fi
+      if [ "${status%% *}" = "success" ]; then
+        run_id="$(sed -nE 's#.*/actions/runs/([0-9]+).*#\1#p' <<< "${status#* }")"
+        echo "Release '${release_ref}' (${release_sha}) matches content deployed to staging by ${candidate} in run ${run_id:-unknown} ('${context}', content ${release_content})."
+
+        # Lets the release workflow deploy the package that staging ran, from the run that deployed it
+        if [ -n "${GITHUB_OUTPUT:-}" ]; then
+          echo "stg-commit=${candidate}" >> "$GITHUB_OUTPUT"
+          echo "stg-run-id=${run_id}" >> "$GITHUB_OUTPUT"
+        fi
         exit 0
       fi
     done

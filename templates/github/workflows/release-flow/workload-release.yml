@@ -35,6 +35,8 @@ jobs:
       statuses: read
     outputs:
       tag: ${{ steps.verify.outputs.tag }}
+      # The staging run that deployed this content; production deploys the package that run built
+      stg-run-id: ${{ steps.verify.outputs.stg-run-id }}
 
     steps:
       - name: Check out release commit
@@ -64,8 +66,10 @@ jobs:
     permissions:
       contents: read
       id-token: write
+      actions: read
     with:
       environment: prd-workload
       what-if: false
       ref: ${{ needs.verify-stg-promotion.outputs.tag }}
+      artifact-run-id: ${{ needs.verify-stg-promotion.outputs.stg-run-id }}
     secrets: inherit

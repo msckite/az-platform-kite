@@ -23,6 +23,7 @@ infra workflows trigger on `iac/**`.
 - [GitHub Flow infra strategy (`github`)](#github-flow-infra-strategy-github)
 - [Release Flow infra strategy (`release`)](#release-flow-infra-strategy-release)
 - [Staging verification](#staging-verification)
+- [Build once, deploy the same package](#build-once-deploy-the-same-package)
 - [Releasing with release-please](#releasing-with-release-please)
 - [Pinning the Kite version](#pinning-the-kite-version)
 - [Manual runs and concurrency](#manual-runs-and-concurrency)
@@ -45,8 +46,8 @@ templates/github/
     shared/
       platform-validate.yml          Reusable: template and schema version validation
       platform-provision.yml         Reusable: the four provisioning phases, correctly chained
-      workload-validate.yml          Reusable: source validation, build and tests
-      workload-provision.yml         Reusable: workload plan/deployment placeholder
+      workload-validate.yml          Reusable: validation, build and tests; uploads the workload package
+      workload-provision.yml         Reusable: plans/deploys the workload package (placeholder)
       infra-validate.yml             Reusable: Bicep lint/build placeholder
       infra-provision.yml            Reusable: infra deployment stack plan/deployment placeholder
     platform-flow/
@@ -184,14 +185,14 @@ environment's OIDC token or secrets to any run that is not on `main`.
 ## GitHub Flow workload strategy (`github`)
 
 Workload CI runs on pull requests targeting `main`, deploys `dev` and runs a `-WhatIf` preflight for
-`prd`. Workload CD runs after a push to `main` and deploys `prd`. Both trigger only on `src/**` and
+`prd`. Workload CD runs after a push to `main`, builds it once, and deploys that package to `prd`. Both trigger only on `src/**` and
 `.github/workflows/workload-*.yml` changes, so platform and infra changes never run the workload
 pipeline.
 
 ## Release Flow workload strategy (`release`)
 
 Workload CI runs on pull requests targeting `main`, deploys `dev` and runs a `-WhatIf` preflight for
-`stg`. Workload CD runs after a push to `main`, deploys `stg`, records that deployment as a
+`stg`. Workload CD runs after a push to `main`, builds it once, deploys that package to `stg`, records that deployment as a
 `kite/stg-workload` commit status, then runs a `-WhatIf` preflight for `prd`. The workload release
 trigger deploys `prd` after a published release, but only when the release's `src/` content has been
 deployed to `stg` successfully (see [Staging verification](#staging-verification)). Since the
@@ -242,6 +243,37 @@ The check compares **content**, not the position of a commit in history:
 
 Changes outside the deliverable folder, such as workflow files, are not part of the fingerprint.
 Adapt the folder or the ignored files in the script when your deliverables live elsewhere.
+
+`verify` also reports which commit and run deployed that content to `stg`, as the `stg-commit` and
+`stg-run-id` step outputs, taken from the link that `mark` stores on the commit status. The workload
+release uses the run id to deploy the package `stg` ran (see below).
+
+## Build once, deploy the same package
+
+The workload sample builds each change **once** and deploys that same, tested package to every
+environment, instead of building again per environment:
+
+- `workload-validate.yml` validates, builds, and tests the workload, then uploads the result as the
+  run artifact `workload-package`. Put your build output in `$env:PACKAGE_PATH`; the sample writes a
+  placeholder `build-info.json` there (commit, ref, run id, build time), so the flow runs before a real
+  build exists.
+- `workload-provision.yml` never builds. It downloads `workload-package` and deploys it from
+  `$env:PACKAGE_PATH`, and logs the `build-info.json` it received. By default it takes the package from
+  the current run; its `artifact-run-id` input selects another run.
+- CI builds the pull request once for `dev` and the preview. CD builds the `main` commit once (the
+  `build` job) and deploys that package to `stg` (Release Flow) or `prd` (GitHub Flow).
+- A Release Flow production deployment builds nothing: it passes the `stg-run-id` reported by the
+  [staging verification](#staging-verification) as `artifact-run-id`, so `prd` runs exactly the
+  package `stg` ran. Its `build-info.json` therefore shows the commit `stg` deployed, which can be older
+  than the release commit when only the changelog changed since.
+
+Run artifacts are kept for the repository's artifact retention period (**Settings > Actions > General
+> Artifact and log retention**, 90 days by default). A release whose `stg` package has expired fails
+to download it and does not reach `prd`: run the workload CD again from `main` to build and deploy a
+fresh package to `stg`, then start the release workflow again with the same tag. Likewise, the first
+workload release after adopting this pattern needs content that a CD run with the `build` job
+deployed to `stg`. For a container image, push it to a registry in the build step instead, tagged with
+the commit, and deploy that image by digest in the provision step; the same promotion rules apply.
 
 ## Releasing with release-please
 
