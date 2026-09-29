@@ -6,6 +6,9 @@ on:
       - 'main'
     paths:
       - 'src/**'
+      # Release bookkeeping written by release-please: changes nothing that gets deployed
+      - '!src/CHANGELOG.md'
+      - '!src/version.txt'
       - '.github/workflows/workload-*.yml'
   # Manual rerun from main only; other branches are skipped by the job conditions below
   workflow_dispatch:

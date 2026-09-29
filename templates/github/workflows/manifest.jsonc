@@ -66,6 +66,18 @@
             "release": {
                 "files": [
                     {
+                        "source": "github/release-please/release-please-config.json",
+                        "destination": "release-please-config.json"
+                    },
+                    {
+                        "source": "github/release-please/.release-please-manifest.json",
+                        "destination": ".release-please-manifest.json"
+                    },
+                    {
+                        "source": "github/workflows/release-flow/release-please.yml",
+                        "destination": ".github/workflows/release-please.yml"
+                    },
+                    {
                         "source": "github/scripts/stg-verification.sh",
                         "destination": ".github/scripts/stg-verification.sh"
                     },
@@ -155,6 +167,18 @@
             },
             "release": {
                 "files": [
+                    {
+                        "source": "github/release-please/release-please-config.json",
+                        "destination": "release-please-config.json"
+                    },
+                    {
+                        "source": "github/release-please/.release-please-manifest.json",
+                        "destination": ".release-please-manifest.json"
+                    },
+                    {
+                        "source": "github/workflows/release-flow/release-please.yml",
+                        "destination": ".github/workflows/release-please.yml"
+                    },
                     {
                         "source": "github/scripts/stg-verification.sh",
                         "destination": ".github/scripts/stg-verification.sh"

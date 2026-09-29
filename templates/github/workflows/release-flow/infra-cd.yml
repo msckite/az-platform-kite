@@ -6,6 +6,9 @@ on:
       - 'main'
     paths:
       - 'iac/**'
+      # Release bookkeeping written by release-please: changes nothing that gets deployed
+      - '!iac/CHANGELOG.md'
+      - '!iac/version.txt'
       - '.github/workflows/infra-*.yml'
   # Manual rerun from main only; other branches are skipped by the job conditions below
   workflow_dispatch:

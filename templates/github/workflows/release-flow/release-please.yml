@@ -1,0 +1,59 @@
+name: 'Release Please'
+
+# Keeps one release pull request per deliverable ('infra' for iac/, 'workload' for src/) up to date with the
+# conventional commits merged to main: its CHANGELOG.md entries and next version. Merging a release pull
+# request is the decision to go to production: release-please then creates the tag (e.g. 'infra/v1.3.0') and
+# GitHub release, and this workflow starts the matching production deployment for it.
+#
+# Deliverables and tag format: release-please-config.json. Current versions: .release-please-manifest.json.
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  # One release-please run at a time, so two quick merges cannot both create the same release
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  release-please:
+    name: Update release pull requests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write        # create tags and releases, update CHANGELOG.md/version.txt on the release branches
+      pull-requests: write   # open and update the release pull requests
+      issues: write          # manage the 'autorelease: pending'/'autorelease: tagged' labels
+      actions: write         # start the production deployment workflows
+
+    steps:
+      - name: Run release-please
+        id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+      # A release created with the built-in GITHUB_TOKEN does not trigger the 'release' event of other workflows,
+      # but a workflow_dispatch started with it does. The release workflows then verify the released content was
+      # deployed to staging before deploying production, exactly as for a release published by hand.
+      - name: Start production deployment of released deliverables
+        if: steps.release.outputs.releases_created == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INFRA_TAG: ${{ steps.release.outputs['iac--release_created'] == 'true' && steps.release.outputs['iac--tag_name'] || '' }}
+          WORKLOAD_TAG: ${{ steps.release.outputs['src--release_created'] == 'true' && steps.release.outputs['src--tag_name'] || '' }}
+        run: |
+          if [ -n "$INFRA_TAG" ]; then
+            gh workflow run infra-flow-release.yml --repo "$GITHUB_REPOSITORY" --ref main -f tag="$INFRA_TAG"
+            echo "Started 'Infra Release (prd)' for $INFRA_TAG."
+          fi
+          if [ -n "$WORKLOAD_TAG" ]; then
+            gh workflow run workload-flow-release.yml --repo "$GITHUB_REPOSITORY" --ref main -f tag="$WORKLOAD_TAG"
+            echo "Started 'Workload Release (prd)' for $WORKLOAD_TAG."
+          fi

@@ -23,6 +23,7 @@ infra workflows trigger on `iac/**`.
 - [GitHub Flow infra strategy (`github`)](#github-flow-infra-strategy-github)
 - [Release Flow infra strategy (`release`)](#release-flow-infra-strategy-release)
 - [Staging verification](#staging-verification)
+- [Releasing with release-please](#releasing-with-release-please)
 - [Pinning the Kite version](#pinning-the-kite-version)
 - [Manual runs and concurrency](#manual-runs-and-concurrency)
 - [Prerequisites](#prerequisites)
@@ -36,6 +37,9 @@ templates/github/
     setup-platform-kite/action.yml   Composite action: installs the module and signs in to Azure (OIDC)
   scripts/
     stg-verification.sh              Release Flow: records and verifies content deployed to stg
+  release-please/
+    release-please-config.json       Release Flow: deliverables and tag format for release-please
+    .release-please-manifest.json    Release Flow: current version per deliverable
   workflows/
     manifest.jsonc                   Source/destination map used by the install command
     shared/
@@ -60,6 +64,7 @@ templates/github/
       infra-ci.yml                   Release Flow infra trigger
       infra-cd.yml                   Release Flow infra trigger
       infra-release.yml              Release Flow infra trigger
+      release-please.yml             Release Flow: release pull requests per deliverable, starts prd deployments
 ```
 
 The platform workflows have one fixed lifecycle: pull requests validate and run `-WhatIf`, while
@@ -77,11 +82,11 @@ default), or `all` (platform + workload + infra). Platform installation never re
 
 | Source                                             | Destination                                         |
 | -------------------------------------------------- | --------------------------------------------------- |
-| `github/actions/setup-platform-kite/action.yml`     | `.github/actions/setup-platform-kite/action.yml`     |
-| `github/workflows/shared/platform-validate.yml`     | `.github/workflows/platform-validate.yml`            |
-| `github/workflows/shared/platform-provision.yml`    | `.github/workflows/platform-provision.yml`           |
-| `github/workflows/platform-flow/platform-ci.yml`    | `.github/workflows/platform-ci.yml`                 |
-| `github/workflows/platform-flow/platform-cd.yml`    | `.github/workflows/platform-cd.yml`                 |
+| `github/actions/setup-platform-kite/action.yml`    | `.github/actions/setup-platform-kite/action.yml`    |
+| `github/workflows/shared/platform-validate.yml`    | `.github/workflows/platform-validate.yml`           |
+| `github/workflows/shared/platform-provision.yml`   | `.github/workflows/platform-provision.yml`          |
+| `github/workflows/platform-flow/platform-ci.yml`   | `.github/workflows/platform-ci.yml`                 |
+| `github/workflows/platform-flow/platform-cd.yml`   | `.github/workflows/platform-cd.yml`                 |
 
 The workload bundle copies the shared reusable workflows and the `workload-*.yml` trigger files for
 the selected branch strategy. The shared workflows use the setup action. Workload CI validates,
@@ -237,6 +242,54 @@ The check compares **content**, not the position of a commit in history:
 
 Changes outside the deliverable folder, such as workflow files, are not part of the fingerprint.
 Adapt the folder or the ignored files in the script when your deliverables live elsewhere.
+
+## Releasing with release-please
+
+Release Flow ships a [release-please](https://github.com/googleapis/release-please) sample that
+versions and releases `infra` and `workload` independently. Three files set it up:
+
+| File | Purpose |
+| --- | --- |
+| `release-please-config.json` | Declares the deliverables: `iac/` as component `infra`, `src/` as component `workload`, one release pull request each, tags such as `infra/v1.3.0`. |
+| `.release-please-manifest.json` | The current version of each deliverable; release-please updates it with every release. |
+| `.github/workflows/release-please.yml` | Runs on every push to `main`. |
+
+How a release works:
+
+1. Merge pull requests to `main` as usual, with [Conventional Commits](https://www.conventionalcommits.org/)
+   titles (`fix: …` for a patch, `feat: …` for a minor version, `feat!: …` or a `BREAKING CHANGE:`
+   footer for a major version). With squash merges, the pull request title becomes the commit message.
+   release-please assigns each commit to a deliverable by the folder it changed, not by its title.
+2. Each merge also deploys `stg` (CD), and release-please keeps an open release pull request per
+   deliverable, for example `chore(main): release infra 1.3.0`, holding the next version and its
+   `CHANGELOG.md` entries. It keeps collecting changes while you test `stg`.
+3. **Merging a release pull request is the decision to go to production.** release-please creates
+   the tag and GitHub release, then starts `infra-flow-release.yml` or `workload-flow-release.yml`
+   with that tag. The release workflow verifies the content was deployed to `stg` and deploys `prd`.
+   Infra and workload each have their own release pull request, so one can go to production without
+   the other.
+
+A release pull request only changes `CHANGELOG.md`, `version.txt`, and the version manifest, so the
+Release Flow CI and CD triggers ignore `CHANGELOG.md` and `version.txt`, and the
+[staging verification](#staging-verification) leaves them out of the content fingerprint: the release
+commit passes with the content `stg` already ran, without another `stg` deployment.
+
+A release created with the built-in `GITHUB_TOKEN` does not trigger the `release` event of other
+workflows, so `release-please.yml` starts the production deployment itself through the release
+workflows' manual trigger, which a `GITHUB_TOKEN` may start. A release published by hand still
+triggers the release workflows through the `release` event, as before. Do not give release-please a
+personal access token or GitHub App token without removing that manual start, or both paths deploy.
+
+Setup, once per repository:
+
+- Allow release-please to open pull requests: **Settings > Actions > General > Workflow permissions >
+  Allow GitHub Actions to create and approve pull requests**.
+- Set each deliverable's version in `.release-please-manifest.json` to its latest existing release,
+  for example `"iac": "1.2.0"` when `infra/v1.2.0` exists, so release-please continues from there.
+  For a deliverable without releases, keep `0.0.0`; to choose the first version yourself, add a
+  `Release-As: 1.0.0` footer to a commit message.
+- Remove the package of a deliverable you do not use from `release-please-config.json`, or change
+  `release-type` (for example to `node`) so release-please also bumps your project's own version file.
 
 ## Pinning the Kite version
 

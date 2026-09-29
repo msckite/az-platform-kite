@@ -6,6 +6,9 @@ on:
       - main
     paths:
       - 'src/**'
+      # Release bookkeeping written by release-please: changes nothing that gets deployed
+      - '!src/CHANGELOG.md'
+      - '!src/version.txt'
       - '.github/workflows/workload-*.yml'
   # Manual run for a branch before a PR exists
   workflow_dispatch:
