@@ -1,4 +1,4 @@
-﻿$ErrorActionPreference = 'Stop'
+$ErrorActionPreference = 'Stop'
 
 Describe 'New-PlatformWorkflow' {
   BeforeAll {

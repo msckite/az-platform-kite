@@ -1,4 +1,4 @@
-﻿#Requires -Version 7.0
+#Requires -Version 7.0
 <#
 .SYNOPSIS
     Manages the Markdown-based PowerShell help authoring workflow for Azure Platform Kite using

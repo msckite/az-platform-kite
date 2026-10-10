@@ -1,4 +1,4 @@
-﻿---
+---
 document type: cmdlet
 external help file: MSCKite.Azure.Platform.dll-Help.xml
 HelpUri: ''
