@@ -11,6 +11,7 @@ Describe 'New-PlatformWorkflow' {
         Import-Module $modulePath -Force
 
         function New-TestTemplateFolder {
+            [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '', Justification = 'Test helper that only writes fixture files to the Pester TestDrive.')]
             param(
                 [Parameter(Mandatory)][string] $Root,
                 [string] $Manifest
@@ -102,6 +103,7 @@ Describe 'New-PlatformWorkflow' {
         }
 
         function New-TestGlobalConfig {
+            [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '', Justification = 'Test helper that only writes fixture files to the Pester TestDrive.')]
             param(
                 [Parameter(Mandatory)][string] $Path,
                 [Parameter(Mandatory)][string] $BranchStrategy

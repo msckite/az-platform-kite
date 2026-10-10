@@ -246,7 +246,13 @@ Describe 'Set-PlatformGitHubEnvironment' {
     Context 'deploymentBranchPolicy' {
         BeforeAll {
             # Builds a single-environment platform config whose githubEnvironment carries the given protectionRules JSON
-            function New-PlatformConfigWithProtectionRules([string] $Path, [string] $ProtectionRules) {
+            function New-TestPlatformConfig {
+                [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '', Justification = 'Test helper that only writes fixture files to the Pester TestDrive.')]
+                param(
+                    [Parameter(Mandatory)][string] $Path,
+                    [Parameter(Mandatory)][string] $ProtectionRules
+                )
+
                 @"
 {
   "templateVersion": "1.1.0",
@@ -275,7 +281,7 @@ Describe 'Set-PlatformGitHubEnvironment' {
             $global = Join-Path $TestDrive 'global.jsonc'
             $platform = Join-Path $TestDrive 'platform-branch-policy-invalid.jsonc'
             $script:ValidGlobalConfig | Set-Content -Path $global
-            New-PlatformConfigWithProtectionRules -Path $platform -ProtectionRules $Rules
+            New-TestPlatformConfig -Path $platform -ProtectionRules $Rules
 
             { Set-PlatformGitHubEnvironment -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw $Message
         }
@@ -289,7 +295,7 @@ Describe 'Set-PlatformGitHubEnvironment' {
             $global = Join-Path $TestDrive 'global.jsonc'
             $platform = Join-Path $TestDrive 'platform-branch-policy-valid.jsonc'
             $script:ValidGlobalConfig | Set-Content -Path $global
-            New-PlatformConfigWithProtectionRules -Path $platform -ProtectionRules $Rules
+            New-TestPlatformConfig -Path $platform -ProtectionRules $Rules
 
             # The resource group intentionally does not exist, so a valid policy gets past config parsing and fails only at the resolver
             { Set-PlatformGitHubEnvironment -GlobalConfigPath $global -PlatformConfigPath $platform -ErrorAction Stop } | Should -Throw '*does not exist. Run Set-PlatformResourceGroup first*'

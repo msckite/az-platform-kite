@@ -46,6 +46,7 @@
     ./platyps.ps1 -Mode Publish
 #>
 [CmdletBinding()]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Justification = 'Interactive developer tool: the colored status lines are meant for the console, not the pipeline.')]
 param(
     [ValidateSet('New', 'Update', 'Test', 'Publish')]
     [string]$Mode = 'Update',

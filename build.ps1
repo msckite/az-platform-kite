@@ -1,4 +1,5 @@
 [CmdletBinding()]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Output', Justification = 'Used inside the psake Properties block ($script:Output), which the analyzer cannot follow.')]
 param(
     [Parameter()]
     [ValidateSet('Detailed', 'Diagnostic', 'Minimal', 'None', 'Normal')]
