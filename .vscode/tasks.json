@@ -1,130 +1,130 @@
 {
-    "version": "2.0.0",
-    "windows": {
-        "options": {
-            "shell": {
-                "executable": "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
-                "args": [
-                    "-NoProfile",
-                    "-ExecutionPolicy",
-                    "Bypass",
-                    "-Command"
-                ]
-            }
-        }
+  "version": "2.0.0",
+  "windows": {
+    "options": {
+      "shell": {
+        "executable": "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
+        "args": [
+          "-NoProfile",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-Command"
+        ]
+      }
+    }
+  },
+  "tasks": [
+    {
+      "label": "Clean",
+      "type": "shell",
+      "command": "Invoke-PSake build.ps1 -taskList Clean",
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "clear": true
+      }
     },
-    "tasks": [
-        {
-            "label": "Clean",
-            "type": "shell",
-            "command": "Invoke-PSake build.ps1 -taskList Clean",
-            "group": {
-                "kind": "build",
-                "isDefault": false
-            },
-            "presentation": {
-                "reveal": "always",
-                "panel": "new",
-                "clear": true
-            }
-        },
-        {
-            "label": "Build",
-            "type": "shell",
-            "command": "Invoke-PSake build.ps1 -taskList Build",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "presentation": {
-                "reveal": "always",
-                "panel": "dedicated",
-                "clear": true,
-                "close": true
-            },
-            "problemMatcher": "$msCompile"
-        },
-        // {
-        //     "label": "Stop previous cmdlet debugger",
-        //     "type": "shell",
-        //     "command": "$moduleName = 'MSCKite.Azure.' + 'Platform.dll'; $pattern = '*' + $moduleName + '*'; Get-CimInstance Win32_Process -ErrorAction SilentlyContinue | Where-Object { $_.Name -eq 'pwsh.exe' -and $_.CommandLine -like $pattern } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }; exit 0",
-        //     "presentation": {
-        //         "reveal": "silent",
-        //         "panel": "dedicated",
-        //         "clear": true,
-        //         "close": true
-        //     }
-        // },
-        // {
-        //     "label": "Prepare cmdlet debugger",
-        //     "dependsOrder": "sequence",
-        //     "dependsOn": [
-        //         //"Stop previous cmdlet debugger",
-        //         "Build"
-        //     ]
-        // },
-        {
-            "label": "Default",
-            "type": "shell",
-            "command": "Invoke-PSake build.ps1 -taskList Default",
-            "group": {
-                "kind": "build",
-                "isDefault": false
-            },
-            "presentation": {
-                "reveal": "always",
-                "panel": "new",
-                "clear": true
-            },
-            "problemMatcher": "$msCompile"
-        },
-        {
-            "label": "Test",
-            "type": "shell",
-            "command": "Invoke-PSake build.ps1 -taskList Test -parameters @{Output='${input:pesterOutput}'}",
-            "group": {
-                "kind": "test",
-                "isDefault": true
-            },
-            "presentation": {
-                "reveal": "always",
-                "panel": "new",
-                "clear": true
-            },
-            "problemMatcher": [
-                "$pester"
-            ]
-        },
-        {
-            "label": "Pester",
-            "type": "shell",
-            "command": "Invoke-Pester -Path ./tests -Output Detailed",
-            "group": {
-                "kind": "test",
-                "isDefault": false
-            },
-            "presentation": {
-                "reveal": "always",
-                "panel": "new",
-                "clear": true
-            },
-            "problemMatcher": [
-                "$pester"
-            ]
-        }
-    ],
-    "inputs": [
-        {
-            "id": "pesterOutput",
-            "type": "pickString",
-            "description": "Pester output level",
-            "options": [
-                "Detailed",
-                "Normal",
-                "Minimal",
-                "None"
-            ],
-            "default": "Normal"
-        }
-    ]
+    {
+      "label": "Build",
+      "type": "shell",
+      "command": "Invoke-PSake build.ps1 -taskList Build",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": "$msCompile"
+    },
+    // {
+    //     "label": "Stop previous cmdlet debugger",
+    //     "type": "shell",
+    //     "command": "$moduleName = 'MSCKite.Azure.' + 'Platform.dll'; $pattern = '*' + $moduleName + '*'; Get-CimInstance Win32_Process -ErrorAction SilentlyContinue | Where-Object { $_.Name -eq 'pwsh.exe' -and $_.CommandLine -like $pattern } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }; exit 0",
+    //     "presentation": {
+    //         "reveal": "silent",
+    //         "panel": "dedicated",
+    //         "clear": true,
+    //         "close": true
+    //     }
+    // },
+    // {
+    //     "label": "Prepare cmdlet debugger",
+    //     "dependsOrder": "sequence",
+    //     "dependsOn": [
+    //         //"Stop previous cmdlet debugger",
+    //         "Build"
+    //     ]
+    // },
+    {
+      "label": "Default",
+      "type": "shell",
+      "command": "Invoke-PSake build.ps1 -taskList Default",
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "clear": true
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Test",
+      "type": "shell",
+      "command": "Invoke-PSake build.ps1 -taskList Test -parameters @{Output='${input:pesterOutput}'}",
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "clear": true
+      },
+      "problemMatcher": [
+        "$pester"
+      ]
+    },
+    {
+      "label": "Pester",
+      "type": "shell",
+      "command": "Invoke-Pester -Path ./tests -Output Detailed",
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "clear": true
+      },
+      "problemMatcher": [
+        "$pester"
+      ]
+    }
+  ],
+  "inputs": [
+    {
+      "id": "pesterOutput",
+      "type": "pickString",
+      "description": "Pester output level",
+      "options": [
+        "Detailed",
+        "Normal",
+        "Minimal",
+        "None"
+      ],
+      "default": "Normal"
+    }
+  ]
 }
