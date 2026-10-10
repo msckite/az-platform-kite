@@ -5,6 +5,7 @@
   "include-component-in-tag": true,
   "include-v-in-tag": true,
   "tag-separator": "/",
+  "pull-request-header": "🤖 Merging this PR releases to `prd`. Test latest `stg` deployment first.",
   "packages": {
     "iac": {
       "component": "infra"
