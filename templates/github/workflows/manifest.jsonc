@@ -1,202 +1,202 @@
 {
-    "templateVersion": "1.0.0",
-    // Select -WorkflowType platform, workload, infra, both (platform+workload), or all (platform+workload+infra).
-    "platform": {
-        "shared": [
-            {
-                "source": "github/actions/setup-platform-kite/action.yml",
-                "destination": ".github/actions/setup-platform-kite/action.yml"
-            },
-            {
-                "source": "github/workflows/shared/platform-validate.yml",
-                "destination": ".github/workflows/platform-validate.yml"
-            },
-            {
-                "source": "github/workflows/shared/platform-provision.yml",
-                "destination": ".github/workflows/platform-provision.yml"
-            },
-            {
-                "source": "platform-config.jsonc",
-                "destination": "config/platform-config.jsonc"
-            }
-        ],
+  "templateVersion": "1.0.0",
+  // Select -WorkflowType platform, workload, infra, both (platform+workload), or all (platform+workload+infra).
+  "platform": {
+    "shared": [
+      {
+        "source": "github/actions/setup-platform-kite/action.yml",
+        "destination": ".github/actions/setup-platform-kite/action.yml"
+      },
+      {
+        "source": "github/workflows/shared/platform-validate.yml",
+        "destination": ".github/workflows/platform-validate.yml"
+      },
+      {
+        "source": "github/workflows/shared/platform-provision.yml",
+        "destination": ".github/workflows/platform-provision.yml"
+      },
+      {
+        "source": "platform-config.jsonc",
+        "destination": "config/platform-config.jsonc"
+      }
+    ],
+    "files": [
+      {
+        "source": "github/workflows/platform-flow/platform-ci.yml",
+        "destination": ".github/workflows/platform-ci.yml"
+      },
+      {
+        "source": "github/workflows/platform-flow/platform-cd.yml",
+        "destination": ".github/workflows/platform-cd.yml"
+      }
+    ]
+  },
+  "workload": {
+    "shared": [
+      {
+        "source": "github/actions/setup-platform-kite/action.yml",
+        "destination": ".github/actions/setup-platform-kite/action.yml"
+      },
+      {
+        "source": "github/workflows/shared/workload-validate.yml",
+        "destination": ".github/workflows/workload-validate.yml"
+      },
+      {
+        "source": "github/workflows/shared/workload-provision.yml",
+        "destination": ".github/workflows/workload-provision.yml"
+      },
+      {
+        "source": "src/README.md",
+        "destination": "src/README.md"
+      }
+    ],
+    "strategies": {
+      "github": {
         "files": [
-            {
-                "source": "github/workflows/platform-flow/platform-ci.yml",
-                "destination": ".github/workflows/platform-ci.yml"
-            },
-            {
-                "source": "github/workflows/platform-flow/platform-cd.yml",
-                "destination": ".github/workflows/platform-cd.yml"
-            }
+          {
+            "source": "github/workflows/github-flow/workload-ci.yml",
+            "destination": ".github/workflows/workload-flow-ci.yml"
+          },
+          {
+            "source": "github/workflows/github-flow/workload-cd.yml",
+            "destination": ".github/workflows/workload-flow-cd.yml"
+          }
         ]
-    },
-    "workload": {
-        "shared": [
-            {
-                "source": "github/actions/setup-platform-kite/action.yml",
-                "destination": ".github/actions/setup-platform-kite/action.yml"
-            },
-            {
-                "source": "github/workflows/shared/workload-validate.yml",
-                "destination": ".github/workflows/workload-validate.yml"
-            },
-            {
-                "source": "github/workflows/shared/workload-provision.yml",
-                "destination": ".github/workflows/workload-provision.yml"
-            },
-            {
-                "source": "src/README.md",
-                "destination": "src/README.md"
-            }
-        ],
-        "strategies": {
-            "github": {
-                "files": [
-                    {
-                        "source": "github/workflows/github-flow/workload-ci.yml",
-                        "destination": ".github/workflows/workload-flow-ci.yml"
-                    },
-                    {
-                        "source": "github/workflows/github-flow/workload-cd.yml",
-                        "destination": ".github/workflows/workload-flow-cd.yml"
-                    }
-                ]
-            },
-            "release": {
-                "files": [
-                    {
-                        "source": "github/release-please/config.json",
-                        "destination": ".github/release-please/config.json"
-                    },
-                    {
-                        "source": "github/release-please/manifest.json",
-                        "destination": ".github/release-please/manifest.json"
-                    },
-                    {
-                        "source": "github/workflows/release-flow/release-please.yml",
-                        "destination": ".github/workflows/release-please.yml"
-                    },
-                    {
-                        "source": "github/scripts/stg-verification.sh",
-                        "destination": ".github/scripts/stg-verification.sh"
-                    },
-                    {
-                        "source": "github/workflows/release-flow/workload-ci.yml",
-                        "destination": ".github/workflows/workload-flow-ci.yml"
-                    },
-                    {
-                        "source": "github/workflows/release-flow/workload-cd.yml",
-                        "destination": ".github/workflows/workload-flow-cd.yml"
-                    },
-                    {
-                        "source": "github/workflows/release-flow/workload-release.yml",
-                        "destination": ".github/workflows/workload-flow-release.yml"
-                    }
-                ]
-            }
-        }
-    },
-    "infra": {
-        "shared": [
-            {
-                "source": "github/actions/setup-platform-kite/action.yml",
-                "destination": ".github/actions/setup-platform-kite/action.yml"
-            },
-            {
-                "source": "github/workflows/shared/infra-validate.yml",
-                "destination": ".github/workflows/infra-validate.yml"
-            },
-            {
-                "source": "github/workflows/shared/infra-provision.yml",
-                "destination": ".github/workflows/infra-provision.yml"
-            },
-            {
-                "source": "iac/res/sample/main.bicep",
-                "destination": "iac/res/sample/main.bicep"
-            },
-            {
-                "source": "iac/res/sample/deploy.ps1",
-                "destination": "iac/res/sample/deploy.ps1"
-            },
-            {
-                "source": "iac/res/sample/types/main.bicep",
-                "destination": "iac/res/sample/types/main.bicep"
-            },
-            {
-                "source": "iac/res/sample/modules/.gitkeep",
-                "destination": "iac/res/sample/modules/.gitkeep"
-            },
-            {
-                "source": "iac/res/sample/params/base.bicepparam",
-                "destination": "iac/res/sample/params/base.bicepparam"
-            },
-            {
-                "source": "iac/res/sample/params/dev.bicepparam",
-                "destination": "iac/res/sample/params/dev.bicepparam"
-            },
-            {
-                "source": "iac/res/sample/params/stg.bicepparam",
-                "destination": "iac/res/sample/params/stg.bicepparam"
-            },
-            {
-                "source": "iac/res/sample/params/prd.bicepparam",
-                "destination": "iac/res/sample/params/prd.bicepparam"
-            },
-            {
-                "source": "iac/bicepconfig.json",
-                "destination": "iac/bicepconfig.json"
-            },
-            {
-                "source": "iac/README.md",
-                "destination": "iac/README.md"
-            }
-        ],
-        "strategies": {
-            "github": {
-                "files": [
-                    {
-                        "source": "github/workflows/github-flow/infra-ci.yml",
-                        "destination": ".github/workflows/infra-flow-ci.yml"
-                    },
-                    {
-                        "source": "github/workflows/github-flow/infra-cd.yml",
-                        "destination": ".github/workflows/infra-flow-cd.yml"
-                    }
-                ]
-            },
-            "release": {
-                "files": [
-                    {
-                        "source": "github/release-please/config.json",
-                        "destination": ".github/release-please/config.json"
-                    },
-                    {
-                        "source": "github/release-please/manifest.json",
-                        "destination": ".github/release-please/manifest.json"
-                    },
-                    {
-                        "source": "github/workflows/release-flow/release-please.yml",
-                        "destination": ".github/workflows/release-please.yml"
-                    },
-                    {
-                        "source": "github/scripts/stg-verification.sh",
-                        "destination": ".github/scripts/stg-verification.sh"
-                    },
-                    {
-                        "source": "github/workflows/release-flow/infra-ci.yml",
-                        "destination": ".github/workflows/infra-flow-ci.yml"
-                    },
-                    {
-                        "source": "github/workflows/release-flow/infra-cd.yml",
-                        "destination": ".github/workflows/infra-flow-cd.yml"
-                    },
-                    {
-                        "source": "github/workflows/release-flow/infra-release.yml",
-                        "destination": ".github/workflows/infra-flow-release.yml"
-                    }
-                ]
-            }
-        }
+      },
+      "release": {
+        "files": [
+          {
+            "source": "github/release-please/config.json",
+            "destination": ".github/release-please/config.json"
+          },
+          {
+            "source": "github/release-please/manifest.json",
+            "destination": ".github/release-please/manifest.json"
+          },
+          {
+            "source": "github/workflows/release-flow/release-please.yml",
+            "destination": ".github/workflows/release-please.yml"
+          },
+          {
+            "source": "github/scripts/stg-verification.sh",
+            "destination": ".github/scripts/stg-verification.sh"
+          },
+          {
+            "source": "github/workflows/release-flow/workload-ci.yml",
+            "destination": ".github/workflows/workload-flow-ci.yml"
+          },
+          {
+            "source": "github/workflows/release-flow/workload-cd.yml",
+            "destination": ".github/workflows/workload-flow-cd.yml"
+          },
+          {
+            "source": "github/workflows/release-flow/workload-release.yml",
+            "destination": ".github/workflows/workload-flow-release.yml"
+          }
+        ]
+      }
     }
+  },
+  "infra": {
+    "shared": [
+      {
+        "source": "github/actions/setup-platform-kite/action.yml",
+        "destination": ".github/actions/setup-platform-kite/action.yml"
+      },
+      {
+        "source": "github/workflows/shared/infra-validate.yml",
+        "destination": ".github/workflows/infra-validate.yml"
+      },
+      {
+        "source": "github/workflows/shared/infra-provision.yml",
+        "destination": ".github/workflows/infra-provision.yml"
+      },
+      {
+        "source": "iac/res/sample/main.bicep",
+        "destination": "iac/res/sample/main.bicep"
+      },
+      {
+        "source": "iac/res/sample/deploy.ps1",
+        "destination": "iac/res/sample/deploy.ps1"
+      },
+      {
+        "source": "iac/res/sample/types/main.bicep",
+        "destination": "iac/res/sample/types/main.bicep"
+      },
+      {
+        "source": "iac/res/sample/modules/.gitkeep",
+        "destination": "iac/res/sample/modules/.gitkeep"
+      },
+      {
+        "source": "iac/res/sample/params/base.bicepparam",
+        "destination": "iac/res/sample/params/base.bicepparam"
+      },
+      {
+        "source": "iac/res/sample/params/dev.bicepparam",
+        "destination": "iac/res/sample/params/dev.bicepparam"
+      },
+      {
+        "source": "iac/res/sample/params/stg.bicepparam",
+        "destination": "iac/res/sample/params/stg.bicepparam"
+      },
+      {
+        "source": "iac/res/sample/params/prd.bicepparam",
+        "destination": "iac/res/sample/params/prd.bicepparam"
+      },
+      {
+        "source": "iac/bicepconfig.json",
+        "destination": "iac/bicepconfig.json"
+      },
+      {
+        "source": "iac/README.md",
+        "destination": "iac/README.md"
+      }
+    ],
+    "strategies": {
+      "github": {
+        "files": [
+          {
+            "source": "github/workflows/github-flow/infra-ci.yml",
+            "destination": ".github/workflows/infra-flow-ci.yml"
+          },
+          {
+            "source": "github/workflows/github-flow/infra-cd.yml",
+            "destination": ".github/workflows/infra-flow-cd.yml"
+          }
+        ]
+      },
+      "release": {
+        "files": [
+          {
+            "source": "github/release-please/config.json",
+            "destination": ".github/release-please/config.json"
+          },
+          {
+            "source": "github/release-please/manifest.json",
+            "destination": ".github/release-please/manifest.json"
+          },
+          {
+            "source": "github/workflows/release-flow/release-please.yml",
+            "destination": ".github/workflows/release-please.yml"
+          },
+          {
+            "source": "github/scripts/stg-verification.sh",
+            "destination": ".github/scripts/stg-verification.sh"
+          },
+          {
+            "source": "github/workflows/release-flow/infra-ci.yml",
+            "destination": ".github/workflows/infra-flow-ci.yml"
+          },
+          {
+            "source": "github/workflows/release-flow/infra-cd.yml",
+            "destination": ".github/workflows/infra-flow-cd.yml"
+          },
+          {
+            "source": "github/workflows/release-flow/infra-release.yml",
+            "destination": ".github/workflows/infra-flow-release.yml"
+          }
+        ]
+      }
+    }
+  }
 }
