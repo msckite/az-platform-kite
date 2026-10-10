@@ -177,6 +177,12 @@ switch ($Mode) {
             Remove-Item -Path (Join-Path $outputFolder $moduleName) -Recurse -Force
         }
 
+        # Export-MamlCommandHelp omits the final newline that files.insertFinalNewline in .vscode/settings.json expects
+        $helpFilePath = Join-Path $outputFolder $helpFileName
+        if (-not [System.IO.File]::ReadAllText($helpFilePath).EndsWith("`n")) {
+            [System.IO.File]::AppendAllText($helpFilePath, [System.Environment]::NewLine)
+        }
+
         # .bak files only exist to diff -Mode Update's changes before Test/Publish; no longer needed once Publish succeeds
         $backupFiles = Get-ChildItem -Path "$docsFolder\*.bak" -ErrorAction SilentlyContinue
         if ($backupFiles) {
