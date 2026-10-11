@@ -18,6 +18,7 @@ infra workflows trigger on `iac/**`.
 - [Provisioning phases and dependencies](#provisioning-phases-and-dependencies)
 - [Workload and infra identity split](#workload-and-infra-identity-split)
 - [Platform flow](#platform-flow)
+- [Choosing how to run the platform phases](#choosing-how-to-run-the-platform-phases)
 - [GitHub Flow workload strategy (`github`)](#github-flow-workload-strategy-github)
 - [Release Flow workload strategy (`release`)](#release-flow-workload-strategy-release)
 - [GitHub Flow infra strategy (`github`)](#github-flow-infra-strategy-github)
@@ -181,6 +182,22 @@ A `-WhatIf` run of the four phases only reads, so the plan identity never needs 
 keeps the subscription-wide identity out of reach of pull requests: a workflow edited in a pull
 request can request the `platform-plan` environment, but GitHub refuses to hand out the `platform`
 environment's OIDC token or secrets to any run that is not on `main`.
+
+### Choosing how to run the platform phases
+
+Installing the platform workflows is optional. The four platform phases always work from a
+workstation, and most platforms are provisioned that way once and only changed now and then. How you
+carry on after the first run is your decision:
+
+| Option | When it fits | Install with |
+| --- | --- | --- |
+| Run locally | The platform rarely changes, or one person or team maintains it from a workstation. | Do not install the platform bundle; use `-WorkflowType workload` or `infra` for the other bundles. |
+| Run through GitHub Actions | You want platform changes reviewed in pull requests and reconciled by the pipeline. | `-WorkflowType both` (the default) or `all`, or `-WorkflowType platform` on its own. |
+
+Whichever you choose, the phases act on the single repository named by `sourceControl.owner` and
+`sourceControl.repository` in `global-config.jsonc`: phase 3 binds each federated credential to that
+repository and phase 4 creates the GitHub environments in it. The platform workflows therefore run in
+that repository; a second repository for them is not supported.
 
 ## GitHub Flow workload strategy (`github`)
 
