@@ -2,7 +2,7 @@
 # Azure Platform Kite
 
 [![github-latest](https://img.shields.io/github/v/release/msckite/az-platform-kite?include_prereleases&color=blue&logo=github&label=release)](https://github.com/msckite/az-platform-kite/releases)
-[![ps-gallery-downloads](https://img.shields.io/powershellgallery/dt/MSCKite.Azure.Platform.svg?color=blue)](https://www.powershellgallery.com/packages/MSCKite.Azure.Platform)
+[![ps-gallery-downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fmsckite%2Faz-platform-kite%2Fbadges%2Fgallery-downloads.json)](https://www.powershellgallery.com/packages/MSCKite.Azure.Platform)
 [![github-issues](https://img.shields.io/github/issues/msckite/az-platform-kite?logo=github)](https://github.com/msckite/az-platform-kite/issues)
 
 </br>

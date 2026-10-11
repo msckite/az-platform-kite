@@ -1,0 +1,73 @@
+name: Update PowerShell Gallery downloads badge
+
+# The PowerShell Gallery reports downloads per version but leaves the package-wide total at 0, so the
+# Shields "dt" badge shows 0. This workflow sums the per-version counts and publishes them as a Shields
+# endpoint file on the "badges" branch, which the README badge reads.
+
+on:
+  schedule:
+    - cron: '17 4 * * *'
+  workflow_dispatch:
+
+env:
+  MODULE_NAME: MSCKite.Azure.Platform
+  BADGE_BRANCH: badges
+  BADGE_FILE: gallery-downloads.json
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gallery-downloads
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Sum downloads over all versions
+        shell: pwsh
+        run: |
+          $uri = "https://www.powershellgallery.com/api/v2/FindPackagesById()?id='$env:MODULE_NAME'"
+          [xml]$feed = (Invoke-WebRequest -Uri $uri -UseBasicParsing).Content
+          $total = 0
+          foreach ($entry in $feed.feed.entry) {
+              $total += [int]$entry.properties.VersionDownloadCount.'#text'
+          }
+          if ($total -le 0) {
+              throw "Gallery returned no downloads for $env:MODULE_NAME; keeping the existing badge."
+          }
+          $message = if ($total -ge 1000000) { '{0:0.#}M' -f ($total / 1e6) }
+              elseif ($total -ge 1000) { '{0:0.#}k' -f ($total / 1e3) }
+              else { "$total" }
+          $badge = [ordered]@{
+              schemaVersion = 1
+              label         = 'downloads'
+              message       = $message
+              color         = 'blue'
+          } | ConvertTo-Json
+          [IO.File]::WriteAllText("$env:RUNNER_TEMP/$env:BADGE_FILE", $badge + "`n", (New-Object Text.UTF8Encoding $false))
+          "Total downloads: $total ($message)" | Write-Host
+
+      - name: Publish the badge file to the badges branch
+        run: |
+          set -euo pipefail
+          repo_url="https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git"
+          git init -q badge-repo
+          cd badge-repo
+          git remote add origin "$repo_url"
+          if git fetch -q --depth 1 origin "$BADGE_BRANCH"; then
+            git checkout -q -B "$BADGE_BRANCH" FETCH_HEAD
+          else
+            git checkout -q --orphan "$BADGE_BRANCH"
+          fi
+          cp "$RUNNER_TEMP/$BADGE_FILE" "$BADGE_FILE"
+          git add "$BADGE_FILE"
+          if git diff --cached --quiet; then
+            echo "Badge unchanged."
+            exit 0
+          fi
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+            commit -q -m "chore: Update Gallery downloads badge"
+          git push -q origin "$BADGE_BRANCH"
