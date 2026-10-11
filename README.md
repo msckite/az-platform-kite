@@ -25,6 +25,7 @@ _Lighter Work. Higher Impact._
 - [What do you get?](#what-do-you-get)
 - [Why use Kite?](#why-use-kite)
 - [How to use it?](#how-to-use-it)
+- [Upgrading](#upgrading)
 - [License](#license)
 
 ## What's this repo about?
@@ -198,6 +199,10 @@ New-PlatformWorkflow
 
 > [!NOTE]
 > The platform pipeline signs in as dedicated environments declared in `platform-config.jsonc`, not one of your app environments. `platform-cd.yml` uses `platform`, whose identity holds subscription-level RBAC (`Contributor` and `User Access Administrator`, both scoped to `subscription`) and which only accepts runs from `main`. `platform-ci.yml` previews pull requests as `platform-plan`, a read-only twin with subscription-level `Reader`. See the [prerequisites](templates/github/workflows/README.md#prerequisites) for the one-time setup of both.
+
+## Upgrading
+
+Moving to a newer release can require changes in your configuration. See [Upgrading](docs/upgrading.md).
 
 ## License
 
