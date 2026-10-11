@@ -5,7 +5,7 @@ HelpInfoUri: ''
 Locale: en-NL
 Module Guid: 3d8f6c2e-9b4a-4c1d-8e2f-6a7b5c9d0e1f
 Module Name: MSCKite.Azure.Platform
-ms.date: 09/23/2026
+ms.date: 10/11/2026
 PlatyPS schema version: 2024-05-01
 title: MSCKite.Azure.Platform Module
 ---
@@ -52,8 +52,8 @@ Scaffolds the platform configuration folder, creating a `global-config.jsonc` fi
 
 ### [New-PlatformWorkflow](New-PlatformWorkflow.md)
 
-Copies the GitHub Actions workflow templates for the configured branch strategy into the
-repository.
+Copies the selected GitHub Actions workflow templates into the repository. Platform workflows use
+a fixed drift-management flow; workload and infra workflows use the configured branch strategy.
 
 ### [New-RandomPassword](New-RandomPassword.md)
 

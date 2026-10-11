@@ -4,7 +4,7 @@ external help file: MSCKite.Azure.Platform.dll-Help.xml
 HelpUri: ''
 Locale: en-NL
 Module Name: MSCKite.Azure.Platform
-ms.date: 09/23/2026
+ms.date: 10/11/2026
 PlatyPS schema version: 2024-05-01
 title: Test-PlatformTemplate
 ---
@@ -54,27 +54,6 @@ Test-PlatformTemplate -TemplatePath ./config/global-config.jsonc -SchemaPath ./s
 
 Path to a separately downloaded template to compare against `-TemplatePath` for update
 availability. When omitted, no update check is performed.
-Path to a separately downloaded template to compare against `-TemplatePath` for update
-availability.
-When omitted, no update check is performed.
-Path to a separately downloaded template to compare against `-TemplatePath` for update
-availability.
-When omitted, no update check is performed.
-Path to a separately downloaded template to compare against `-TemplatePath` for update
-availability.
-When omitted, no update check is performed.
-Path to a separately downloaded template to compare against `-TemplatePath` for update
-availability.
-When omitted, no update check is performed.
-Path to a separately downloaded template to compare against `-TemplatePath` for update
-availability.
-When omitted, no update check is performed.
-Path to a separately downloaded template to compare against `-TemplatePath` for update
-availability.
-When omitted, no update check is performed.
-Path to a separately downloaded template to compare against `-TemplatePath` for update
-availability.
-When omitted, no update check is performed.
 
 ```yaml
 Type: System.String
