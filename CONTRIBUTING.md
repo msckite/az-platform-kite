@@ -19,7 +19,7 @@ All text files use LF line endings, in the repository and in every working copy;
 - Use `PascalCase` for _all_ public identifiers like module names, function names, properties, parameters, global variables and constants.
 - Use `camelCase` for _all_ variables within functions (or modules) to distinguish private variables from parameters.
 - Use `camelCase` for _all_ keys within Json files.
-- Use `four` spaces per indentation level.
+- Use `four` spaces per indentation level in PowerShell and C# files, and `two` spaces in JSON, JSONC and YAML files, as set in `.vscode/settings.json`.
 - Use [approved verbs](https://learn.microsoft.com/en-us/powershell/scripting/developer/cmdlet/approved-verbs-for-windows-powershell-commands) for PowerShell Commands.
 - Take notice of the [PowerShell development guidelines](https://learn.microsoft.com/en-us/powershell/scripting/developer/cmdlet/strongly-encouraged-development-guidelines) when you write modules or cmdlets.
 - Take notice of the [PowerShell-Docs](https://learn.microsoft.com/en-us/powershell/scripting/community/contributing/powershell-style-guide) style guide when you write documentation content.
