@@ -22,6 +22,8 @@ _Lighter Work. Higher Impact._
 ## Table of Contents
 
 - [What's this repo about?](#whats-this-repo-about)
+- [How it works](#how-it-works)
+- [Who can do what](#who-can-do-what)
 - [What do you get?](#what-do-you-get)
 - [Why use Kite?](#why-use-kite)
 - [How to use it?](#how-to-use-it)
@@ -30,32 +32,96 @@ _Lighter Work. Higher Impact._
 
 ## What's this repo about?
 
-**Azure Platform Kite** is a lightweight automation toolkit designed to simplify Azure platform engineering through reusable PowerShell automation.
+**Azure Platform Kite** helps a team set up a safe, repeatable way to build software on Azure:
+separate environments for development, testing and production, and a governed path that carries every
+change from a developer's pull request all the way to Azure.
 
-Inspired by the agility and freedom of a kite riding the wind, the toolkit helps platform engineers and cloud architects build, manage, and govern Azure environments with less effort and greater consistency. It brings together common operational tasks into a single, automation-first experience, enabling teams to focus on delivering value instead of managing repetitive platform activities.
+Setting this up by hand is slow and easy to get wrong. People end up with shared credentials, environments
+that drift apart, and nobody quite sure who is allowed to change what. Kite replaces that with one
+configuration file that describes your environments and who may do what in them. A set of PowerShell
+commands then creates everything from that file, and you can safely run them again whenever the file changes.
+
+The result is a foundation where:
+
+- every environment (`dev`, `stg`, `prd`) is created the same way, every time;
+- people and pipelines only get the access they need, in the environment where they need it;
+- changes reach production through reviewed pull requests and approvals, not through someone's laptop.
+
+## How it works
+
+Kite connects three places, and keeps the permissions consistent across all of them:
+
+```mermaid
+flowchart LR
+    A["<b>GitHub</b><br/>pull requests, reviews,<br/>environments and approvals"]
+    B["<b>Microsoft Entra ID</b><br/>people groups and<br/>pipeline identities"]
+    C["<b>Azure Resource Manager</b><br/>resource groups and<br/>role assignments"]
+    A -- "pipeline signs in<br/>without secrets" --> B
+    B -- "least-privilege<br/>role per environment" --> C
+```
+
+You describe your platform once, in `platform-config.jsonc`. Kite then sets it up in four ordered steps:
+
+| Step | What Kite creates | Why it matters |
+| ---- | ----------------- | -------------- |
+| 1. Resource groups | One Azure resource group per environment | Each environment is isolated and tagged for ownership and cost |
+| 2. Security groups | Groups for developers, administrators and stakeholders, with their Azure roles | People get access through group membership, not one-off grants |
+| 3. Pipeline identities | One identity per environment that GitHub can use to sign in to Azure | No passwords or keys stored in GitHub; access exists only while a pipeline runs |
+| 4. GitHub environments | `dev`, `stg` and `prd` environments with the values pipelines need | Approvals and branch rules can be enforced before a deployment starts (off by default; see the config) |
+
+From there, ready-made GitHub Actions workflows move changes through the stages. You choose a branching
+model: a simple one that promotes through `dev` to `prd`, or a release-based one that adds a `stg` stage
+for verification before production.
+
+## Who can do what
+
+Access is enforced at every link of the chain, from the person writing code to the Azure resource being changed.
+
+| Who or what | `dev` | `stg` | `prd` |
+| ----------- | :---: | :---: | :---: |
+| Developers | Contributor | Contributor | Reader |
+| Administrators | Owner | Owner | Owner |
+| Stakeholders | Reader | Reader | Reader |
+| Application pipeline | Deploy code | Deploy code | Deploy code |
+| Infrastructure pipeline | Deploy infrastructure | Deploy infrastructure | Deploy infrastructure |
+
+These roles are the defaults in the starter configuration. You can change them in `platform-config.jsonc`.
+
+What this gives you:
+
+- **Developers can build, but cannot change production directly.** They have read-only access to `prd` and
+  reach it only through the pipeline.
+- **Code and infrastructure are deployed by different identities.** The application pipeline can deploy code but
+  cannot change infrastructure; only the infrastructure pipeline can. Application changes cannot quietly alter
+  your cloud setup.
+- **Each environment has its own identity.** An identity for `dev` cannot touch `prd`, and a pipeline run is
+  tied to a specific GitHub environment, so GitHub protection rules (such as required approvals, which you can switch on per environment) apply before it can sign in to Azure.
+- **The platform itself is governed too.** Changes to the platform configuration are previewed in a pull request
+  (read-only) and applied only from `main`, by a separate, more privileged identity.
+- **No stored secrets for Azure access.** Pipelines sign in with short-lived tokens (OIDC federation) instead of passwords.
 
 ## What do you get?
 
-Built on Infrastructure as Code and platform engineering principles, Azure Platform Kite provides reusable capabilities for resource provisioning, repository management, documentation generation, developer onboarding, and environment standardization. By codifying platform operations, it helps reduce manual effort, improve governance, and accelerate the delivery of secure and compliant developer platforms.
+Kite ships as a PowerShell module and a set of starter templates:
+
+- **The module** (`MSCKite.Azure.Platform`): commands that create the resource groups, Entra security groups, pipeline identities and GitHub environments described above, plus commands to inspect your current platform context.
+- **Configuration templates**: a starting point for the one file that describes your environments and who may do what.
+- **Workflow templates**: GitHub Actions pipelines for the platform itself, application code and infrastructure, staged across your environments.
 
 <!-- omit from toc -->
 ### Key Capabilities
 
 - Provision Azure and Microsoft Entra resources from configuration files
-- Create and configure Azure DevOps and GitHub repositories
-- Automate developer onboarding and workspace provisioning
-- Standardize platform operations through reusable workflows
+- Configure GitHub environments, secrets and variables to match
+- Run the same provisioning from a pipeline, with changes previewed in pull requests
 - Support Internal Developer Platform (IDP) and self-service initiatives
-- Promote consistency, governance, and automation across Azure environments
 
 > [!NOTE]
-> Although this toolkit is designed with Azure DevOps integration in mind, the first release focuses on Azure with GitHub integration. Azure DevOps commands are planned for a later major release. Until then, you can still use the easy `Get-*` and `Remove-PlatformContext` commands to inspect and clear your platform context.
+> Although this toolkit is designed with Azure DevOps integration in mind, the first release focuses on Azure with GitHub integration. Azure DevOps commands are planned for a later major release. Until then, you can still use the easy `Get-*` and `Disconnect-PlatformContext` commands to inspect and clear your platform context.
 
 ## Why use Kite?
 
 > _Just as a kite harnesses the power of the wind to move efficiently with minimal effort, Azure Platform Kite helps engineers harness the power of the cloud through automation, standardization, and reusable building blocks._
-
-Whether you are deploying a new platform environment, creating project repositories, generating documentation, or enabling self-service capabilities for development teams, the toolkit provides a consistent and repeatable approach to platform operations.
 
 <!-- omit from toc -->
 ### Built with AI, Designed for Automation
