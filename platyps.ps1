@@ -19,11 +19,14 @@
               unresolved "{{ }}" placeholder remains. Run this before Publish.
     - Publish Converts the Markdown files to MAML and writes
               MSCKite.Azure.Platform.dll-Help.xml to ./en-US, which the csproj copies into the
-              build output on the next `dotnet build` / `./build.ps1`.
+              build output on the next build (the VS Code Build task, or
+              Invoke-psake ./build.ps1 -taskList Build).
 
-    New and Update require the module to be loaded in the current session first (see
-    ./build.ps1 -Import), since PlatyPS reflects over the live module to discover
-    cmdlets/parameters/output types.
+    New and Update require the built module to be loaded in the session that runs this script,
+    since PlatyPS reflects over the live module to discover cmdlets/parameters/output types.
+    Load it in a separate pwsh process that exits afterwards (see the examples), never in the
+    terminal you build in: that session would keep the DLL locked and the next build fails.
+    See docs/help-authoring.md.
 
 .PARAMETER Mode
     Which stage of the PlatyPS workflow to run: New, Update, Test, or Publish.
@@ -33,11 +36,14 @@
     of every cmdlet that doesn't have a Markdown file yet.
 
 .EXAMPLE
-    ./build.ps1 -Import
-    ./platyps.ps1 -Mode New -Command Get-NewThing
+    pwsh -NoProfile -Command 'Import-Module ./src/bin/Debug/netstandard2.0/MSCKite.Azure.Platform.dll; ./platyps.ps1 -Mode New -Command Get-NewThing'
+
+    Builds Markdown for one new cmdlet, loading the module in a short-lived process.
 
 .EXAMPLE
-    ./platyps.ps1 -Mode Update
+    pwsh -NoProfile -Command 'Import-Module ./src/bin/Debug/netstandard2.0/MSCKite.Azure.Platform.dll; ./platyps.ps1 -Mode Update'
+
+    Refreshes the Markdown of changed cmdlets, loading the module in a short-lived process.
 
 .EXAMPLE
     ./platyps.ps1 -Mode Test
@@ -72,7 +78,7 @@ function Format-PlatyPSDiagnostic {
 }
 
 if ($Mode -in 'New', 'Update' -and -not (Get-Module -Name $moduleName)) {
-    throw "Module '$moduleName' isn't loaded. Run './build.ps1 -Import' first, then re-run this script inside that session."
+    throw "Module '$moduleName' isn't loaded. Build it, then run this mode in a separate process that loads it: pwsh -NoProfile -Command 'Import-Module ./src/bin/Debug/netstandard2.0/$moduleName.dll; ./platyps.ps1 -Mode $Mode'. See docs/help-authoring.md."
 }
 
 switch ($Mode) {
@@ -191,6 +197,6 @@ switch ($Mode) {
             Write-Host "Removed $($backupFiles.Count) .bak file(s) from '$docsFolder'." -ForegroundColor Green
         }
 
-        Write-Host "Published MAML help to '$outputFolder'. Run './build.ps1' to copy it into the build output." -ForegroundColor Green
+        Write-Host "Published MAML help to '$outputFolder'. Run the Build task (or 'Invoke-psake ./build.ps1 -taskList Build') to copy it into the build output." -ForegroundColor Green
     }
 }

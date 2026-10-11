@@ -29,37 +29,51 @@ and is wrapped by [`platyps.ps1`](../platyps.ps1) in this repository.
 | `Publish` | No | Converts the Markdown files to MAML and writes `en-US\MSCKite.Azure.Platform.dll-Help.xml`. |
 
 `New` and `Update` reflect over the *loaded* module to discover cmdlets/parameters/output types,
-so run the **build** task (see [CONTRIBUTING.md](../CONTRIBUTING.md#building-and-testing-locally)),
-`Import-Module` the resulting DLL, and execute `platyps.ps1` inside that same session.
+so build the module first, then run `platyps.ps1` in a PowerShell session that has the built DLL
+imported. Never import it in the terminal you build in: that session keeps the DLL locked, and the
+next build fails (see [CONTRIBUTING.md](../CONTRIBUTING.md#building-and-testing-locally)). Use one of:
+
+- **A separate `pwsh` process** that imports the DLL, runs the mode, and exits, which releases the
+  lock straight away:
+
+  ```powershell
+  pwsh -NoProfile -Command 'Import-Module ./src/bin/Debug/netstandard2.0/MSCKite.Azure.Platform.dll; ./platyps.ps1 -Mode Update'
+  ```
+
+- **The debug terminal**: start the **PowerShell cmdlets: pwsh** launch configuration (`F5`), which
+  builds the module and opens a terminal with it imported, run `./platyps.ps1 -Mode Update` there,
+  and stop debugging (`Shift+F5`) when you're done.
+
+`Test` and `Publish` read only the Markdown files, so run them in any terminal.
 
 ## Recurring workflow
 
 Follow this sequence whenever a cmdlet is added or changed:
 
 ```powershell
-# 1. Build the module
-dotnet build src/MSCKite.Azure.Platform.csproj
+# 1. Build the module (or in VS Code: Tasks: Run Build Task > Build)
+Invoke-psake ./build.ps1 -taskList Build
 
-# 2. Load it
-Import-Module ./src/bin/Debug/netstandard2.0/MSCKite.Azure.Platform.dll -Force
+# 2. Only for brand-new cmdlets: generate their Markdown in a separate process that loads the module
+pwsh -NoProfile -Command 'Import-Module ./src/bin/Debug/netstandard2.0/MSCKite.Azure.Platform.dll; ./platyps.ps1 -Mode New'
 
-# 3. Only for brand-new cmdlets
-./platyps.ps1 -Mode New
+# 3. Refresh Markdown for changed cmdlets, the same way
+pwsh -NoProfile -Command 'Import-Module ./src/bin/Debug/netstandard2.0/MSCKite.Azure.Platform.dll; ./platyps.ps1 -Mode Update'
 
-# 4. Refresh Markdown for changed cmdlets
-./platyps.ps1 -Mode Update
+# 4. Ask Copilot (or edit manually) to fill in any {{ }} placeholders flagged by step 3
 
-# 5. Ask Copilot (or edit manually) to fill in any {{ }} placeholders flagged by step 4
-
-# 6. Validate before publishing
+# 5. Validate before publishing
 ./platyps.ps1 -Mode Test
 
-# 7. Generate en-US\MSCKite.Azure.Platform.dll-Help.xml
+# 6. Generate en-US\MSCKite.Azure.Platform.dll-Help.xml
 ./platyps.ps1 -Mode Publish
 
-# 8. Copy the published help into the build output
-dotnet build src/MSCKite.Azure.Platform.csproj
+# 7. Copy the published help into the build output
+Invoke-psake ./build.ps1 -taskList Build
 ```
+
+Every step runs in the same terminal: the module is only ever imported by the short-lived `pwsh`
+processes in steps 2 and 3, so the build in step 7 never finds the DLL locked.
 
 ## Placeholders
 

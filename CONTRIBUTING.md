@@ -76,18 +76,18 @@ outside of any session that has the module loaded, following
 ### Building
 
 Don't run `dotnet build` directly in a terminal where you've also imported the module. Instead,
-use the **build** task:
+use the **Build** task:
 
 1. Open the **Command Palette** (`Ctrl+Shift+P`).
 2. Run **Tasks: Run Build Task** (or press `Ctrl+Shift+B`).
-3. Choose **build**.
+3. Choose **Build**.
 
 ### Debugging
 
 1. Set a breakpoint in the cmdlet's source code.
 2. Open the **Debug** pane (`Ctrl+Shift+D`) and select the **PowerShell cmdlets: pwsh**
    configuration.
-3. Press `F5` (or click **Start Debugging**). This runs the **build** task first (via
+3. Press `F5` (or click **Start Debugging**). This runs the **Build** task first (via
    `preLaunchTask`), then launches `pwsh` with the module imported in the integrated terminal.
 4. In the integrated terminal, invoke the cmdlet you want to debug. Execution stops at your
    breakpoint, where you can step through code and inspect variables.
