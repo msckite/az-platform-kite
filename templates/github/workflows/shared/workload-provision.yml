@@ -1,5 +1,9 @@
 name: 'Jobs: Workload Provision'
 
+# Deploys (or previews) the workload package built by workload-validate.yml; this job never builds. By default the
+# package comes from the current run; a Release Flow production deployment passes the run id of the staging
+# deployment instead, so production runs exactly the package staging ran.
+
 on:
   workflow_call:
     inputs:
@@ -18,10 +22,21 @@ on:
         type: string
         required: false
         default: ''
+      artifact-name:
+        description: Name of the run artifact holding the built workload package.
+        type: string
+        required: false
+        default: workload-package
+      artifact-run-id:
+        description: Id of the workflow run that built the package. Defaults to the current run.
+        type: string
+        required: false
+        default: ''
 
 permissions:
   contents: read
   id-token: write
+  actions: read
 
 env:
   WHAT_IF: ${{ inputs.what-if }}
@@ -36,12 +51,27 @@ jobs:
     permissions:
       contents: read
       id-token: write
+      actions: read # download the package, also from another run
 
     steps:
+      # The runner context is only available inside steps; later steps and actions read it as env.PACKAGE_PATH
+      - name: Set package path
+        shell: pwsh
+        run: |
+          "PACKAGE_PATH=$(Join-Path $env:RUNNER_TEMP 'workload-package')" >> $env:GITHUB_ENV
+
       - name: Check out repository
         uses: actions/checkout@v7
         with:
           ref: ${{ inputs.ref || github.event.release.tag_name || github.sha }}
+
+      - name: Download workload package
+        uses: actions/download-artifact@v7
+        with:
+          name: ${{ inputs.artifact-name }}
+          path: ${{ env.PACKAGE_PATH }}
+          run-id: ${{ inputs.artifact-run-id || github.run_id }}
+          github-token: ${{ github.token }}
 
       - name: Set up Platform Kite
         uses: ./.github/actions/setup-platform-kite
@@ -53,9 +83,14 @@ jobs:
       - name: Sync Workload
         shell: pwsh
         run: |
+          $buildInfo = Join-Path $env:PACKAGE_PATH 'build-info.json'
+          if (Test-Path -Path $buildInfo) {
+            Write-Output "Workload package built by: $(Get-Content -Path $buildInfo -Raw | ConvertFrom-Json | ConvertTo-Json -Compress)"
+          }
+
           if ($env:WHAT_IF -eq 'true') {
-            Write-Output '➡️ TODO: Plan (preflight) the workload deployment with WhatIf = true'
+            Write-Output "➡️ TODO: Plan (preflight) the deployment of the package in $env:PACKAGE_PATH with WhatIf = true"
           }
           else {
-            Write-Output '➡️ TODO: Deploy the workload with WhatIf = false'
+            Write-Output "➡️ TODO: Deploy the package in $env:PACKAGE_PATH with WhatIf = false"
           }

@@ -14,10 +14,12 @@
 
 To make life a bit easier, a `.vscode/settings.json` file is configured to enforce _some_ of the syntax and style guidelines automatically. These will apply when `Saving` a file for example `cs`, `ps1`, `json`, `yaml` or `md` files. For this to work you need to install the recommended `extensions` in vscode.
 
+All text files use LF line endings, in the repository and in every working copy; see [docs/line-endings.md](./docs/line-endings.md) for why and how this is enforced.
+
 - Use `PascalCase` for _all_ public identifiers like module names, function names, properties, parameters, global variables and constants.
 - Use `camelCase` for _all_ variables within functions (or modules) to distinguish private variables from parameters.
 - Use `camelCase` for _all_ keys within Json files.
-- Use `four` spaces per indentation level.
+- Use `four` spaces per indentation level in PowerShell and C# files, and `two` spaces in JSON, JSONC and YAML files, as set in `.vscode/settings.json`.
 - Use [approved verbs](https://learn.microsoft.com/en-us/powershell/scripting/developer/cmdlet/approved-verbs-for-windows-powershell-commands) for PowerShell Commands.
 - Take notice of the [PowerShell development guidelines](https://learn.microsoft.com/en-us/powershell/scripting/developer/cmdlet/strongly-encouraged-development-guidelines) when you write modules or cmdlets.
 - Take notice of the [PowerShell-Docs](https://learn.microsoft.com/en-us/powershell/scripting/community/contributing/powershell-style-guide) style guide when you write documentation content.
@@ -74,18 +76,18 @@ outside of any session that has the module loaded, following
 ### Building
 
 Don't run `dotnet build` directly in a terminal where you've also imported the module. Instead,
-use the **build** task:
+use the **Build** task:
 
 1. Open the **Command Palette** (`Ctrl+Shift+P`).
 2. Run **Tasks: Run Build Task** (or press `Ctrl+Shift+B`).
-3. Choose **build**.
+3. Choose **Build**.
 
 ### Debugging
 
 1. Set a breakpoint in the cmdlet's source code.
 2. Open the **Debug** pane (`Ctrl+Shift+D`) and select the **PowerShell cmdlets: pwsh**
    configuration.
-3. Press `F5` (or click **Start Debugging**). This runs the **build** task first (via
+3. Press `F5` (or click **Start Debugging**). This runs the **Build** task first (via
    `preLaunchTask`), then launches `pwsh` with the module imported in the integrated terminal.
 4. In the integrated terminal, invoke the cmdlet you want to debug. Execution stops at your
    breakpoint, where you can step through code and inspect variables.

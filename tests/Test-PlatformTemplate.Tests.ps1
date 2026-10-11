@@ -1,4 +1,4 @@
-﻿$ErrorActionPreference = 'Stop'
+$ErrorActionPreference = 'Stop'
 
 Describe 'Test-PlatformTemplate' {
     BeforeAll {

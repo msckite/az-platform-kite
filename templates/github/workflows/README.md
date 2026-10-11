@@ -22,6 +22,9 @@ infra workflows trigger on `iac/**`.
 - [Release Flow workload strategy (`release`)](#release-flow-workload-strategy-release)
 - [GitHub Flow infra strategy (`github`)](#github-flow-infra-strategy-github)
 - [Release Flow infra strategy (`release`)](#release-flow-infra-strategy-release)
+- [Staging verification](#staging-verification)
+- [Build once, deploy the same package](#build-once-deploy-the-same-package)
+- [Releasing with release-please](#releasing-with-release-please)
 - [Pinning the Kite version](#pinning-the-kite-version)
 - [Manual runs and concurrency](#manual-runs-and-concurrency)
 - [Prerequisites](#prerequisites)
@@ -33,13 +36,18 @@ infra workflows trigger on `iac/**`.
 templates/github/
   actions/
     setup-platform-kite/action.yml   Composite action: installs the module and signs in to Azure (OIDC)
+  scripts/
+    stg-verification.sh              Release Flow: records and verifies content deployed to stg
+  release-please/
+    config.json                      Release Flow: deliverables and tag format for release-please
+    manifest.json                    Release Flow: current version per deliverable
   workflows/
     manifest.jsonc                   Source/destination map used by the install command
     shared/
       platform-validate.yml          Reusable: template and schema version validation
       platform-provision.yml         Reusable: the four provisioning phases, correctly chained
-      workload-validate.yml          Reusable: source validation, build and tests
-      workload-provision.yml         Reusable: workload plan/deployment placeholder
+      workload-validate.yml          Reusable: validation, build and tests; uploads the workload package
+      workload-provision.yml         Reusable: plans/deploys the workload package (placeholder)
       infra-validate.yml             Reusable: Bicep lint/build placeholder
       infra-provision.yml            Reusable: infra deployment stack plan/deployment placeholder
     platform-flow/
@@ -57,6 +65,7 @@ templates/github/
       infra-ci.yml                   Release Flow infra trigger
       infra-cd.yml                   Release Flow infra trigger
       infra-release.yml              Release Flow infra trigger
+      release-please.yml             Release Flow: release pull requests per deliverable, starts prd deployments
 ```
 
 The platform workflows have one fixed lifecycle: pull requests validate and run `-WhatIf`, while
@@ -74,11 +83,11 @@ default), or `all` (platform + workload + infra). Platform installation never re
 
 | Source                                             | Destination                                         |
 | -------------------------------------------------- | --------------------------------------------------- |
-| `github/actions/setup-platform-kite/action.yml`     | `.github/actions/setup-platform-kite/action.yml`     |
-| `github/workflows/shared/platform-validate.yml`     | `.github/workflows/platform-validate.yml`            |
-| `github/workflows/shared/platform-provision.yml`    | `.github/workflows/platform-provision.yml`           |
-| `github/workflows/platform-flow/platform-ci.yml`    | `.github/workflows/platform-ci.yml`                 |
-| `github/workflows/platform-flow/platform-cd.yml`    | `.github/workflows/platform-cd.yml`                 |
+| `github/actions/setup-platform-kite/action.yml`    | `.github/actions/setup-platform-kite/action.yml`    |
+| `github/workflows/shared/platform-validate.yml`    | `.github/workflows/platform-validate.yml`           |
+| `github/workflows/shared/platform-provision.yml`   | `.github/workflows/platform-provision.yml`          |
+| `github/workflows/platform-flow/platform-ci.yml`   | `.github/workflows/platform-ci.yml`                 |
+| `github/workflows/platform-flow/platform-cd.yml`   | `.github/workflows/platform-cd.yml`                 |
 
 The workload bundle copies the shared reusable workflows and the `workload-*.yml` trigger files for
 the selected branch strategy. The shared workflows use the setup action. Workload CI validates,
@@ -176,25 +185,21 @@ environment's OIDC token or secrets to any run that is not on `main`.
 ## GitHub Flow workload strategy (`github`)
 
 Workload CI runs on pull requests targeting `main`, deploys `dev` and runs a `-WhatIf` preflight for
-`prd`. Workload CD runs after a push to `main` and deploys `prd`. Both trigger only on `src/**` and
+`prd`. Workload CD runs after a push to `main`, builds it once, and deploys that package to `prd`. Both trigger only on `src/**` and
 `.github/workflows/workload-*.yml` changes, so platform and infra changes never run the workload
 pipeline.
 
 ## Release Flow workload strategy (`release`)
 
 Workload CI runs on pull requests targeting `main`, deploys `dev` and runs a `-WhatIf` preflight for
-`stg`. Workload CD runs after a push to `main`, deploys `stg`, moves the `stg-workload-verified` tag
-to that commit, then runs a `-WhatIf` preflight for `prd`. The workload release trigger deploys `prd`
-after a published release, first confirming the release commit is an ancestor of (or equal to) the
-`stg-workload-verified` commit, not necessarily the exact tip. Since `main` only moves forward and
-`stg-workload-verified` only ever advances to a newer commit, any commit that has already reached
-`stg` passes this check even if a later commit was promoted in the meantime, for example while an
-older release is still waiting to be published. An exact-equality check would fail that release for
-no reason: the tag can legitimately move past the released commit between release creation and the
-release trigger running. Since the `release` event has no tag pattern filter, the workload release
-trigger runs for every published release but only proceeds when the release tag starts with
-`workload/`, for example `workload/v1.2.0`; releases tagged `infra/...` are skipped.
-Workload CI and CD trigger only on the same `src/**` allowlist as the GitHub Flow strategy.
+`stg`. Workload CD runs after a push to `main`, builds it once, deploys that package to `stg`, records that deployment as a
+`kite/stg-workload` commit status, then runs a `-WhatIf` preflight for `prd`. The workload release
+trigger deploys `prd` after a published release, but only when the release's `src/` content has been
+deployed to `stg` successfully (see [Staging verification](#staging-verification)). Since the
+`release` event has no tag pattern filter, the workload release trigger runs for every published
+release but only proceeds when the release tag starts with `workload/`, for example
+`workload/v1.2.0`; releases tagged `infra/...` are skipped. Workload CI and CD trigger only on the
+same `src/**` allowlist as the GitHub Flow strategy.
 
 ## GitHub Flow infra strategy (`github`)
 
@@ -208,14 +213,135 @@ deploys `dev`, and runs a `-WhatIf` preflight for `prd`. Infra CD deploys `prd` 
 ## Release Flow infra strategy (`release`)
 
 Infra CI and CD mirror the Release Flow workload strategy, triggered only on `iac/**` and
-`.github/workflows/infra-*.yml` changes. Infra CD moves its own `stg-infra-verified` tag after
-deploying `stg`, kept separate from the workload pipeline's `stg-workload-verified` tag so that an
+`.github/workflows/infra-*.yml` changes. Infra CD records its own `kite/stg-infra` commit status after
+deploying `stg`, kept separate from the workload pipeline's `kite/stg-workload` status so that an
 infra-only change doesn't need a workload deployment to promote, and vice versa. The infra release
-trigger deploys `prd` after a published release, confirming the release commit is an ancestor of (or
-equal to) the `stg-infra-verified` commit, using the same ancestor check as the workload release
-trigger and for the same reason: the tag can move on before an older release is published. Just like
-the workload release trigger, it only proceeds when the release tag starts with `infra/`, for
-example `infra/v1.2.0`; releases tagged `workload/...` are skipped.
+trigger deploys `prd` after a published release, but only when the release's `iac/` content has been
+deployed to `stg` successfully. Just like the workload release trigger, it only proceeds when the
+release tag starts with `infra/`, for example `infra/v1.2.0`; releases tagged `workload/...` are
+skipped.
+
+## Staging verification
+
+Release Flow only lets content reach `prd` that `stg` has run successfully. Both the CD and the
+release workflows use `.github/scripts/stg-verification.sh`:
+
+- After a successful `stg` deployment, CD runs `stg-verification.sh mark`. It computes a fingerprint
+  of the deliverable's content (every file under `iac/` or `src/`) and records it as a commit status
+  on the deployed commit, `kite/stg-infra` or `kite/stg-workload`, visible as a check on the commit.
+- Before deploying `prd`, the release workflow runs `stg-verification.sh verify`. It computes the same
+  fingerprint for the release commit and looks on `main` for a commit with identical content and a
+  successful status. Without one, `prd` is not deployed.
+
+The check compares **content**, not the position of a commit in history:
+
+- A release cut from a later commit that did not change the deliverable (for example a workload-only
+  change, or a release commit that only updates `CHANGELOG.md` or `version.txt`) still passes, since
+  its content is the one `stg` ran. Both files are left out of the fingerprint for that reason.
+- Content whose `stg` deployment failed never passes, even after a later commit deployed
+  successfully.
+
+Changes outside the deliverable folder, such as workflow files, are not part of the fingerprint.
+Adapt the folder or the ignored files in the script when your deliverables live elsewhere.
+
+`verify` also reports which commit and run deployed that content to `stg`, as the `stg-commit` and
+`stg-run-id` step outputs, taken from the link that `mark` stores on the commit status. The workload
+release uses the run id to deploy the package `stg` ran (see below).
+
+## Build once, deploy the same package
+
+The workload sample builds each change **once** and deploys that same, tested package to every
+environment, instead of building again per environment:
+
+- `workload-validate.yml` validates, builds, and tests the workload, then uploads the result as the
+  run artifact `workload-package`. Put your build output in `$env:PACKAGE_PATH`; the sample writes a
+  placeholder `build-info.json` there (commit, ref, run id, build time), so the flow runs before a real
+  build exists.
+- `workload-provision.yml` never builds. It downloads `workload-package` and deploys it from
+  `$env:PACKAGE_PATH`, and logs the `build-info.json` it received. By default it takes the package from
+  the current run; its `artifact-run-id` input selects another run.
+- CI builds the pull request once for `dev` and the preview. CD builds the `main` commit once (the
+  `build` job) and deploys that package to `stg` (Release Flow) or `prd` (GitHub Flow).
+- A Release Flow production deployment builds nothing: it passes the `stg-run-id` reported by the
+  [staging verification](#staging-verification) as `artifact-run-id`, so `prd` runs exactly the
+  package `stg` ran. Its `build-info.json` therefore shows the commit `stg` deployed, which can be older
+  than the release commit when only the changelog changed since.
+
+Run artifacts are kept for the repository's artifact retention period (**Settings > Actions > General
+> Artifact and log retention**, 90 days by default). A release whose `stg` package has expired fails
+to download it and does not reach `prd`: run the workload CD again from `main` to build and deploy a
+fresh package to `stg`, then start the release workflow again with the same tag. Likewise, the first
+workload release after adopting this pattern needs content that a CD run with the `build` job
+deployed to `stg`. For a container image, push it to a registry in the build step instead, tagged with
+the commit, and deploy that image by digest in the provision step; the same promotion rules apply.
+
+## Releasing with release-please
+
+Release Flow ships a [release-please](https://github.com/googleapis/release-please) sample that
+versions and releases `infra` and `workload` independently. Three files set it up:
+
+| File | Purpose |
+| --- | --- |
+| `.github/release-please/config.json` | Declares the deliverables: `iac/` as component `infra`, `src/` as component `workload`, one release pull request each, tags such as `infra/v1.3.0`. |
+| `.github/release-please/manifest.json` | The current version of each deliverable; release-please updates it with every release. |
+| `.github/workflows/release-please.yml` | Runs on every push to `main`. |
+
+How a release works:
+
+1. Merge pull requests to `main` as usual, with [Conventional Commits](https://www.conventionalcommits.org/)
+   titles (`fix: …` for a patch, `feat: …` for a minor version, `feat!: …` or a `BREAKING CHANGE:`
+   footer for a major version). With squash merges, the pull request title becomes the commit message.
+   release-please assigns each commit to a deliverable by the folder it changed, not by its title.
+2. Each merge also deploys `stg` (CD), and release-please keeps an open release pull request per
+   deliverable, for example `chore(main): release infra 1.3.0`, holding the next version and its
+   `CHANGELOG.md` entries. It keeps collecting changes while you test `stg`.
+3. **Merging a release pull request is the decision to go to production.** release-please creates
+   the tag and GitHub release, then starts `infra-flow-release.yml` or `workload-flow-release.yml`
+   with that tag. The release workflow verifies the content was deployed to `stg` and deploys `prd`.
+   Infra and workload each have their own release pull request, so one can go to production without
+   the other.
+
+A release pull request only changes `CHANGELOG.md`, `version.txt`, and the version manifest, so the
+Release Flow CI and CD triggers ignore `CHANGELOG.md` and `version.txt`, and the
+[staging verification](#staging-verification) leaves them out of the content fingerprint: the release
+commit passes with the content `stg` already ran, without another `stg` deployment.
+
+A release created with the built-in `GITHUB_TOKEN` does not trigger the `release` event of other
+workflows, so `release-please.yml` starts the production deployment itself through the release
+workflows' manual trigger, which a `GITHUB_TOKEN` may start. A release published by hand still
+triggers the release workflows through the `release` event, as before. Do not give release-please a
+personal access token or GitHub App token without removing that manual start, or both paths deploy.
+
+Setup, once per repository:
+
+- Allow release-please to open pull requests: **Settings > Actions > General > Workflow permissions >
+  Allow GitHub Actions to create and approve pull requests**.
+- Set each deliverable's version in `.github/release-please/manifest.json` to its latest existing release,
+  for example `"iac": "1.2.0"` when `infra/v1.2.0` exists, so release-please continues from there.
+  For a deliverable without releases, keep `0.0.0`; to choose the first version yourself, add a
+  `Release-As: 1.0.0` footer to a commit message.
+- Remove the package of a deliverable you do not use from `.github/release-please/config.json`, or change
+  `release-type` (for example to `node`) so release-please also bumps your project's own version file.
+
+The configuration lives in `.github/release-please/` instead of release-please's default location in
+the repository root, so `release-please.yml` passes both paths explicitly through the action's
+`config-file` and `manifest-file` inputs. The package paths inside `config.json` (`iac`, `src`) stay
+relative to the repository root.
+
+### Adapting the release sample
+
+Most names in this sample can be changed freely, but some are referenced elsewhere and must be changed
+together:
+
+| When you change | Also update |
+| --- | --- |
+| The location or name of `config.json` or `manifest.json` | `config-file` and `manifest-file` in `release-please.yml`. |
+| A deliverable folder, for example `iac` to `infra` | Its package key in `config.json` and in `manifest.json` (both must match the folder path), the `iac--release_created` and `iac--tag_name` outputs in `release-please.yml`, the folder argument of the `stg-verification.sh` calls in the CD and release workflows, and the `iac/**` path filters of CI and CD. |
+| A component name (the tag prefix), for example `infra` | The `startsWith(..., 'infra/')` conditions in the matching release workflow. |
+| A release workflow file name, for example `infra-flow-release.yml` | The `gh workflow run` line in `release-please.yml`. |
+| The changelog or version file (`changelog-path`, `version-file`, or another `release-type`) | The `!` exclusions in the CI and CD path filters, and the ignored files in `stg-verification.sh`, so release commits still skip `stg` and pass the staging verification. |
+
+The workflow file name `release-please.yml` itself is free: nothing refers to it.
 
 ## Pinning the Kite version
 
@@ -244,8 +370,8 @@ Every workflow keeps a `workflow_dispatch` trigger, but a manual run can never d
 the automatic trigger would not:
 
 - **CD workflows** (`*-cd.yml`) only deploy when run from `main`. A manual run from any other branch
-  skips every deploy job, so a feature branch can never reach `stg` or `prd`, nor move a
-  `stg-*-verified` tag.
+  skips every deploy job, so a feature branch can never reach `stg` or `prd`, nor record a
+  `kite/stg-*` status.
 - **Release workflows** (`*-release.yml`) take a required `tag` input, for example `infra/v1.2.0`,
   to redeploy an existing release to `prd` (e.g. after a failed run). The manual run goes through the
   same staging verification as a published release, and `deploy-prd` only runs when that

@@ -1,7 +1,17 @@
 name: 'Jobs: Workload Validate'
 
+# Builds the workload once: validates, builds and tests it, then uploads the tested result as a run artifact.
+# Every deployment job downloads that artifact instead of building again, so each environment runs exactly the
+# package that was tested, and a Release Flow production deployment reuses the package staging ran.
+
 on:
   workflow_call:
+    inputs:
+      artifact-name:
+        description: Name of the run artifact holding the built workload package.
+        type: string
+        required: false
+        default: workload-package
 
 permissions:
   contents: read
@@ -13,6 +23,13 @@ jobs:
     timeout-minutes: 15
 
     steps:
+      # Everything placed in PACKAGE_PATH is uploaded as the workload package
+      # The runner context is only available inside steps; later steps and actions read it as env.PACKAGE_PATH
+      - name: Set package path
+        shell: pwsh
+        run: |
+          "PACKAGE_PATH=$(Join-Path $env:RUNNER_TEMP 'workload-package')" >> $env:GITHUB_ENV
+
       - name: Check out repository
         uses: actions/checkout@v7
 
@@ -34,9 +51,27 @@ jobs:
       - name: Build workload
         shell: pwsh
         run: |
-          Write-Output '➡️ TODO: Build the workload'
+          New-Item -Path $env:PACKAGE_PATH -ItemType Directory -Force | Out-Null
+          Write-Output "➡️ TODO: Build the workload into $env:PACKAGE_PATH (e.g. dotnet publish -o, npm run build, a zip)"
+
+          # Placeholder content, so the package flow works before a real build exists; keep it next to your build output
+          # to see in every environment which commit and run produced the package it runs
+          [ordered]@{
+            commit  = $env:GITHUB_SHA
+            ref     = $env:GITHUB_REF
+            runId   = $env:GITHUB_RUN_ID
+            builtAt = (Get-Date).ToUniversalTime().ToString('o')
+          } | ConvertTo-Json | Set-Content -Path (Join-Path $env:PACKAGE_PATH 'build-info.json')
 
       - name: Run tests
         shell: pwsh
         run: |
-          Write-Output '➡️ TODO: Run the workload tests'
+          Write-Output '➡️ TODO: Run the workload tests against the built package'
+
+      # Only a tested package is uploaded; it is kept for the repository's artifact retention period (Settings > Actions)
+      - name: Upload workload package
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ inputs.artifact-name }}
+          path: ${{ env.PACKAGE_PATH }}
+          if-no-files-found: error
