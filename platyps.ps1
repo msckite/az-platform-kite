@@ -253,11 +253,14 @@ switch ($Mode) {
             Remove-Item -Path (Join-Path $outputFolder $moduleName) -Recurse -Force
         }
 
-        # Export-MamlCommandHelp omits the final newline that files.insertFinalNewline in .vscode/settings.json expects
+        # Export-MamlCommandHelp writes CRLF on Windows and omits the final newline; normalize to the LF with a final newline
+        # that .gitattributes (docs/line-endings.md) and files.insertFinalNewline in .vscode/settings.json expect
         $helpFilePath = Join-Path $outputFolder $helpFileName
-        if (-not [System.IO.File]::ReadAllText($helpFilePath).EndsWith("`n")) {
-            [System.IO.File]::AppendAllText($helpFilePath, [System.Environment]::NewLine)
+        $helpContent = [System.IO.File]::ReadAllText($helpFilePath).Replace("`r`n", "`n")
+        if (-not $helpContent.EndsWith("`n")) {
+            $helpContent += "`n"
         }
+        [System.IO.File]::WriteAllText($helpFilePath, $helpContent, (New-Object System.Text.UTF8Encoding($false)))
 
         # .bak files only exist to diff -Mode Update's changes before Test/Publish; no longer needed once Publish succeeds
         $backupFiles = Get-ChildItem -Path "$docsFolder\*.bak" -ErrorAction SilentlyContinue
