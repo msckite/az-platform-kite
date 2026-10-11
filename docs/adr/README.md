@@ -15,3 +15,4 @@ area, and add a new one when you make a decision others would otherwise revisit.
 | [0001](./0001-templates-are-starter-samples.md) | Templates are starter samples | Accepted |
 | [0002](./0002-no-required-reviewers-on-private-repositories.md) | No required reviewers on stg and prd by default | Accepted |
 | [0003](./0003-platform-workflow-is-optional.md) | The platform workflow is optional and stays in the configured repository | Accepted |
+| [0004](./0004-consumers-own-their-bicep-and-use-avm.md) | Consumers own their Bicep and use Azure Verified Modules | Accepted |
