@@ -14,6 +14,8 @@
 
 To make life a bit easier, a `.vscode/settings.json` file is configured to enforce _some_ of the syntax and style guidelines automatically. These will apply when `Saving` a file for example `cs`, `ps1`, `json`, `yaml` or `md` files. For this to work you need to install the recommended `extensions` in vscode.
 
+All text files use LF line endings, in the repository and in every working copy; see [docs/line-endings.md](./docs/line-endings.md) for why and how this is enforced.
+
 - Use `PascalCase` for _all_ public identifiers like module names, function names, properties, parameters, global variables and constants.
 - Use `camelCase` for _all_ variables within functions (or modules) to distinguish private variables from parameters.
 - Use `camelCase` for _all_ keys within Json files.
