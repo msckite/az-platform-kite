@@ -7,6 +7,9 @@
 - [Documentation Standards](#documentation-standards)
 - [Building and testing locally](#building-and-testing-locally)
 - [Help authoring](#help-authoring)
+- [Commits and pull requests](#commits-and-pull-requests)
+- [Releases and decisions](#releases-and-decisions)
+- [Working with coding agents](#working-with-coding-agents)
 - [Modules Structure](#modules-structure)
 - [Terminology](#terminology)
 
@@ -105,6 +108,26 @@ use the **Build** task:
 `Get-Help` for this module is generated from Markdown source via PlatyPS, not from the C# XML
 doc comments on cmdlet classes. See [docs/help-authoring.md](./docs/help-authoring.md) for the
 `platyps.ps1` workflow used to create, update, validate, and publish that help content.
+
+## Commits and pull requests
+
+Split work into logical commits. Pull request titles are Conventional Commits in the form
+`<type>: <Capitalized summary>` (for example `fix: Make platyps Update idempotent`). Pull requests
+are squash-merged, so the pull request title becomes the commit title on `main`. Fill in the
+[pull request template](./.github/pull_request_template.md).
+
+## Releases and decisions
+
+- [docs/releasing.md](./docs/releasing.md) describes how a GitHub Release publishes the module to the
+  PowerShell Gallery and how to cut one.
+- [docs/adr](./docs/adr/README.md) records the decisions that shape Kite and why they were made.
+  Read the relevant record before proposing a change in the same area.
+
+## Working with coding agents
+
+[AGENTS.md](./AGENTS.md) is the entry point for coding agents. It lists the checks to run and the
+rules that must not be broken. Keep it short and link to this file and `docs/` instead of copying
+them.
 
 ## Modules Structure
 
