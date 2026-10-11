@@ -1,2 +1,7 @@
-# Shell scripts run on Linux runners; keep LF even when cloned on Windows (core.autocrlf=true)
-*.sh text eol=lf
+# Store and check out every text file with LF line endings on every machine, whatever core.autocrlf is set to
+# (Git for Windows defaults to true). Matches the Linux GitHub runners and files.eol in .vscode/settings.json,
+# and keeps shell scripts runnable when the repository or its templates are cloned on Windows.
+* text=auto eol=lf
+
+# Never convert binary files
+*.png binary
