@@ -77,6 +77,73 @@ function Format-PlatyPSDiagnostic {
     }
 }
 
+# Update-MarkdownCommandHelp and Update-MarkdownModuleFile aren't idempotent: on every run they repeat each
+# parameter description once more, re-add a BOM and CRLF line endings, and bump ms.date, even when nothing
+# changed. This undoes that so a no-op Update leaves the files byte-for-byte untouched.
+function Repair-PlatyPSMarkdown {
+    param([string]$Path)
+
+    $backupPath = "$Path.bak"
+    $utf8NoBom = [System.Text.UTF8Encoding]::new($false)
+    $readNormalized = { param($file) [System.IO.File]::ReadAllText($file).TrimStart([char]0xFEFF).Replace("`r`n", "`n") }
+
+    $lines = (& $readNormalized $Path) -split "`n"
+
+    # Collapse a parameter description that repeats itself (whole copies, word for word) back to one copy
+    $result = [System.Collections.Generic.List[string]]::new()
+    $index = 0
+    while ($index -lt $lines.Count) {
+        $result.Add($lines[$index])
+        if ($lines[$index] -notmatch '^### -') { $index++; continue }
+
+        $bodyStart = $index + 1
+        $bodyEnd = $bodyStart
+        while ($bodyEnd -lt $lines.Count -and $lines[$bodyEnd] -ne '```yaml') { $bodyEnd++ }
+        $body = @($lines[$bodyStart..($bodyEnd - 1)])
+
+        $wordsPerLine = @($body | ForEach-Object { , @($_ -split '\s+' | Where-Object { $_ }) })
+        $words = @($wordsPerLine | ForEach-Object { $_ })
+        $keepUntil = $body.Count
+        for ($period = 1; $period -le $words.Count / 2; $period++) {
+            if ($words.Count % $period -ne 0) { continue }
+            $repeats = $true
+            for ($i = $period; $i -lt $words.Count; $i++) {
+                if ($words[$i] -cne $words[$i % $period]) { $repeats = $false; break }
+            }
+            if (-not $repeats) { continue }
+
+            # Only collapse when one copy ends exactly at the end of a line
+            $wordsSoFar = 0
+            for ($line = 0; $line -lt $body.Count; $line++) {
+                $wordsSoFar += $wordsPerLine[$line].Count
+                if ($wordsSoFar -eq $period) { $keepUntil = $line + 1; break }
+            }
+            break
+        }
+
+        if ($keepUntil -eq $body.Count) {
+            $body | ForEach-Object { $result.Add($_) }
+        } else {
+            $body | Select-Object -First $keepUntil | ForEach-Object { $result.Add($_) }
+            $result.Add('')
+        }
+        $index = $bodyEnd
+    }
+
+    $normalized = $result -join "`n"
+
+    # No real change besides the churn above: put the original file back, including its ms.date
+    if (Test-Path -LiteralPath $backupPath) {
+        $original = & $readNormalized $backupPath
+        $dateLine = '(?m)^ms\.date: .*$'
+        if (($normalized -replace $dateLine) -ceq ($original -replace $dateLine)) {
+            $normalized = $original
+        }
+    }
+
+    [System.IO.File]::WriteAllText($Path, $normalized, $utf8NoBom)
+}
+
 if ($Mode -in 'New', 'Update' -and -not (Get-Module -Name $moduleName)) {
     throw "Module '$moduleName' isn't loaded. Build it, then run this mode in a separate process that loads it: pwsh -NoProfile -Command 'Import-Module ./src/bin/Debug/netstandard2.0/$moduleName.dll; ./platyps.ps1 -Mode $Mode'. See docs/help-authoring.md."
 }
@@ -107,6 +174,8 @@ switch ($Mode) {
             Where-Object Filetype -Match 'CommandHelp' |
             Import-MarkdownCommandHelp -Path { $_.FilePath } |
             Update-MarkdownModuleFile -Path $moduleMarkdownPath
+
+        Get-ChildItem -Path "$docsFolder\*.md" | ForEach-Object { Repair-PlatyPSMarkdown -Path $_.FullName }
 
         $placeholders = Select-String -Path "$docsFolder\*.md" -Pattern $placeholderPattern
         if ($placeholders) {

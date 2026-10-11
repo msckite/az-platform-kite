@@ -4,7 +4,7 @@ external help file: MSCKite.Azure.Platform.dll-Help.xml
 HelpUri: ''
 Locale: en-NL
 Module Name: MSCKite.Azure.Platform
-ms.date: 09/23/2026
+ms.date: 10/11/2026
 PlatyPS schema version: 2024-05-01
 title: Get-PlatformTemplate
 ---
@@ -171,51 +171,6 @@ HelpMessage: ''
 
 Local folder to copy the downloaded folder(s) into. Defaults to `.tmp`, a dedicated folder
 separate from any in-use configuration so reruns never overwrite it.
-Local folder to copy the downloaded folder(s) into.
-Defaults to `.tmp`, a dedicated folder
-separate from any in-use configuration so reruns never overwrite it.
-Local folder to copy the downloaded folder(s) into.
-Defaults to `.tmp`, a dedicated folder
-separate from any in-use configuration so reruns never overwrite it.
-Local folder to copy the downloaded folder(s) into.
-Defaults to `.tmp`, a dedicated folder
-separate from any in-use configuration so reruns never overwrite it.
-Local folder to copy the downloaded folder(s) into.
-Defaults to `.tmp`, a dedicated folder
-separate from any in-use configuration so reruns never overwrite it.
-Local folder to copy the downloaded folder(s) into.
-Defaults to `.tmp`, a dedicated folder
-separate from any in-use configuration so reruns never overwrite it.
-Local folder to copy the downloaded folder(s) into.
-Defaults to `.tmp`, a dedicated folder
-separate from any in-use configuration so reruns never overwrite it.
-Local folder to copy the downloaded folder(s) into.
-Defaults to `.tmp`, a dedicated folder
-separate from any in-use configuration so reruns never overwrite it.
-Local folder to copy the downloaded folder(s) into.
-Defaults to `.tmp`, a dedicated folder
-separate from any in-use configuration so reruns never overwrite it.
-Local folder to copy the downloaded folder(s) into.
-Defaults to `.tmp`, a dedicated folder
-separate from any in-use configuration so reruns never overwrite it.
-Local folder to copy the downloaded folder(s) into.
-Defaults to `.tmp`, a dedicated folder
-separate from any in-use configuration so reruns never overwrite it.
-Local folder to copy the downloaded folder(s) into.
-Defaults to `.tmp`, a dedicated folder
-separate from any in-use configuration so reruns never overwrite it.
-Local folder to copy the downloaded folder(s) into.
-Defaults to `.tmp`, a dedicated folder
-separate from any in-use configuration so reruns never overwrite it.
-Local folder to copy the downloaded folder(s) into.
-Defaults to `.tmp`, a dedicated folder
-separate from any in-use configuration so reruns never overwrite it.
-Local folder to copy the downloaded folder(s) into.
-Defaults to `.tmp`, a dedicated folder
-separate from any in-use configuration so reruns never overwrite it.
-Local folder to copy the downloaded folder(s) into.
-Defaults to `.tmp`, a dedicated folder
-separate from any in-use configuration so reruns never overwrite it.
 
 ```yaml
 Type: System.String
@@ -237,36 +192,6 @@ HelpMessage: ''
 ### -RepositoryUrl
 
 The git URL to clone. Defaults to the `az-platform-kite` repository.
-The git URL to clone.
-Defaults to the `az-platform-kite` repository.
-The git URL to clone.
-Defaults to the `az-platform-kite` repository.
-The git URL to clone.
-Defaults to the `az-platform-kite` repository.
-The git URL to clone.
-Defaults to the `az-platform-kite` repository.
-The git URL to clone.
-Defaults to the `az-platform-kite` repository.
-The git URL to clone.
-Defaults to the `az-platform-kite` repository.
-The git URL to clone.
-Defaults to the `az-platform-kite` repository.
-The git URL to clone.
-Defaults to the `az-platform-kite` repository.
-The git URL to clone.
-Defaults to the `az-platform-kite` repository.
-The git URL to clone.
-Defaults to the `az-platform-kite` repository.
-The git URL to clone.
-Defaults to the `az-platform-kite` repository.
-The git URL to clone.
-Defaults to the `az-platform-kite` repository.
-The git URL to clone.
-Defaults to the `az-platform-kite` repository.
-The git URL to clone.
-Defaults to the `az-platform-kite` repository.
-The git URL to clone.
-Defaults to the `az-platform-kite` repository.
 
 ```yaml
 Type: System.String

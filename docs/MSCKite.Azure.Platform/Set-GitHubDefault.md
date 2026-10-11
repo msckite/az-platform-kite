@@ -4,7 +4,7 @@ external help file: MSCKite.Azure.Platform.dll-Help.xml
 HelpUri: ''
 Locale: en-NL
 Module Name: MSCKite.Azure.Platform
-ms.date: 09/23/2026
+ms.date: 10/11/2026
 PlatyPS schema version: 2024-05-01
 title: Set-GitHubDefault
 ---
@@ -52,99 +52,6 @@ Set-GitHubDefault -Owner "myorg" -Repository "myrepo"
 
 The name of the GitHub owner (user or organization) to use as the default. Pass `$null` to clear
 it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
 
 ```yaml
 Type: System.String
@@ -166,68 +73,6 @@ HelpMessage: ''
 ### -Repository
 
 The name of the GitHub repository to use as the default. Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
 
 ```yaml
 Type: System.String

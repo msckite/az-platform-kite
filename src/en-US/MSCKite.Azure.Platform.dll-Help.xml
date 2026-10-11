@@ -588,51 +588,6 @@ Defaults to `templates`.</maml:para>
         <maml:name>OutputFolder</maml:name>
         <maml:description>
           <maml:para>Local folder to copy the downloaded folder(s) into. Defaults to `.tmp`, a dedicated folder
-separate from any in-use configuration so reruns never overwrite it.
-Local folder to copy the downloaded folder(s) into.
-Defaults to `.tmp`, a dedicated folder
-separate from any in-use configuration so reruns never overwrite it.
-Local folder to copy the downloaded folder(s) into.
-Defaults to `.tmp`, a dedicated folder
-separate from any in-use configuration so reruns never overwrite it.
-Local folder to copy the downloaded folder(s) into.
-Defaults to `.tmp`, a dedicated folder
-separate from any in-use configuration so reruns never overwrite it.
-Local folder to copy the downloaded folder(s) into.
-Defaults to `.tmp`, a dedicated folder
-separate from any in-use configuration so reruns never overwrite it.
-Local folder to copy the downloaded folder(s) into.
-Defaults to `.tmp`, a dedicated folder
-separate from any in-use configuration so reruns never overwrite it.
-Local folder to copy the downloaded folder(s) into.
-Defaults to `.tmp`, a dedicated folder
-separate from any in-use configuration so reruns never overwrite it.
-Local folder to copy the downloaded folder(s) into.
-Defaults to `.tmp`, a dedicated folder
-separate from any in-use configuration so reruns never overwrite it.
-Local folder to copy the downloaded folder(s) into.
-Defaults to `.tmp`, a dedicated folder
-separate from any in-use configuration so reruns never overwrite it.
-Local folder to copy the downloaded folder(s) into.
-Defaults to `.tmp`, a dedicated folder
-separate from any in-use configuration so reruns never overwrite it.
-Local folder to copy the downloaded folder(s) into.
-Defaults to `.tmp`, a dedicated folder
-separate from any in-use configuration so reruns never overwrite it.
-Local folder to copy the downloaded folder(s) into.
-Defaults to `.tmp`, a dedicated folder
-separate from any in-use configuration so reruns never overwrite it.
-Local folder to copy the downloaded folder(s) into.
-Defaults to `.tmp`, a dedicated folder
-separate from any in-use configuration so reruns never overwrite it.
-Local folder to copy the downloaded folder(s) into.
-Defaults to `.tmp`, a dedicated folder
-separate from any in-use configuration so reruns never overwrite it.
-Local folder to copy the downloaded folder(s) into.
-Defaults to `.tmp`, a dedicated folder
-separate from any in-use configuration so reruns never overwrite it.
-Local folder to copy the downloaded folder(s) into.
-Defaults to `.tmp`, a dedicated folder
 separate from any in-use configuration so reruns never overwrite it.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
@@ -643,37 +598,7 @@ separate from any in-use configuration so reruns never overwrite it.</maml:para>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>RepositoryUrl</maml:name>
         <maml:description>
-          <maml:para>The git URL to clone. Defaults to the `az-platform-kite` repository.
-The git URL to clone.
-Defaults to the `az-platform-kite` repository.
-The git URL to clone.
-Defaults to the `az-platform-kite` repository.
-The git URL to clone.
-Defaults to the `az-platform-kite` repository.
-The git URL to clone.
-Defaults to the `az-platform-kite` repository.
-The git URL to clone.
-Defaults to the `az-platform-kite` repository.
-The git URL to clone.
-Defaults to the `az-platform-kite` repository.
-The git URL to clone.
-Defaults to the `az-platform-kite` repository.
-The git URL to clone.
-Defaults to the `az-platform-kite` repository.
-The git URL to clone.
-Defaults to the `az-platform-kite` repository.
-The git URL to clone.
-Defaults to the `az-platform-kite` repository.
-The git URL to clone.
-Defaults to the `az-platform-kite` repository.
-The git URL to clone.
-Defaults to the `az-platform-kite` repository.
-The git URL to clone.
-Defaults to the `az-platform-kite` repository.
-The git URL to clone.
-Defaults to the `az-platform-kite` repository.
-The git URL to clone.
-Defaults to the `az-platform-kite` repository.</maml:para>
+          <maml:para>The git URL to clone. Defaults to the `az-platform-kite` repository.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
         <dev:type>
@@ -872,51 +797,6 @@ is specified to overwrite it.</maml:para>
         <maml:name>InputFolder</maml:name>
         <maml:description>
           <maml:para>Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`. When omitted, a
-default `global-config.jsonc` template is generated instead.
-Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
-When omitted, a
-default `global-config.jsonc` template is generated instead.
-Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
-When omitted, a
-default `global-config.jsonc` template is generated instead.
-Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
-When omitted, a
-default `global-config.jsonc` template is generated instead.
-Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
-When omitted, a
-default `global-config.jsonc` template is generated instead.
-Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
-When omitted, a
-default `global-config.jsonc` template is generated instead.
-Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
-When omitted, a
-default `global-config.jsonc` template is generated instead.
-Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
-When omitted, a
-default `global-config.jsonc` template is generated instead.
-Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
-When omitted, a
-default `global-config.jsonc` template is generated instead.
-Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
-When omitted, a
-default `global-config.jsonc` template is generated instead.
-Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
-When omitted, a
-default `global-config.jsonc` template is generated instead.
-Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
-When omitted, a
-default `global-config.jsonc` template is generated instead.
-Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
-When omitted, a
-default `global-config.jsonc` template is generated instead.
-Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
-When omitted, a
-default `global-config.jsonc` template is generated instead.
-Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
-When omitted, a
-default `global-config.jsonc` template is generated instead.
-Folder containing a `global-config.jsonc` file to copy into `-OutputFolder`.
-When omitted, a
 default `global-config.jsonc` template is generated instead.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
@@ -927,37 +807,7 @@ default `global-config.jsonc` template is generated instead.</maml:para>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="true (ByPropertyName)" position="0" aliases="none">
         <maml:name>OutputFolder</maml:name>
         <maml:description>
-          <maml:para>Destination folder for the platform configuration structure. Defaults to `config`.
-Destination folder for the platform configuration structure.
-Defaults to `config`.
-Destination folder for the platform configuration structure.
-Defaults to `config`.
-Destination folder for the platform configuration structure.
-Defaults to `config`.
-Destination folder for the platform configuration structure.
-Defaults to `config`.
-Destination folder for the platform configuration structure.
-Defaults to `config`.
-Destination folder for the platform configuration structure.
-Defaults to `config`.
-Destination folder for the platform configuration structure.
-Defaults to `config`.
-Destination folder for the platform configuration structure.
-Defaults to `config`.
-Destination folder for the platform configuration structure.
-Defaults to `config`.
-Destination folder for the platform configuration structure.
-Defaults to `config`.
-Destination folder for the platform configuration structure.
-Defaults to `config`.
-Destination folder for the platform configuration structure.
-Defaults to `config`.
-Destination folder for the platform configuration structure.
-Defaults to `config`.
-Destination folder for the platform configuration structure.
-Defaults to `config`.
-Destination folder for the platform configuration structure.
-Defaults to `config`.</maml:para>
+          <maml:para>Destination folder for the platform configuration structure. Defaults to `config`.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
         <dev:type>
@@ -1097,6 +947,21 @@ needs no Azure or GitHub sign-in.</maml:para>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
           <maml:name>BranchStrategy</maml:name>
           <maml:description />
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>WorkflowType</maml:name>
+          <maml:description />
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">platform</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">workload</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">infra</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">both</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">all</command:parameterValue>
+          </command:parameterValueGroup>
           <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
           <dev:type>
             <maml:name>System.String</maml:name>
@@ -1465,37 +1330,7 @@ Use `-ExcludeCharacters` or `-NoAmbiguousCharacters` for human-readable password
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>Length</maml:name>
         <maml:description>
-          <maml:para>Specifies the password length. The minimum length is 8 and the maximum length is 256.
-Specifies the password length.
-The minimum length is 8 and the maximum length is 256.
-Specifies the password length.
-The minimum length is 8 and the maximum length is 256.
-Specifies the password length.
-The minimum length is 8 and the maximum length is 256.
-Specifies the password length.
-The minimum length is 8 and the maximum length is 256.
-Specifies the password length.
-The minimum length is 8 and the maximum length is 256.
-Specifies the password length.
-The minimum length is 8 and the maximum length is 256.
-Specifies the password length.
-The minimum length is 8 and the maximum length is 256.
-Specifies the password length.
-The minimum length is 8 and the maximum length is 256.
-Specifies the password length.
-The minimum length is 8 and the maximum length is 256.
-Specifies the password length.
-The minimum length is 8 and the maximum length is 256.
-Specifies the password length.
-The minimum length is 8 and the maximum length is 256.
-Specifies the password length.
-The minimum length is 8 and the maximum length is 256.
-Specifies the password length.
-The minimum length is 8 and the maximum length is 256.
-Specifies the password length.
-The minimum length is 8 and the maximum length is 256.
-Specifies the password length.
-The minimum length is 8 and the maximum length is 256.</maml:para>
+          <maml:para>Specifies the password length. The minimum length is 8 and the maximum length is 256.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.Int16</command:parameterValue>
         <dev:type>
@@ -1506,66 +1341,6 @@ The minimum length is 8 and the maximum length is 256.</maml:para>
         <maml:name>Lowercase</maml:name>
         <maml:description>
           <maml:para>Includes lowercase letters from `a` through `z`. This character set is enabled by default. Use
-`-Lowercase:$false` to disable it.
-Includes lowercase letters from `a` through `z`.
-This character set is enabled by default.
-Use
-`-Lowercase:$false` to disable it.
-Includes lowercase letters from `a` through `z`.
-This character set is enabled by default.
-Use
-`-Lowercase:$false` to disable it.
-Includes lowercase letters from `a` through `z`.
-This character set is enabled by default.
-Use
-`-Lowercase:$false` to disable it.
-Includes lowercase letters from `a` through `z`.
-This character set is enabled by default.
-Use
-`-Lowercase:$false` to disable it.
-Includes lowercase letters from `a` through `z`.
-This character set is enabled by default.
-Use
-`-Lowercase:$false` to disable it.
-Includes lowercase letters from `a` through `z`.
-This character set is enabled by default.
-Use
-`-Lowercase:$false` to disable it.
-Includes lowercase letters from `a` through `z`.
-This character set is enabled by default.
-Use
-`-Lowercase:$false` to disable it.
-Includes lowercase letters from `a` through `z`.
-This character set is enabled by default.
-Use
-`-Lowercase:$false` to disable it.
-Includes lowercase letters from `a` through `z`.
-This character set is enabled by default.
-Use
-`-Lowercase:$false` to disable it.
-Includes lowercase letters from `a` through `z`.
-This character set is enabled by default.
-Use
-`-Lowercase:$false` to disable it.
-Includes lowercase letters from `a` through `z`.
-This character set is enabled by default.
-Use
-`-Lowercase:$false` to disable it.
-Includes lowercase letters from `a` through `z`.
-This character set is enabled by default.
-Use
-`-Lowercase:$false` to disable it.
-Includes lowercase letters from `a` through `z`.
-This character set is enabled by default.
-Use
-`-Lowercase:$false` to disable it.
-Includes lowercase letters from `a` through `z`.
-This character set is enabled by default.
-Use
-`-Lowercase:$false` to disable it.
-Includes lowercase letters from `a` through `z`.
-This character set is enabled by default.
-Use
 `-Lowercase:$false` to disable it.</maml:para>
         </maml:description>
         <dev:type>
@@ -1576,51 +1351,6 @@ Use
         <maml:name>NoAmbiguousCharacters</maml:name>
         <maml:description>
           <maml:para>Excludes predefined visually similar characters from every enabled character set. The excluded
-characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
-Excludes predefined visually similar characters from every enabled character set.
-The excluded
-characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
-Excludes predefined visually similar characters from every enabled character set.
-The excluded
-characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
-Excludes predefined visually similar characters from every enabled character set.
-The excluded
-characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
-Excludes predefined visually similar characters from every enabled character set.
-The excluded
-characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
-Excludes predefined visually similar characters from every enabled character set.
-The excluded
-characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
-Excludes predefined visually similar characters from every enabled character set.
-The excluded
-characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
-Excludes predefined visually similar characters from every enabled character set.
-The excluded
-characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
-Excludes predefined visually similar characters from every enabled character set.
-The excluded
-characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
-Excludes predefined visually similar characters from every enabled character set.
-The excluded
-characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
-Excludes predefined visually similar characters from every enabled character set.
-The excluded
-characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
-Excludes predefined visually similar characters from every enabled character set.
-The excluded
-characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
-Excludes predefined visually similar characters from every enabled character set.
-The excluded
-characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
-Excludes predefined visually similar characters from every enabled character set.
-The excluded
-characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
-Excludes predefined visually similar characters from every enabled character set.
-The excluded
-characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.
-Excludes predefined visually similar characters from every enabled character set.
-The excluded
 characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, and `b`.</maml:para>
         </maml:description>
         <dev:type>
@@ -1631,66 +1361,6 @@ characters are `0`, `O`, `o`, `1`, `l`, `L`, `i`, `I`, `5`, `S`, `s`, `8`, `B`, 
         <maml:name>Numbers</maml:name>
         <maml:description>
           <maml:para>Includes numeric characters from `0` through `9`. This character set is enabled by default. Use
-`-Numbers:$false` to disable it.
-Includes numeric characters from `0` through `9`.
-This character set is enabled by default.
-Use
-`-Numbers:$false` to disable it.
-Includes numeric characters from `0` through `9`.
-This character set is enabled by default.
-Use
-`-Numbers:$false` to disable it.
-Includes numeric characters from `0` through `9`.
-This character set is enabled by default.
-Use
-`-Numbers:$false` to disable it.
-Includes numeric characters from `0` through `9`.
-This character set is enabled by default.
-Use
-`-Numbers:$false` to disable it.
-Includes numeric characters from `0` through `9`.
-This character set is enabled by default.
-Use
-`-Numbers:$false` to disable it.
-Includes numeric characters from `0` through `9`.
-This character set is enabled by default.
-Use
-`-Numbers:$false` to disable it.
-Includes numeric characters from `0` through `9`.
-This character set is enabled by default.
-Use
-`-Numbers:$false` to disable it.
-Includes numeric characters from `0` through `9`.
-This character set is enabled by default.
-Use
-`-Numbers:$false` to disable it.
-Includes numeric characters from `0` through `9`.
-This character set is enabled by default.
-Use
-`-Numbers:$false` to disable it.
-Includes numeric characters from `0` through `9`.
-This character set is enabled by default.
-Use
-`-Numbers:$false` to disable it.
-Includes numeric characters from `0` through `9`.
-This character set is enabled by default.
-Use
-`-Numbers:$false` to disable it.
-Includes numeric characters from `0` through `9`.
-This character set is enabled by default.
-Use
-`-Numbers:$false` to disable it.
-Includes numeric characters from `0` through `9`.
-This character set is enabled by default.
-Use
-`-Numbers:$false` to disable it.
-Includes numeric characters from `0` through `9`.
-This character set is enabled by default.
-Use
-`-Numbers:$false` to disable it.
-Includes numeric characters from `0` through `9`.
-This character set is enabled by default.
-Use
 `-Numbers:$false` to disable it.</maml:para>
         </maml:description>
         <dev:type>
@@ -1701,66 +1371,6 @@ Use
         <maml:name>SpecialCharacters</maml:name>
         <maml:description>
           <maml:para>Includes special characters. This character set is enabled by default. Use
-`-SpecialCharacters:$false` to disable it.
-Includes special characters.
-This character set is enabled by default.
-Use
-`-SpecialCharacters:$false` to disable it.
-Includes special characters.
-This character set is enabled by default.
-Use
-`-SpecialCharacters:$false` to disable it.
-Includes special characters.
-This character set is enabled by default.
-Use
-`-SpecialCharacters:$false` to disable it.
-Includes special characters.
-This character set is enabled by default.
-Use
-`-SpecialCharacters:$false` to disable it.
-Includes special characters.
-This character set is enabled by default.
-Use
-`-SpecialCharacters:$false` to disable it.
-Includes special characters.
-This character set is enabled by default.
-Use
-`-SpecialCharacters:$false` to disable it.
-Includes special characters.
-This character set is enabled by default.
-Use
-`-SpecialCharacters:$false` to disable it.
-Includes special characters.
-This character set is enabled by default.
-Use
-`-SpecialCharacters:$false` to disable it.
-Includes special characters.
-This character set is enabled by default.
-Use
-`-SpecialCharacters:$false` to disable it.
-Includes special characters.
-This character set is enabled by default.
-Use
-`-SpecialCharacters:$false` to disable it.
-Includes special characters.
-This character set is enabled by default.
-Use
-`-SpecialCharacters:$false` to disable it.
-Includes special characters.
-This character set is enabled by default.
-Use
-`-SpecialCharacters:$false` to disable it.
-Includes special characters.
-This character set is enabled by default.
-Use
-`-SpecialCharacters:$false` to disable it.
-Includes special characters.
-This character set is enabled by default.
-Use
-`-SpecialCharacters:$false` to disable it.
-Includes special characters.
-This character set is enabled by default.
-Use
 `-SpecialCharacters:$false` to disable it.</maml:para>
         </maml:description>
         <dev:type>
@@ -1781,66 +1391,6 @@ Use
         <maml:name>Uppercase</maml:name>
         <maml:description>
           <maml:para>Includes uppercase letters from `A` through `Z`. This character set is enabled by default. Use
-`-Uppercase:$false` to disable it.
-Includes uppercase letters from `A` through `Z`.
-This character set is enabled by default.
-Use
-`-Uppercase:$false` to disable it.
-Includes uppercase letters from `A` through `Z`.
-This character set is enabled by default.
-Use
-`-Uppercase:$false` to disable it.
-Includes uppercase letters from `A` through `Z`.
-This character set is enabled by default.
-Use
-`-Uppercase:$false` to disable it.
-Includes uppercase letters from `A` through `Z`.
-This character set is enabled by default.
-Use
-`-Uppercase:$false` to disable it.
-Includes uppercase letters from `A` through `Z`.
-This character set is enabled by default.
-Use
-`-Uppercase:$false` to disable it.
-Includes uppercase letters from `A` through `Z`.
-This character set is enabled by default.
-Use
-`-Uppercase:$false` to disable it.
-Includes uppercase letters from `A` through `Z`.
-This character set is enabled by default.
-Use
-`-Uppercase:$false` to disable it.
-Includes uppercase letters from `A` through `Z`.
-This character set is enabled by default.
-Use
-`-Uppercase:$false` to disable it.
-Includes uppercase letters from `A` through `Z`.
-This character set is enabled by default.
-Use
-`-Uppercase:$false` to disable it.
-Includes uppercase letters from `A` through `Z`.
-This character set is enabled by default.
-Use
-`-Uppercase:$false` to disable it.
-Includes uppercase letters from `A` through `Z`.
-This character set is enabled by default.
-Use
-`-Uppercase:$false` to disable it.
-Includes uppercase letters from `A` through `Z`.
-This character set is enabled by default.
-Use
-`-Uppercase:$false` to disable it.
-Includes uppercase letters from `A` through `Z`.
-This character set is enabled by default.
-Use
-`-Uppercase:$false` to disable it.
-Includes uppercase letters from `A` through `Z`.
-This character set is enabled by default.
-Use
-`-Uppercase:$false` to disable it.
-Includes uppercase letters from `A` through `Z`.
-This character set is enabled by default.
-Use
 `-Uppercase:$false` to disable it.</maml:para>
         </maml:description>
         <dev:type>
@@ -1994,51 +1544,6 @@ not contain special characters and is not suitable for passwords, secrets, or se
         <maml:name>Length</maml:name>
         <maml:description>
           <maml:para>Specifies the identifier length. The minimum length is 4, the maximum length is 12, and the default
-length is 8.
-Specifies the identifier length.
-The minimum length is 4, the maximum length is 12, and the default
-length is 8.
-Specifies the identifier length.
-The minimum length is 4, the maximum length is 12, and the default
-length is 8.
-Specifies the identifier length.
-The minimum length is 4, the maximum length is 12, and the default
-length is 8.
-Specifies the identifier length.
-The minimum length is 4, the maximum length is 12, and the default
-length is 8.
-Specifies the identifier length.
-The minimum length is 4, the maximum length is 12, and the default
-length is 8.
-Specifies the identifier length.
-The minimum length is 4, the maximum length is 12, and the default
-length is 8.
-Specifies the identifier length.
-The minimum length is 4, the maximum length is 12, and the default
-length is 8.
-Specifies the identifier length.
-The minimum length is 4, the maximum length is 12, and the default
-length is 8.
-Specifies the identifier length.
-The minimum length is 4, the maximum length is 12, and the default
-length is 8.
-Specifies the identifier length.
-The minimum length is 4, the maximum length is 12, and the default
-length is 8.
-Specifies the identifier length.
-The minimum length is 4, the maximum length is 12, and the default
-length is 8.
-Specifies the identifier length.
-The minimum length is 4, the maximum length is 12, and the default
-length is 8.
-Specifies the identifier length.
-The minimum length is 4, the maximum length is 12, and the default
-length is 8.
-Specifies the identifier length.
-The minimum length is 4, the maximum length is 12, and the default
-length is 8.
-Specifies the identifier length.
-The minimum length is 4, the maximum length is 12, and the default
 length is 8.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.Int16</command:parameterValue>
@@ -2165,69 +1670,7 @@ $ResourceGroupName = "rg-$ProjectSuffix"
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="true (ByPropertyName)" position="0" aliases="none">
         <maml:name>Organization</maml:name>
         <maml:description>
-          <maml:para>The name of the Azure DevOps organization to use as the default. Pass `$null` to clear it.
-The name of the Azure DevOps organization to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps organization to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps organization to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps organization to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps organization to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps organization to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps organization to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps organization to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps organization to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps organization to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps organization to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps organization to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps organization to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps organization to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps organization to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps organization to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps organization to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps organization to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps organization to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps organization to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps organization to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps organization to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps organization to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps organization to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps organization to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps organization to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps organization to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps organization to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps organization to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps organization to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps organization to use as the default.
-Pass `$null` to clear it.</maml:para>
+          <maml:para>The name of the Azure DevOps organization to use as the default. Pass `$null` to clear it.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
         <dev:type>
@@ -2237,69 +1680,7 @@ Pass `$null` to clear it.</maml:para>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="true (ByPropertyName)" position="1" aliases="none">
         <maml:name>Project</maml:name>
         <maml:description>
-          <maml:para>The name of the Azure DevOps project to use as the default. Pass `$null` to clear it.
-The name of the Azure DevOps project to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps project to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps project to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps project to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps project to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps project to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps project to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps project to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps project to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps project to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps project to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps project to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps project to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps project to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps project to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps project to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps project to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps project to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps project to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps project to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps project to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps project to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps project to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps project to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps project to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps project to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps project to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps project to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps project to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps project to use as the default.
-Pass `$null` to clear it.
-The name of the Azure DevOps project to use as the default.
-Pass `$null` to clear it.</maml:para>
+          <maml:para>The name of the Azure DevOps project to use as the default. Pass `$null` to clear it.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
         <dev:type>
@@ -2406,99 +1787,6 @@ and `gh issue`. If you want `gh` itself to default to a specific repository, run
         <maml:name>Owner</maml:name>
         <maml:description>
           <maml:para>The name of the GitHub owner (user or organization) to use as the default. Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
-it.
-The name of the GitHub owner (user or organization) to use as the default.
-Pass `$null` to clear
 it.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
@@ -2509,69 +1797,7 @@ it.</maml:para>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="true (ByPropertyName)" position="1" aliases="none">
         <maml:name>Repository</maml:name>
         <maml:description>
-          <maml:para>The name of the GitHub repository to use as the default. Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.
-The name of the GitHub repository to use as the default.
-Pass `$null` to clear it.</maml:para>
+          <maml:para>The name of the GitHub repository to use as the default. Pass `$null` to clear it.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
         <dev:type>
@@ -3757,28 +2983,7 @@ without changing either file.</maml:para>
         <maml:name>LatestTemplatePath</maml:name>
         <maml:description>
           <maml:para>Path to a separately downloaded template to compare against `-TemplatePath` for update
-availability. When omitted, no update check is performed.
-Path to a separately downloaded template to compare against `-TemplatePath` for update
-availability.
-When omitted, no update check is performed.
-Path to a separately downloaded template to compare against `-TemplatePath` for update
-availability.
-When omitted, no update check is performed.
-Path to a separately downloaded template to compare against `-TemplatePath` for update
-availability.
-When omitted, no update check is performed.
-Path to a separately downloaded template to compare against `-TemplatePath` for update
-availability.
-When omitted, no update check is performed.
-Path to a separately downloaded template to compare against `-TemplatePath` for update
-availability.
-When omitted, no update check is performed.
-Path to a separately downloaded template to compare against `-TemplatePath` for update
-availability.
-When omitted, no update check is performed.
-Path to a separately downloaded template to compare against `-TemplatePath` for update
-availability.
-When omitted, no update check is performed.</maml:para>
+availability. When omitted, no update check is performed.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
         <dev:type>
