@@ -190,6 +190,9 @@ New-PlatformWorkflow
 
 `New-PlatformWorkflow` reads the workflow manifest from `.tmp/templates` and copies the [workflow templates](templates/github/workflows/README.md) for your `sourceControl.branchStrategy` into `.github` of your repository. That ships a CI/CD pipeline staged across `dev`/`prd` (`github`) or `dev`/`stg`/`prd` (`release`), running the same four phases in dependency order. Existing files are left untouched unless you pass `-Force`.
 
+> [!NOTE]
+> The platform workflows are optional. Many teams run the four phases locally once and change the platform only now and then. Install the platform bundle (`New-PlatformWorkflow -WorkflowType platform`) if you want later platform changes reviewed in pull requests and reconciled by GitHub Actions, or leave it out and keep running the phases locally. See [Choosing how to run the platform phases](templates/github/workflows/README.md#choosing-how-to-run-the-platform-phases).
+
 > [!IMPORTANT]
 > Before the pipeline can run phase 4, add `PLATFORM_GITHUB_TOKEN` by hand as an **environment secret** on the `platform` GitHub environment; the built-in `GITHUB_TOKEN` cannot manage environment secrets. See the [prerequisites](templates/github/workflows/README.md#prerequisites) section of the workflow templates README for the full setup steps.
 
