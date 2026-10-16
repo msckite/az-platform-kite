@@ -16,4 +16,4 @@ area, and add a new one when you make a decision others would otherwise revisit.
 | [0002](./0002-no-required-reviewers-on-private-repositories.md) | No required reviewers on stg and prd by default | Accepted |
 | [0003](./0003-platform-workflow-is-optional.md) | The platform workflow is optional and stays in the configured repository | Accepted |
 | [0004](./0004-consumers-own-their-bicep-and-use-avm.md) | Consumers own their Bicep and use Azure Verified Modules | Accepted |
-| [0005](./0005-split-platform-config-by-phase.md) | Split platform-config.jsonc into per-phase files with defaults and pipelines | Proposed |
+| [0005](./0005-split-platform-config-by-phase.md) | Split platform-config.jsonc into per-phase files with defaults and pipelines | Accepted |

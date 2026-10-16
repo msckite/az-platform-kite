@@ -1,7 +1,7 @@
 <!-- omit from toc -->
 # 0005: Split platform-config.jsonc into per-phase files with defaults and pipelines
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-10-16
 
 ## Context
