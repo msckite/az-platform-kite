@@ -1,0 +1,103 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/msckite/az-platform-kite/refs/heads/main/schemas/security-groups.schema.json",
+  "schemaVersion": "2.0.0",
+  "title": "Security Groups Config Schema",
+  "description": "Phase 2 configuration: the Microsoft Entra security groups to create, with the RBAC roles they receive against the resource groups declared in resource-groups.jsonc.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "templateVersion",
+    "securityGroups"
+  ],
+  "properties": {
+    "$schema": {
+      "description": "Optional schema reference for tooling.",
+      "type": "string"
+    },
+    "templateVersion": {
+      "description": "Version of the template contract.",
+      "const": "2.0.0"
+    },
+    "securityGroups": {
+      "description": "Microsoft Entra security groups to create once the resource groups exist. Created as phase 2, ahead of any per-environment identity or GitHub environment resources.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/securityGroup"
+      }
+    }
+  },
+  "definitions": {
+    "securityGroup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "displayName",
+        "mailNickname",
+        "roleAssignments"
+      ],
+      "properties": {
+        "displayName": {
+          "description": "Display name of the Microsoft Entra security group.",
+          "type": "string",
+          "minLength": 1
+        },
+        "mailNickname": {
+          "description": "Mail nickname (alias) of the security group.",
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "description": "Optional description of the security group.",
+          "type": "string"
+        },
+        "roleAssignments": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/roleAssignment"
+          }
+        }
+      }
+    },
+    "roleAssignment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "role"
+      ],
+      "oneOf": [
+        {
+          "required": [
+            "resourceGroupId"
+          ]
+        },
+        {
+          "required": [
+            "scope"
+          ]
+        }
+      ],
+      "properties": {
+        "role": {
+          "description": "Azure RBAC role name.",
+          "type": "string",
+          "minLength": 1
+        },
+        "resourceGroupId": {
+          "description": "Id of the resource group (from resource-groups.jsonc) this role is scoped to. The command resolves this to the resource group's full Azure resource ID, which allows cross-environment role assignments without duplicating naming logic. Mutually exclusive with 'scope'.",
+          "type": "string",
+          "minLength": 1
+        },
+        "scope": {
+          "description": "Set to 'subscription' to assign this role at the subscription scope instead of a single resource group. Mutually exclusive with 'resourceGroupId'.",
+          "type": "string",
+          "enum": [
+            "subscription"
+          ]
+        }
+      }
+    }
+  }
+}

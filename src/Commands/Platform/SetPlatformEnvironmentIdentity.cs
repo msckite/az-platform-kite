@@ -13,7 +13,7 @@ using MSCKite.Azure.Platform.Models;
 
 namespace MSCKite.Azure.Platform.Commands.Platform
 {
-    // Phase 3: creates the federated user-assigned managed identity declared per environment in platform-config.jsonc, and assigns its RBAC roles against the resource groups from phase 1
+    // Phase 3: creates the federated user-assigned managed identity declared per environment in environments.jsonc, and assigns its RBAC roles against the resource groups from phase 1
     [Cmdlet(VerbsCommon.Set, "PlatformEnvironmentIdentity", SupportsShouldProcess = true, ConfirmImpact = ConfirmImpact.Medium)]
     [OutputType(typeof(PlatformEnvironmentIdentityActionResult))]
     [OutputType(typeof(Hashtable))]
@@ -30,7 +30,11 @@ namespace MSCKite.Azure.Platform.Commands.Platform
 
         [Parameter(Position = 1, ValueFromPipelineByPropertyName = true)]
         [ValidateNotNullOrEmpty]
-        public string PlatformConfigPath { get; set; } = Path.Combine("config", "platform-config.jsonc");
+        public string ResourceGroupsConfigPath { get; set; } = Path.Combine("config", "platform", "resource-groups.jsonc");
+
+        [Parameter(Position = 2, ValueFromPipelineByPropertyName = true)]
+        [ValidateNotNullOrEmpty]
+        public string EnvironmentsConfigPath { get; set; } = Path.Combine("config", "platform", "environments.jsonc");
 
         // Collects every result in memory and emits a single summary Hashtable at the end, instead of streaming each result as it's created
         [Parameter]
@@ -44,10 +48,12 @@ namespace MSCKite.Azure.Platform.Commands.Platform
         protected override void ProcessRecord()
         {
             var globalConfigPath = GetUnresolvedProviderPathFromPSPath(GlobalConfigPath);
-            var platformConfigPath = GetUnresolvedProviderPathFromPSPath(PlatformConfigPath);
+            var resourceGroupsConfigPath = GetUnresolvedProviderPathFromPSPath(ResourceGroupsConfigPath);
+            var environmentsConfigPath = GetUnresolvedProviderPathFromPSPath(EnvironmentsConfigPath);
 
             WriteVerbose($"Loading global config from '{globalConfigPath}'.");
-            WriteVerbose($"Loading platform config from '{platformConfigPath}'.");
+            WriteVerbose($"Loading resource groups config from '{resourceGroupsConfigPath}'.");
+            WriteVerbose($"Loading environments config from '{environmentsConfigPath}'.");
 
             GlobalConfig globalConfig;
             List<PlatformResourceGroupConfig> resourceGroupConfigs;
@@ -55,16 +61,16 @@ namespace MSCKite.Azure.Platform.Commands.Platform
             try
             {
                 globalConfig = PlatformConfigLoader.LoadGlobalConfig(globalConfigPath);
-                resourceGroupConfigs = PlatformConfigLoader.LoadResourceGroups(platformConfigPath);
-                environmentConfigs = PlatformConfigLoader.LoadEnvironments(platformConfigPath);
+                resourceGroupConfigs = PlatformConfigLoader.LoadResourceGroups(resourceGroupsConfigPath);
+                environmentConfigs = PlatformConfigLoader.LoadEnvironments(environmentsConfigPath);
             }
             catch (Exception ex) when (ex is IOException || ex is InvalidOperationException || ex is JsonException)
             {
-                ThrowTerminatingError(new ErrorRecord(ex, "PlatformEnvironmentIdentityInvalidConfig", ErrorCategory.InvalidData, PlatformConfigPath));
+                ThrowTerminatingError(new ErrorRecord(ex, "PlatformEnvironmentIdentityInvalidConfig", ErrorCategory.InvalidData, EnvironmentsConfigPath));
                 return;
             }
 
-            WriteVerbose($"Found {environmentConfigs.Count} environment(s) in platform config.");
+            WriteVerbose($"Found {environmentConfigs.Count} environment(s) in the config.");
 
             if (!AzureContextHelper.TryGetConfiguredContext(this, globalConfig, out var azureContext, out var azureMessage))
             {
@@ -86,7 +92,7 @@ namespace MSCKite.Azure.Platform.Commands.Platform
             {
                 ThrowTerminatingError(new ErrorRecord(
                     new InvalidOperationException($"Failed to read repository '{owner}/{repository}' from GitHub: {repositoryError}"),
-                    "PlatformEnvironmentIdentityRepositoryNotFound", ErrorCategory.ObjectNotFound, PlatformConfigPath));
+                    "PlatformEnvironmentIdentityRepositoryNotFound", ErrorCategory.ObjectNotFound, EnvironmentsConfigPath));
                 return;
             }
 
@@ -112,25 +118,15 @@ namespace MSCKite.Azure.Platform.Commands.Platform
                     continue;
                 }
 
-                // Always process the infra identity; only process the workload identity when the environment declares one
-                var slots = new List<Tuple<string, PlatformUserAssignedIdentityConfig, PlatformGitHubEnvironmentConfig>>
+                foreach (var pipeline in config.Pipelines)
                 {
-                    Tuple.Create("infra", config.UserAssignedIdentity, config.GitHubEnvironment)
-                };
-                if (config.WorkloadUserAssignedIdentity != null)
-                {
-                    slots.Add(Tuple.Create("workload", config.WorkloadUserAssignedIdentity, config.WorkloadGitHubEnvironment));
-                }
-
-                foreach (var slot in slots)
-                {
-                    var actionResult = SyncIdentityAndCredential(config, slot.Item1, slot.Item2, slot.Item3, resourceGroup, placeholders, githubRepository);
+                    var actionResult = SyncIdentityAndCredential(config, pipeline.Purpose, pipeline.UserAssignedIdentity, pipeline.GitHubEnvironment, resourceGroup, placeholders, githubRepository);
                     if (actionResult == null)
                     {
                         continue;
                     }
 
-                    SyncRoleAssignments(actionResult, slot.Item2, resourceGroupsById, globalConfig.SubscriptionId, placeholders);
+                    SyncRoleAssignments(actionResult, pipeline.UserAssignedIdentity, resourceGroupsById, globalConfig.SubscriptionId, placeholders);
                     items.Add(actionResult);
                 }
             }

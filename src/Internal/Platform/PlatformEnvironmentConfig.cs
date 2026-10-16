@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace MSCKite.Azure.Platform.Internal.Platform
 {
-    // Raw (unresolved) representation of one entry in platform-config.jsonc's "environments" array
+    // Raw (unresolved) representation of one entry in environments.jsonc's "environments" array
     internal class PlatformEnvironmentConfig
     {
         internal string DisplayName { get; set; }
@@ -11,14 +11,19 @@ namespace MSCKite.Azure.Platform.Internal.Platform
 
         internal string ResourceGroupId { get; set; }
 
+        // Always at least one; each pairs an identity with the GitHub environment that receives its client id
+        internal List<PlatformPipelineConfig> Pipelines { get; } = new List<PlatformPipelineConfig>();
+    }
+
+    // Raw (unresolved) representation of one entry in an environment's "pipelines" array: a federated identity and the GitHub environment a pipeline signs in with
+    internal class PlatformPipelineConfig
+    {
+        // Short label such as "infra" or "workload", unique within the environment; reported in the cmdlet output
+        internal string Purpose { get; set; }
+
         internal PlatformUserAssignedIdentityConfig UserAssignedIdentity { get; set; }
 
         internal PlatformGitHubEnvironmentConfig GitHubEnvironment { get; set; }
-
-        // Optional narrower-scoped identity/environment for the workload (application/service/solution code) pipeline. Null when the environment does not declare one, in which case callers fall back to UserAssignedIdentity/GitHubEnvironment.
-        internal PlatformUserAssignedIdentityConfig WorkloadUserAssignedIdentity { get; set; }
-
-        internal PlatformGitHubEnvironmentConfig WorkloadGitHubEnvironment { get; set; }
     }
 
     // Raw (unresolved) representation of an environment's "githubEnvironment"

@@ -11,7 +11,7 @@ using MSCKite.Azure.Platform.Models;
 
 namespace MSCKite.Azure.Platform.Commands.Platform
 {
-    // Phase 2: creates or updates the Microsoft Entra security groups declared in platform-config.jsonc, and assigns their RBAC roles against the resource groups from phase 1
+    // Phase 2: creates or updates the Microsoft Entra security groups declared in the platform config files, and assigns their RBAC roles against the resource groups from phase 1
     [Cmdlet(VerbsCommon.Set, "PlatformSecurityGroup", SupportsShouldProcess = true, ConfirmImpact = ConfirmImpact.Medium)]
     [OutputType(typeof(PlatformSecurityGroupActionResult))]
     [OutputType(typeof(Hashtable))]
@@ -27,7 +27,11 @@ namespace MSCKite.Azure.Platform.Commands.Platform
 
         [Parameter(Position = 1, ValueFromPipelineByPropertyName = true)]
         [ValidateNotNullOrEmpty]
-        public string PlatformConfigPath { get; set; } = Path.Combine("config", "platform-config.jsonc");
+        public string ResourceGroupsConfigPath { get; set; } = Path.Combine("config", "platform", "resource-groups.jsonc");
+
+        [Parameter(Position = 2, ValueFromPipelineByPropertyName = true)]
+        [ValidateNotNullOrEmpty]
+        public string SecurityGroupsConfigPath { get; set; } = Path.Combine("config", "platform", "security-groups.jsonc");
 
         // Collects every result in memory and emits a single summary Hashtable at the end, instead of streaming each result as it's created
         [Parameter]
@@ -41,10 +45,12 @@ namespace MSCKite.Azure.Platform.Commands.Platform
         protected override void ProcessRecord()
         {
             var globalConfigPath = GetUnresolvedProviderPathFromPSPath(GlobalConfigPath);
-            var platformConfigPath = GetUnresolvedProviderPathFromPSPath(PlatformConfigPath);
+            var resourceGroupsConfigPath = GetUnresolvedProviderPathFromPSPath(ResourceGroupsConfigPath);
+            var securityGroupsConfigPath = GetUnresolvedProviderPathFromPSPath(SecurityGroupsConfigPath);
 
             WriteVerbose($"Loading global config from '{globalConfigPath}'.");
-            WriteVerbose($"Loading platform config from '{platformConfigPath}'.");
+            WriteVerbose($"Loading resource groups config from '{resourceGroupsConfigPath}'.");
+            WriteVerbose($"Loading security groups config from '{securityGroupsConfigPath}'.");
 
             GlobalConfig globalConfig;
             List<PlatformResourceGroupConfig> resourceGroupConfigs;
@@ -52,16 +58,16 @@ namespace MSCKite.Azure.Platform.Commands.Platform
             try
             {
                 globalConfig = PlatformConfigLoader.LoadGlobalConfig(globalConfigPath);
-                resourceGroupConfigs = PlatformConfigLoader.LoadResourceGroups(platformConfigPath);
-                securityGroupConfigs = PlatformConfigLoader.LoadSecurityGroups(platformConfigPath);
+                resourceGroupConfigs = PlatformConfigLoader.LoadResourceGroups(resourceGroupsConfigPath);
+                securityGroupConfigs = PlatformConfigLoader.LoadSecurityGroups(securityGroupsConfigPath);
             }
             catch (Exception ex) when (ex is IOException || ex is InvalidOperationException || ex is JsonException)
             {
-                ThrowTerminatingError(new ErrorRecord(ex, "PlatformSecurityGroupInvalidConfig", ErrorCategory.InvalidData, PlatformConfigPath));
+                ThrowTerminatingError(new ErrorRecord(ex, "PlatformSecurityGroupInvalidConfig", ErrorCategory.InvalidData, SecurityGroupsConfigPath));
                 return;
             }
 
-            WriteVerbose($"Found {securityGroupConfigs.Count} security group(s) in platform config.");
+            WriteVerbose($"Found {securityGroupConfigs.Count} security group(s) in the config.");
 
             if (!AzureContextHelper.TryGetConfiguredContext(this, globalConfig, out var azureContext, out var azureMessage))
             {

@@ -5,7 +5,7 @@ using MSCKite.Azure.Platform.Internal.Azure;
 
 namespace MSCKite.Azure.Platform.Internal.Platform
 {
-    // Resolves platform-config.jsonc resourceGroupId references against Azure; shared by every phase that assigns roles or provisions resources into a resource group
+    // Resolves resourceGroupId references against Azure; shared by every phase that assigns roles or provisions resources into a resource group
     internal static class PlatformResourceGroupResolver
     {
         // Value of a roleAssignment's "scope" property that targets the subscription instead of a single resource group

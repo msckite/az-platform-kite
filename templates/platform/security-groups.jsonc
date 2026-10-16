@@ -1,0 +1,64 @@
+{
+  "$schema": "https://raw.githubusercontent.com/msckite/az-platform-kite/refs/heads/main/schemas/security-groups.schema.json",
+  "templateVersion": "2.0.0",
+  // Phase 2: Entra security groups, created once and assigned RBAC roles against every resource group declared in resource-groups.jsonc.
+  "securityGroups": [
+    {
+      "displayName": "SG ${displayName} - Developers",
+      "mailNickname": "sg-${serviceShort}${uniqueId}-devs",
+      "description": "Security group for users with developer access to the Azure environments",
+      "roleAssignments": [
+        {
+          "role": "Contributor",
+          "resourceGroupId": "dev"
+        },
+        {
+          "role": "Contributor",
+          "resourceGroupId": "stg"
+        },
+        {
+          "role": "Reader",
+          "resourceGroupId": "prd"
+        }
+      ]
+    },
+    {
+      "displayName": "SG ${displayName} - Administrators",
+      "mailNickname": "sg-${serviceShort}${uniqueId}-admins",
+      "description": "Security group for users with administrative access to the Azure environments",
+      "roleAssignments": [
+        {
+          "role": "Owner",
+          "resourceGroupId": "dev"
+        },
+        {
+          "role": "Owner",
+          "resourceGroupId": "stg"
+        },
+        {
+          "role": "Owner",
+          "resourceGroupId": "prd"
+        }
+      ]
+    },
+    {
+      "displayName": "SG ${displayName} - Stakeholders",
+      "mailNickname": "sg-${serviceShort}${uniqueId}-stakeholders",
+      "description": "Security group for users with read-only access to the Azure environments",
+      "roleAssignments": [
+        {
+          "role": "Reader",
+          "resourceGroupId": "dev"
+        },
+        {
+          "role": "Reader",
+          "resourceGroupId": "stg"
+        },
+        {
+          "role": "Reader",
+          "resourceGroupId": "prd"
+        }
+      ]
+    }
+  ]
+}

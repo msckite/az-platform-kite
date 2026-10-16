@@ -46,7 +46,7 @@ Describe 'Set-PlatformResourceGroup' {
         $platform = Join-Path $TestDrive 'platform.jsonc'
         '{"templateVersion":"1.0.0","resourceGroups":[]}' | Set-Content -Path $platform
 
-        { Set-PlatformResourceGroup -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*Global config file not found*'
+        { Set-PlatformResourceGroup -GlobalConfigPath $global -ResourceGroupsConfigPath $platform } | Should -Throw '*Global config file not found*'
     }
 
     It 'throws when the platform config does not have a resourceGroups array' {
@@ -55,7 +55,7 @@ Describe 'Set-PlatformResourceGroup' {
         $script:ValidGlobalConfig | Set-Content -Path $global
         '{"templateVersion":"1.0.0","foo":[]}' | Set-Content -Path $platform
 
-        { Set-PlatformResourceGroup -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*must contain a "resourceGroups" array*'
+        { Set-PlatformResourceGroup -GlobalConfigPath $global -ResourceGroupsConfigPath $platform } | Should -Throw '*must contain a "resourceGroups" array*'
     }
 
     It 'throws when the platform config templateVersion is missing' {
@@ -64,7 +64,7 @@ Describe 'Set-PlatformResourceGroup' {
         $script:ValidGlobalConfig | Set-Content -Path $global
         '{"resourceGroups":[]}' | Set-Content -Path $platform
 
-        { Set-PlatformResourceGroup -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*templateVersion*'
+        { Set-PlatformResourceGroup -GlobalConfigPath $global -ResourceGroupsConfigPath $platform } | Should -Throw '*templateVersion*'
     }
 
     It 'throws on a duplicate resource group id' {
@@ -81,7 +81,7 @@ Describe 'Set-PlatformResourceGroup' {
 }
 '@ | Set-Content -Path $platform
 
-        { Set-PlatformResourceGroup -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*Duplicate resource group id*'
+        { Set-PlatformResourceGroup -GlobalConfigPath $global -ResourceGroupsConfigPath $platform } | Should -Throw '*Duplicate resource group id*'
     }
 
     It 'throws when a resource group is missing a name' {
@@ -90,7 +90,7 @@ Describe 'Set-PlatformResourceGroup' {
         $script:ValidGlobalConfig | Set-Content -Path $global
         '{"templateVersion":"1.0.0","resourceGroups":[{"id":"dev","location":"westeurope"}]}' | Set-Content -Path $platform
 
-        { Set-PlatformResourceGroup -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*must have a non-empty "name"*'
+        { Set-PlatformResourceGroup -GlobalConfigPath $global -ResourceGroupsConfigPath $platform } | Should -Throw '*must have a non-empty "name"*'
     }
 
     It 'reports an unresolved placeholder in a resource group name' {
@@ -99,7 +99,7 @@ Describe 'Set-PlatformResourceGroup' {
         $script:ValidGlobalConfig | Set-Content -Path $global
         '{"templateVersion":"1.0.0","resourceGroups":[{"id":"dev","name":"rg-${bogus}","location":"westeurope"}]}' | Set-Content -Path $platform
 
-        { Set-PlatformResourceGroup -GlobalConfigPath $global -PlatformConfigPath $platform -ErrorAction Stop } | Should -Throw '*Unresolved placeholder*bogus*'
+        { Set-PlatformResourceGroup -GlobalConfigPath $global -ResourceGroupsConfigPath $platform -ErrorAction Stop } | Should -Throw '*Unresolved placeholder*bogus*'
     }
 
     It 'reports an unresolved placeholder in a resource group tag value' {
@@ -115,7 +115,7 @@ Describe 'Set-PlatformResourceGroup' {
 }
 '@ | Set-Content -Path $platform
 
-        { Set-PlatformResourceGroup -GlobalConfigPath $global -PlatformConfigPath $platform -ErrorAction Stop } | Should -Throw '*Unresolved placeholder*bogus*'
+        { Set-PlatformResourceGroup -GlobalConfigPath $global -ResourceGroupsConfigPath $platform -ErrorAction Stop } | Should -Throw '*Unresolved placeholder*bogus*'
     }
 
     It 'resolves a fully valid config without error under -WhatIf' -Skip {
@@ -124,7 +124,7 @@ Describe 'Set-PlatformResourceGroup' {
         $script:ValidGlobalConfig | Set-Content -Path $global
         '{"templateVersion":"1.0.0","resourceGroups":[{"id":"dev","name":"rg-${uniqueId}${serviceShort}-dev","location":"${location}","tags":{"service":"${serviceShort}"}}]}' | Set-Content -Path $platform
 
-        { Set-PlatformResourceGroup -GlobalConfigPath $global -PlatformConfigPath $platform -WhatIf } | Should -Not -Throw
+        { Set-PlatformResourceGroup -GlobalConfigPath $global -ResourceGroupsConfigPath $platform -WhatIf } | Should -Not -Throw
     }
 
     It 'throws when not signed in to Azure' {
@@ -136,7 +136,7 @@ Describe 'Set-PlatformResourceGroup' {
         $script:ValidGlobalConfig | Set-Content -Path $global
         '{"templateVersion":"1.0.0","resourceGroups":[{"id":"dev","name":"rg-dev","location":"westeurope"}]}' | Set-Content -Path $platform
 
-        { Set-PlatformResourceGroup -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*Not signed in to Azure*'
+        { Set-PlatformResourceGroup -GlobalConfigPath $global -ResourceGroupsConfigPath $platform } | Should -Throw '*Not signed in to Azure*'
     }
 
     It 'throws when global config tenantId is empty' {
@@ -145,7 +145,7 @@ Describe 'Set-PlatformResourceGroup' {
         ($script:ValidGlobalConfig -replace '"tenantId": "[^"]+"', '"tenantId": ""') | Set-Content -Path $global
         '{"templateVersion":"1.0.0","resourceGroups":[]}' | Set-Content -Path $platform
 
-        { Set-PlatformResourceGroup -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*non-empty "tenantId"*'
+        { Set-PlatformResourceGroup -GlobalConfigPath $global -ResourceGroupsConfigPath $platform } | Should -Throw '*non-empty "tenantId"*'
     }
 
     It 'throws when the active Azure tenant differs from global config' {
@@ -154,7 +154,7 @@ Describe 'Set-PlatformResourceGroup' {
         ($script:ValidGlobalConfig -replace '"tenantId": "[^"]+"', '"tenantId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"') | Set-Content -Path $global
         '{"templateVersion":"1.0.0","resourceGroups":[]}' | Set-Content -Path $platform
 
-        { Set-PlatformResourceGroup -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*active Azure tenant*does not match*'
+        { Set-PlatformResourceGroup -GlobalConfigPath $global -ResourceGroupsConfigPath $platform } | Should -Throw '*active Azure tenant*does not match*'
     }
 
     It 'throws when the active Azure subscription differs from global config' {
@@ -163,6 +163,6 @@ Describe 'Set-PlatformResourceGroup' {
         ($script:ValidGlobalConfig -replace '"subscriptionId": "[^"]+"', '"subscriptionId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"') | Set-Content -Path $global
         '{"templateVersion":"1.0.0","resourceGroups":[]}' | Set-Content -Path $platform
 
-        { Set-PlatformResourceGroup -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*active Azure subscription*does not match*'
+        { Set-PlatformResourceGroup -GlobalConfigPath $global -ResourceGroupsConfigPath $platform } | Should -Throw '*active Azure subscription*does not match*'
     }
 }

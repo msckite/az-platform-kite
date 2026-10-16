@@ -63,9 +63,17 @@ Describe 'Set-PlatformGitHubEnvironment' {
 }
 '@
 
-        # A narrower workload identity/environment pair, used to test the optional workload/infra identity split
+        $script:ValidGitHubEnvironment = @'
+"githubEnvironment": {
+  "name": "${environmentCode}-infra",
+  "secrets": [],
+  "variables": []
+}
+'@
+
+        # A second identity/environment pair, used to test environments with an infra and a workload pipeline
         $script:ValidWorkloadIdentity = @'
-"workloadUserAssignedIdentity": {
+"userAssignedIdentity": {
   "name": "id-${uniqueId}${serviceShort}-${tool}-${environmentCode}-workload",
   "federatedCredential": {
     "name": "fic-${uniqueId}${serviceShort}-${tool}-${environmentCode}-workload",
@@ -78,7 +86,7 @@ Describe 'Set-PlatformGitHubEnvironment' {
 '@
 
         $script:ValidWorkloadGitHubEnvironment = @'
-"workloadGithubEnvironment": {
+"githubEnvironment": {
   "name": "${environmentCode}-workload",
   "secrets": [],
   "variables": []
@@ -95,7 +103,7 @@ Describe 'Set-PlatformGitHubEnvironment' {
         $platform = Join-Path $TestDrive 'platform.jsonc'
         '{"templateVersion":"1.0.0","resourceGroups":[],"environments":[]}' | Set-Content -Path $platform
 
-        { Set-PlatformGitHubEnvironment -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*Global config file not found*'
+        { Set-PlatformGitHubEnvironment -GlobalConfigPath $global -ResourceGroupsConfigPath $platform -EnvironmentsConfigPath $platform } | Should -Throw '*Global config file not found*'
     }
 
     It 'throws when the platform config does not have an environments array' {
@@ -104,7 +112,7 @@ Describe 'Set-PlatformGitHubEnvironment' {
         $script:ValidGlobalConfig | Set-Content -Path $global
         '{"templateVersion":"1.0.0","resourceGroups":[]}' | Set-Content -Path $platform
 
-        { Set-PlatformGitHubEnvironment -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*must contain an "environments" array*'
+        { Set-PlatformGitHubEnvironment -GlobalConfigPath $global -ResourceGroupsConfigPath $platform -EnvironmentsConfigPath $platform } | Should -Throw '*must contain an "environments" array*'
     }
 
     It 'throws when githubEnvironment is missing a name' {
@@ -119,14 +127,16 @@ Describe 'Set-PlatformGitHubEnvironment' {
     {
       "environmentCode": "dev",
       "resourceGroupId": "dev",
+      "pipelines": [ { "purpose": "infra",
       $script:ValidIdentity,
       "githubEnvironment": { "secrets": [], "variables": [] }
+      } ]
     }
   ]
 }
 "@ | Set-Content -Path $platform
 
-        { Set-PlatformGitHubEnvironment -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*githubEnvironment must have a non-empty "name"*'
+        { Set-PlatformGitHubEnvironment -GlobalConfigPath $global -ResourceGroupsConfigPath $platform -EnvironmentsConfigPath $platform } | Should -Throw '*githubEnvironment must have a non-empty "name"*'
     }
 
     It 'throws when global config has no sourceControl owner/repository' {
@@ -141,14 +151,16 @@ Describe 'Set-PlatformGitHubEnvironment' {
     {
       "environmentCode": "dev",
       "resourceGroupId": "dev",
+      "pipelines": [ { "purpose": "infra",
       $script:ValidIdentity,
       "githubEnvironment": { "name": "dev", "secrets": [], "variables": [] }
+      } ]
     }
   ]
 }
 "@ | Set-Content -Path $platform
 
-        { Set-PlatformGitHubEnvironment -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*must have a "sourceControl" object*'
+        { Set-PlatformGitHubEnvironment -GlobalConfigPath $global -ResourceGroupsConfigPath $platform -EnvironmentsConfigPath $platform } | Should -Throw '*must have a "sourceControl" object*'
     }
 
     It 'reports a role assignment referencing a resource group that does not exist' {
@@ -165,14 +177,68 @@ Describe 'Set-PlatformGitHubEnvironment' {
     {
       "environmentCode": "dev",
       "resourceGroupId": "dev",
+      "pipelines": [ { "purpose": "infra",
       $script:ValidIdentity,
       "githubEnvironment": { "name": "dev", "secrets": [], "variables": [] }
+      } ]
     }
   ]
 }
 "@ | Set-Content -Path $platform
 
-        { Set-PlatformGitHubEnvironment -GlobalConfigPath $global -PlatformConfigPath $platform -ErrorAction Stop } | Should -Throw '*does not exist. Run Set-PlatformResourceGroup first*'
+        { Set-PlatformGitHubEnvironment -GlobalConfigPath $global -ResourceGroupsConfigPath $platform -EnvironmentsConfigPath $platform -ErrorAction Stop } | Should -Throw '*does not exist. Run Set-PlatformResourceGroup first*'
+    }
+
+    It 'applies githubEnvironment defaults to an environment that sets only its name' {
+        $global = Join-Path $TestDrive 'global.jsonc'
+        $platform = Join-Path $TestDrive 'platform-gh-defaults.jsonc'
+        $script:ValidGlobalConfig | Set-Content -Path $global
+        @"
+{
+  "templateVersion": "2.0.0",
+  "defaults": { "githubEnvironment": { "protectionRules": { "deploymentBranchPolicy": {} } } },
+  "resourceGroups": [],
+  "environments": [
+    {
+      "environmentCode": "dev",
+      "resourceGroupId": "dev",
+      "pipelines": [ { "purpose": "infra",
+      $script:ValidIdentity,
+      "githubEnvironment": { "name": "dev" }
+      } ]
+    }
+  ]
+}
+"@ | Set-Content -Path $platform
+
+        { Set-PlatformGitHubEnvironment -GlobalConfigPath $global -ResourceGroupsConfigPath $platform -EnvironmentsConfigPath $platform } | Should -Throw '*deploymentBranchPolicy must list at least one branch or tag pattern*'
+    }
+
+    It 'lets a githubEnvironment protection rule override the default' {
+        $global = Join-Path $TestDrive 'global.jsonc'
+        $platform = Join-Path $TestDrive 'platform-gh-defaults-override.jsonc'
+        $script:ValidGlobalConfig | Set-Content -Path $global
+        @"
+{
+  "templateVersion": "2.0.0",
+  "defaults": { "githubEnvironment": { "protectionRules": { "deploymentBranchPolicy": {} } } },
+  "resourceGroups": [
+    { "id": "dev", "name": "rg-does-not-exist-msckite-tests-zzz", "location": "westeurope" }
+  ],
+  "environments": [
+    {
+      "environmentCode": "dev",
+      "resourceGroupId": "dev",
+      "pipelines": [ { "purpose": "infra",
+      $script:ValidIdentity,
+      "githubEnvironment": { "name": "dev", "protectionRules": { "deploymentBranchPolicy": { "branches": ["main"] } } }
+      } ]
+    }
+  ]
+}
+"@ | Set-Content -Path $platform
+
+        { Set-PlatformGitHubEnvironment -GlobalConfigPath $global -ResourceGroupsConfigPath $platform -EnvironmentsConfigPath $platform -ErrorAction Stop } | Should -Throw '*does not exist. Run Set-PlatformResourceGroup first*'
     }
 
     It 'throws when the active Azure tenant differs from global config' {
@@ -181,7 +247,7 @@ Describe 'Set-PlatformGitHubEnvironment' {
         ($script:ValidGlobalConfig -replace '"tenantId": "[^"]+"', '"tenantId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"') | Set-Content -Path $global
         '{"templateVersion":"1.0.0","resourceGroups":[],"environments":[]}' | Set-Content -Path $platform
 
-        { Set-PlatformGitHubEnvironment -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*active Azure tenant*does not match*'
+        { Set-PlatformGitHubEnvironment -GlobalConfigPath $global -ResourceGroupsConfigPath $platform -EnvironmentsConfigPath $platform } | Should -Throw '*active Azure tenant*does not match*'
     }
 
     It 'throws when the active Azure subscription differs from global config' {
@@ -190,57 +256,126 @@ Describe 'Set-PlatformGitHubEnvironment' {
         ($script:ValidGlobalConfig -replace '"subscriptionId": "[^"]+"', '"subscriptionId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"') | Set-Content -Path $global
         '{"templateVersion":"1.0.0","resourceGroups":[],"environments":[]}' | Set-Content -Path $platform
 
-        { Set-PlatformGitHubEnvironment -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*active Azure subscription*does not match*'
+        { Set-PlatformGitHubEnvironment -GlobalConfigPath $global -ResourceGroupsConfigPath $platform -EnvironmentsConfigPath $platform } | Should -Throw '*active Azure subscription*does not match*'
     }
 
-    It 'throws when workloadUserAssignedIdentity is declared without workloadGithubEnvironment' {
+    It 'reports both pipelines when an environment declares an infra and a workload pipeline' {
         $global = Join-Path $TestDrive 'global.jsonc'
-        $platform = Join-Path $TestDrive 'platform-workload-identity-only.jsonc'
+        $platform = Join-Path $TestDrive 'platform-two-pipelines-missing-rg.jsonc'
         $script:ValidGlobalConfig | Set-Content -Path $global
         @"
 {
-  "templateVersion": "1.0.0",
+  "templateVersion": "2.0.0",
+  "resourceGroups": [{ "id": "dev", "name": "rg-does-not-exist-msckite-tests-zzz", "location": "westeurope" }],
+  "environments": [
+    {
+      "environmentCode": "dev",
+      "resourceGroupId": "dev",
+      "pipelines": [
+      { "purpose": "infra", $script:ValidIdentity, $script:ValidGitHubEnvironment },
+      { "purpose": "workload", $script:ValidWorkloadIdentity, $script:ValidWorkloadGitHubEnvironment }
+      ]
+    }
+  ]
+}
+"@ | Set-Content -Path $platform
+
+        { Set-PlatformGitHubEnvironment -GlobalConfigPath $global -ResourceGroupsConfigPath $platform -EnvironmentsConfigPath $platform -ErrorAction Stop } | Should -Throw '*does not exist. Run Set-PlatformResourceGroup first*'
+    }
+
+    It 'throws when two pipelines of an environment share a purpose' {
+        $global = Join-Path $TestDrive 'global.jsonc'
+        $platform = Join-Path $TestDrive 'platform-duplicate-purpose.jsonc'
+        $script:ValidGlobalConfig | Set-Content -Path $global
+        @"
+{
+  "templateVersion": "2.0.0",
   "resourceGroups": [],
   "environments": [
     {
       "environmentCode": "dev",
       "resourceGroupId": "dev",
-      $script:ValidIdentity,
-      "githubEnvironment": { "name": "dev", "secrets": [], "variables": [] },
-      $script:ValidWorkloadIdentity
+      "pipelines": [
+      { "purpose": "infra", $script:ValidIdentity, $script:ValidGitHubEnvironment },
+      { "purpose": "infra", $script:ValidWorkloadIdentity, $script:ValidWorkloadGitHubEnvironment }
+      ]
     }
   ]
 }
 "@ | Set-Content -Path $platform
 
-        { Set-PlatformGitHubEnvironment -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*must declare both "workloadUserAssignedIdentity" and "workloadGithubEnvironment" together, or neither*'
+        { Set-PlatformGitHubEnvironment -GlobalConfigPath $global -ResourceGroupsConfigPath $platform -EnvironmentsConfigPath $platform } | Should -Throw '*more than one pipeline with purpose ''infra''*'
     }
 
-    It 'reports both the infra and workload GitHub environment when workloadUserAssignedIdentity is declared' {
+    It 'throws when two pipelines of an environment share an identity name' {
         $global = Join-Path $TestDrive 'global.jsonc'
-        $platform = Join-Path $TestDrive 'platform-workload-identity-missing-rg.jsonc'
+        $platform = Join-Path $TestDrive 'platform-duplicate-identity.jsonc'
         $script:ValidGlobalConfig | Set-Content -Path $global
         @"
 {
-  "templateVersion": "1.0.0",
-  "resourceGroups": [
-    { "id": "dev", "name": "rg-does-not-exist-msckite-tests-zzz", "location": "westeurope" }
-  ],
+  "templateVersion": "2.0.0",
+  "resourceGroups": [],
   "environments": [
     {
       "environmentCode": "dev",
       "resourceGroupId": "dev",
-      $script:ValidIdentity,
-      "githubEnvironment": { "name": "dev", "secrets": [], "variables": [] },
-      $script:ValidWorkloadIdentity,
-      $script:ValidWorkloadGitHubEnvironment
+      "pipelines": [
+      { "purpose": "infra", $script:ValidIdentity, $script:ValidGitHubEnvironment },
+      { "purpose": "workload", $script:ValidIdentity, $script:ValidWorkloadGitHubEnvironment }
+      ]
     }
   ]
 }
 "@ | Set-Content -Path $platform
 
-        # The resource group intentionally does not exist, so this only exercises config parsing (both slots build without error) before the resolver reports the missing resource group.
-        { Set-PlatformGitHubEnvironment -GlobalConfigPath $global -PlatformConfigPath $platform -ErrorAction Stop } | Should -Throw '*does not exist. Run Set-PlatformResourceGroup first*'
+        { Set-PlatformGitHubEnvironment -GlobalConfigPath $global -ResourceGroupsConfigPath $platform -EnvironmentsConfigPath $platform } | Should -Throw '*must not share the same userAssignedIdentity name*'
+    }
+
+    It 'throws when two pipelines of an environment share a GitHub environment name' {
+        $global = Join-Path $TestDrive 'global.jsonc'
+        $platform = Join-Path $TestDrive 'platform-duplicate-github.jsonc'
+        $script:ValidGlobalConfig | Set-Content -Path $global
+        @"
+{
+  "templateVersion": "2.0.0",
+  "resourceGroups": [],
+  "environments": [
+    {
+      "environmentCode": "dev",
+      "resourceGroupId": "dev",
+      "pipelines": [
+      { "purpose": "infra", $script:ValidIdentity, $script:ValidGitHubEnvironment },
+      { "purpose": "workload", $script:ValidWorkloadIdentity, $script:ValidGitHubEnvironment }
+      ]
+    }
+  ]
+}
+"@ | Set-Content -Path $platform
+
+        { Set-PlatformGitHubEnvironment -GlobalConfigPath $global -ResourceGroupsConfigPath $platform -EnvironmentsConfigPath $platform } | Should -Throw '*must not share the same githubEnvironment name*'
+    }
+
+    It 'throws when a pipeline has no purpose' {
+        $global = Join-Path $TestDrive 'global.jsonc'
+        $platform = Join-Path $TestDrive 'platform-no-purpose.jsonc'
+        $script:ValidGlobalConfig | Set-Content -Path $global
+        @"
+{
+  "templateVersion": "2.0.0",
+  "resourceGroups": [],
+  "environments": [
+    {
+      "environmentCode": "dev",
+      "resourceGroupId": "dev",
+      "pipelines": [
+      { $script:ValidIdentity, $script:ValidGitHubEnvironment }
+      ]
+    }
+  ]
+}
+"@ | Set-Content -Path $platform
+
+        { Set-PlatformGitHubEnvironment -GlobalConfigPath $global -ResourceGroupsConfigPath $platform -EnvironmentsConfigPath $platform } | Should -Throw '*pipeline without a non-empty "purpose"*'
     }
 
     Context 'deploymentBranchPolicy' {
@@ -263,8 +398,10 @@ Describe 'Set-PlatformGitHubEnvironment' {
     {
       "environmentCode": "prd",
       "resourceGroupId": "prd",
+      "pipelines": [ { "purpose": "infra",
       $script:ValidIdentity,
       "githubEnvironment": { "name": "prd-infra", "protectionRules": $ProtectionRules, "secrets": [], "variables": [] }
+      } ]
     }
   ]
 }
@@ -283,7 +420,7 @@ Describe 'Set-PlatformGitHubEnvironment' {
             $script:ValidGlobalConfig | Set-Content -Path $global
             New-TestPlatformConfig -Path $platform -ProtectionRules $Rules
 
-            { Set-PlatformGitHubEnvironment -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw $Message
+            { Set-PlatformGitHubEnvironment -GlobalConfigPath $global -ResourceGroupsConfigPath $platform -EnvironmentsConfigPath $platform } | Should -Throw $Message
         }
 
         It 'accepts a policy with <Case>' -ForEach @(
@@ -298,7 +435,7 @@ Describe 'Set-PlatformGitHubEnvironment' {
             New-TestPlatformConfig -Path $platform -ProtectionRules $Rules
 
             # The resource group intentionally does not exist, so a valid policy gets past config parsing and fails only at the resolver
-            { Set-PlatformGitHubEnvironment -GlobalConfigPath $global -PlatformConfigPath $platform -ErrorAction Stop } | Should -Throw '*does not exist. Run Set-PlatformResourceGroup first*'
+            { Set-PlatformGitHubEnvironment -GlobalConfigPath $global -ResourceGroupsConfigPath $platform -EnvironmentsConfigPath $platform -ErrorAction Stop } | Should -Throw '*does not exist. Run Set-PlatformResourceGroup first*'
         }
     }
 }

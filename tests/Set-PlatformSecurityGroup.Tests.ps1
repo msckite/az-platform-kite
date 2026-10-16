@@ -45,7 +45,7 @@ Describe 'Set-PlatformSecurityGroup' {
         $platform = Join-Path $TestDrive 'platform.jsonc'
         '{"templateVersion":"1.0.0","resourceGroups":[],"securityGroups":[]}' | Set-Content -Path $platform
 
-        { Set-PlatformSecurityGroup -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*Global config file not found*'
+        { Set-PlatformSecurityGroup -GlobalConfigPath $global -ResourceGroupsConfigPath $platform -SecurityGroupsConfigPath $platform } | Should -Throw '*Global config file not found*'
     }
 
     It 'throws when the platform config does not have a securityGroups array' {
@@ -54,7 +54,18 @@ Describe 'Set-PlatformSecurityGroup' {
         $script:ValidGlobalConfig | Set-Content -Path $global
         '{"templateVersion":"1.0.0","resourceGroups":[]}' | Set-Content -Path $platform
 
-        { Set-PlatformSecurityGroup -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*must contain a "securityGroups" array*'
+        { Set-PlatformSecurityGroup -GlobalConfigPath $global -ResourceGroupsConfigPath $platform -SecurityGroupsConfigPath $platform } | Should -Throw '*must contain a "securityGroups" array*'
+    }
+
+    It 'reads each phase from its own config file and names the file that is wrong' {
+        $global = Join-Path $TestDrive 'global.jsonc'
+        $resourceGroups = Join-Path $TestDrive 'split-resource-groups.jsonc'
+        $securityGroups = Join-Path $TestDrive 'split-security-groups.jsonc'
+        $script:ValidGlobalConfig | Set-Content -Path $global
+        '{"templateVersion":"2.0.0","resourceGroups":[]}' | Set-Content -Path $resourceGroups
+        '{"templateVersion":"2.0.0"}' | Set-Content -Path $securityGroups
+
+        { Set-PlatformSecurityGroup -GlobalConfigPath $global -ResourceGroupsConfigPath $resourceGroups -SecurityGroupsConfigPath $securityGroups } | Should -Throw '*split-security-groups.jsonc*securityGroups*'
     }
 
     It 'throws when a security group is missing a mailNickname' {
@@ -63,7 +74,7 @@ Describe 'Set-PlatformSecurityGroup' {
         $script:ValidGlobalConfig | Set-Content -Path $global
         '{"templateVersion":"1.0.0","resourceGroups":[],"securityGroups":[{"displayName":"Devs","roleAssignments":[{"role":"Contributor","resourceGroupId":"dev"}]}]}' | Set-Content -Path $platform
 
-        { Set-PlatformSecurityGroup -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*must have a non-empty "mailNickname"*'
+        { Set-PlatformSecurityGroup -GlobalConfigPath $global -ResourceGroupsConfigPath $platform -SecurityGroupsConfigPath $platform } | Should -Throw '*must have a non-empty "mailNickname"*'
     }
 
     It 'throws when a security group has no roleAssignments' {
@@ -72,7 +83,7 @@ Describe 'Set-PlatformSecurityGroup' {
         $script:ValidGlobalConfig | Set-Content -Path $global
         '{"templateVersion":"1.0.0","resourceGroups":[],"securityGroups":[{"displayName":"Devs","mailNickname":"sg-devs","roleAssignments":[]}]}' | Set-Content -Path $platform
 
-        { Set-PlatformSecurityGroup -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*must have a non-empty "roleAssignments" array*'
+        { Set-PlatformSecurityGroup -GlobalConfigPath $global -ResourceGroupsConfigPath $platform -SecurityGroupsConfigPath $platform } | Should -Throw '*must have a non-empty "roleAssignments" array*'
     }
 
     It 'throws when a role assignment sets neither resourceGroupId nor scope' {
@@ -81,7 +92,7 @@ Describe 'Set-PlatformSecurityGroup' {
         $script:ValidGlobalConfig | Set-Content -Path $global
         '{"templateVersion":"1.0.0","resourceGroups":[],"securityGroups":[{"displayName":"Devs","mailNickname":"sg-devs","roleAssignments":[{"role":"Contributor"}]}]}' | Set-Content -Path $platform
 
-        { Set-PlatformSecurityGroup -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*must set exactly one of "resourceGroupId" or "scope"*'
+        { Set-PlatformSecurityGroup -GlobalConfigPath $global -ResourceGroupsConfigPath $platform -SecurityGroupsConfigPath $platform } | Should -Throw '*must set exactly one of "resourceGroupId" or "scope"*'
     }
 
     It 'throws when a role assignment sets both resourceGroupId and scope' {
@@ -90,7 +101,7 @@ Describe 'Set-PlatformSecurityGroup' {
         $script:ValidGlobalConfig | Set-Content -Path $global
         '{"templateVersion":"1.0.0","resourceGroups":[],"securityGroups":[{"displayName":"Devs","mailNickname":"sg-devs","roleAssignments":[{"role":"Contributor","resourceGroupId":"dev","scope":"subscription"}]}]}' | Set-Content -Path $platform
 
-        { Set-PlatformSecurityGroup -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*must set exactly one of "resourceGroupId" or "scope"*'
+        { Set-PlatformSecurityGroup -GlobalConfigPath $global -ResourceGroupsConfigPath $platform -SecurityGroupsConfigPath $platform } | Should -Throw '*must set exactly one of "resourceGroupId" or "scope"*'
     }
 
     It 'throws when a role assignment scope is not ''subscription''' {
@@ -99,7 +110,7 @@ Describe 'Set-PlatformSecurityGroup' {
         $script:ValidGlobalConfig | Set-Content -Path $global
         '{"templateVersion":"1.0.0","resourceGroups":[],"securityGroups":[{"displayName":"Devs","mailNickname":"sg-devs","roleAssignments":[{"role":"Contributor","scope":"managementGroup"}]}]}' | Set-Content -Path $platform
 
-        { Set-PlatformSecurityGroup -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*unsupported "scope" value*'
+        { Set-PlatformSecurityGroup -GlobalConfigPath $global -ResourceGroupsConfigPath $platform -SecurityGroupsConfigPath $platform } | Should -Throw '*unsupported "scope" value*'
     }
 
     It 'does not require the referenced resource group to exist when scope is ''subscription''' -Skip {
@@ -108,7 +119,7 @@ Describe 'Set-PlatformSecurityGroup' {
         $script:ValidGlobalConfig | Set-Content -Path $global
         '{"templateVersion":"1.0.0","resourceGroups":[],"securityGroups":[{"displayName":"SG Platform","mailNickname":"sg-msckite-tests-platform","roleAssignments":[{"role":"Contributor","scope":"subscription"}]}]}' | Set-Content -Path $platform
 
-        { Set-PlatformSecurityGroup -GlobalConfigPath $global -PlatformConfigPath $platform -WhatIf } | Should -Not -Throw
+        { Set-PlatformSecurityGroup -GlobalConfigPath $global -ResourceGroupsConfigPath $platform -SecurityGroupsConfigPath $platform -WhatIf } | Should -Not -Throw
     }
 
     It 'reports an unresolved placeholder in a security group displayName' {
@@ -117,7 +128,7 @@ Describe 'Set-PlatformSecurityGroup' {
         $script:ValidGlobalConfig | Set-Content -Path $global
         '{"templateVersion":"1.0.0","resourceGroups":[],"securityGroups":[{"displayName":"SG ${bogus}","mailNickname":"sg-devs","roleAssignments":[{"role":"Contributor","resourceGroupId":"dev"}]}]}' | Set-Content -Path $platform
 
-        { Set-PlatformSecurityGroup -GlobalConfigPath $global -PlatformConfigPath $platform -ErrorAction Stop } | Should -Throw '*Unresolved placeholder*bogus*'
+        { Set-PlatformSecurityGroup -GlobalConfigPath $global -ResourceGroupsConfigPath $platform -SecurityGroupsConfigPath $platform -ErrorAction Stop } | Should -Throw '*Unresolved placeholder*bogus*'
     }
 
     It 'reports a role assignment referencing a resource group that does not exist' {
@@ -136,7 +147,7 @@ Describe 'Set-PlatformSecurityGroup' {
 }
 '@ | Set-Content -Path $platform
 
-        { Set-PlatformSecurityGroup -GlobalConfigPath $global -PlatformConfigPath $platform -ErrorAction Stop } | Should -Throw '*does not exist. Run Set-PlatformResourceGroup first*'
+        { Set-PlatformSecurityGroup -GlobalConfigPath $global -ResourceGroupsConfigPath $platform -SecurityGroupsConfigPath $platform -ErrorAction Stop } | Should -Throw '*does not exist. Run Set-PlatformResourceGroup first*'
     }
 
     It 'throws when the active Azure tenant differs from global config' {
@@ -145,7 +156,7 @@ Describe 'Set-PlatformSecurityGroup' {
         ($script:ValidGlobalConfig -replace '"tenantId": "[^"]+"', '"tenantId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"') | Set-Content -Path $global
         '{"templateVersion":"1.0.0","resourceGroups":[],"securityGroups":[]}' | Set-Content -Path $platform
 
-        { Set-PlatformSecurityGroup -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*active Azure tenant*does not match*'
+        { Set-PlatformSecurityGroup -GlobalConfigPath $global -ResourceGroupsConfigPath $platform -SecurityGroupsConfigPath $platform } | Should -Throw '*active Azure tenant*does not match*'
     }
 
     It 'throws when the active Azure subscription differs from global config' {
@@ -154,6 +165,6 @@ Describe 'Set-PlatformSecurityGroup' {
         ($script:ValidGlobalConfig -replace '"subscriptionId": "[^"]+"', '"subscriptionId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"') | Set-Content -Path $global
         '{"templateVersion":"1.0.0","resourceGroups":[],"securityGroups":[]}' | Set-Content -Path $platform
 
-        { Set-PlatformSecurityGroup -GlobalConfigPath $global -PlatformConfigPath $platform } | Should -Throw '*active Azure subscription*does not match*'
+        { Set-PlatformSecurityGroup -GlobalConfigPath $global -ResourceGroupsConfigPath $platform -SecurityGroupsConfigPath $platform } | Should -Throw '*active Azure subscription*does not match*'
     }
 }

@@ -1,0 +1,64 @@
+{
+  "$schema": "https://raw.githubusercontent.com/msckite/az-platform-kite/refs/heads/main/schemas/resource-groups.schema.json",
+  "templateVersion": "2.0.0",
+  // Phase 1: Azure resource groups are created first, independently of security groups, environments, identities, and GitHub environments.
+  "resourceGroups": [
+    {
+      // Hosts the identity that runs the platform provisioning pipeline itself.
+      "id": "platform",
+      "name": "rg-${serviceShort}${uniqueId}-platform-${regionCode}",
+      "location": "${location}",
+      "tags": {
+        "service": "${serviceShort}",
+        "environment": "platform",
+        "location": "${location}",
+        "owner": "engineering-team",
+        "criticality": "high",
+        "cost-center": "engineering",
+        "public": "false"
+      }
+    },
+    {
+      "id": "dev",
+      "name": "rg-${serviceShort}${uniqueId}-dev-${regionCode}",
+      "location": "${location}",
+      "tags": {
+        "service": "${serviceShort}",
+        "environment": "development",
+        "location": "${location}",
+        "owner": "engineering-team",
+        "criticality": "low",
+        "cost-center": "engineering",
+        "public": "true"
+      }
+    },
+    {
+      "id": "stg",
+      "name": "rg-${serviceShort}${uniqueId}-stg-${regionCode}",
+      "location": "${location}",
+      "tags": {
+        "service": "${serviceShort}",
+        "environment": "staging",
+        "location": "${location}",
+        "owner": "operational-team",
+        "criticality": "medium",
+        "cost-center": "operations",
+        "public": "true"
+      }
+    },
+    {
+      "id": "prd",
+      "name": "rg-${serviceShort}${uniqueId}-prd-${regionCode}",
+      "location": "${location}",
+      "tags": {
+        "service": "${serviceShort}",
+        "environment": "production",
+        "location": "${location}",
+        "owner": "business-team",
+        "criticality": "high",
+        "cost-center": "business",
+        "public": "false"
+      }
+    }
+  ]
+}

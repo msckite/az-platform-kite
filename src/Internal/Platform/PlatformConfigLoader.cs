@@ -1,13 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using MSCKite.Azure.Platform.Internal.Common;
 
 namespace MSCKite.Azure.Platform.Internal.Platform
 {
-    // Loads global-config.jsonc and platform-config.jsonc, and resolves ${placeholder} tokens shared across both
+    // Loads global-config.jsonc and the platform config files (resource-groups, security-groups, environments), and resolves ${placeholder} tokens shared across both
     internal static class PlatformConfigLoader
     {
         private static readonly Regex PlaceholderPattern = new Regex(@"\$\{(\w+)\}", RegexOptions.Compiled);
@@ -62,7 +64,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform
         {
             if (!File.Exists(path))
             {
-                throw new FileNotFoundException($"Platform config file not found: {path}", path);
+                throw new FileNotFoundException($"Config file not found: {path}", path);
             }
 
             TemplateVersionHelper.ReadVersion(path, "templateVersion");
@@ -129,7 +131,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform
         {
             if (!File.Exists(path))
             {
-                throw new FileNotFoundException($"Platform config file not found: {path}", path);
+                throw new FileNotFoundException($"Config file not found: {path}", path);
             }
 
             TemplateVersionHelper.ReadVersion(path, "templateVersion");
@@ -198,12 +200,12 @@ namespace MSCKite.Azure.Platform.Internal.Platform
         {
             if (!File.Exists(path))
             {
-                throw new FileNotFoundException($"Platform config file not found: {path}", path);
+                throw new FileNotFoundException($"Config file not found: {path}", path);
             }
 
             TemplateVersionHelper.ReadVersion(path, "templateVersion");
 
-            using (var document = JsonDocument.Parse(File.ReadAllText(path), DocumentOptions))
+            using (var document = JsonDocument.Parse(ApplyEnvironmentDefaults(File.ReadAllText(path), path), DocumentOptions))
             {
                 var root = document.RootElement;
                 if (root.ValueKind != JsonValueKind.Object ||
@@ -229,52 +231,194 @@ namespace MSCKite.Azure.Platform.Internal.Platform
                         throw new InvalidOperationException($"Environment '{environmentCode}' must have a non-empty \"resourceGroupId\".");
                     }
 
-                    if (!element.TryGetProperty("userAssignedIdentity", out var identityElement) || identityElement.ValueKind != JsonValueKind.Object)
+                    if (!element.TryGetProperty("pipelines", out var pipelinesElement) ||
+                        pipelinesElement.ValueKind != JsonValueKind.Array ||
+                        pipelinesElement.GetArrayLength() == 0)
                     {
-                        throw new InvalidOperationException($"Environment '{environmentCode}' must have a \"userAssignedIdentity\" object.");
+                        throw new InvalidOperationException($"Environment '{environmentCode}' must have a non-empty \"pipelines\" array.");
                     }
 
-                    if (!element.TryGetProperty("githubEnvironment", out var githubElement) || githubElement.ValueKind != JsonValueKind.Object)
-                    {
-                        throw new InvalidOperationException($"Environment '{environmentCode}' must have a \"githubEnvironment\" object.");
-                    }
-
-                    // Optional narrower-scoped workload identity/environment; when absent, callers fall back to userAssignedIdentity/githubEnvironment.
-                    // Both must be declared together: their GitHub environment names must differ from the infra one, or their secrets would collide.
-                    PlatformUserAssignedIdentityConfig workloadIdentity = null;
-                    if (element.TryGetProperty("workloadUserAssignedIdentity", out var workloadIdentityElement) && workloadIdentityElement.ValueKind == JsonValueKind.Object)
-                    {
-                        workloadIdentity = ParseUserAssignedIdentity(workloadIdentityElement, environmentCode);
-                    }
-
-                    PlatformGitHubEnvironmentConfig workloadGithubEnvironment = null;
-                    if (element.TryGetProperty("workloadGithubEnvironment", out var workloadGithubElement) && workloadGithubElement.ValueKind == JsonValueKind.Object)
-                    {
-                        workloadGithubEnvironment = ParseGitHubEnvironment(workloadGithubElement, environmentCode);
-                    }
-
-                    if ((workloadIdentity == null) != (workloadGithubEnvironment == null))
-                    {
-                        throw new InvalidOperationException(
-                            $"Environment '{environmentCode}' must declare both \"workloadUserAssignedIdentity\" and \"workloadGithubEnvironment\" together, or neither.");
-                    }
-
-                    environments.Add(new PlatformEnvironmentConfig
+                    var environment = new PlatformEnvironmentConfig
                     {
                         DisplayName = GetString(element, "displayName"),
                         EnvironmentCode = environmentCode,
-                        ResourceGroupId = resourceGroupId,
-                        UserAssignedIdentity = ParseUserAssignedIdentity(identityElement, environmentCode),
-                        GitHubEnvironment = ParseGitHubEnvironment(githubElement, environmentCode),
-                        WorkloadUserAssignedIdentity = workloadIdentity,
-                        WorkloadGitHubEnvironment = workloadGithubEnvironment
-                    });
+                        ResourceGroupId = resourceGroupId
+                    };
+
+                    foreach (var pipelineElement in pipelinesElement.EnumerateArray())
+                    {
+                        environment.Pipelines.Add(ParsePipeline(pipelineElement, environmentCode, environment.Pipelines));
+                    }
+
+                    environments.Add(environment);
                 }
 
                 return environments;
             }
         }
 
+        // A pipeline bundles the identity with the GitHub environment that receives its client id, so the two can never be paired up wrongly.
+        // Names must differ within an environment, or two pipelines would overwrite each other's identity, credential, or GitHub environment secrets.
+        private static PlatformPipelineConfig ParsePipeline(JsonElement element, string environmentCode, List<PlatformPipelineConfig> siblings)
+        {
+            var purpose = GetString(element, "purpose");
+            if (string.IsNullOrWhiteSpace(purpose))
+            {
+                throw new InvalidOperationException($"Environment '{environmentCode}' has a pipeline without a non-empty \"purpose\".");
+            }
+
+            if (siblings.Any(sibling => string.Equals(sibling.Purpose, purpose, StringComparison.Ordinal)))
+            {
+                throw new InvalidOperationException($"Environment '{environmentCode}' has more than one pipeline with purpose '{purpose}'.");
+            }
+
+            if (!element.TryGetProperty("userAssignedIdentity", out var identityElement) || identityElement.ValueKind != JsonValueKind.Object)
+            {
+                throw new InvalidOperationException($"Environment '{environmentCode}' pipeline '{purpose}' must have a \"userAssignedIdentity\" object.");
+            }
+
+            if (!element.TryGetProperty("githubEnvironment", out var githubElement) || githubElement.ValueKind != JsonValueKind.Object)
+            {
+                throw new InvalidOperationException($"Environment '{environmentCode}' pipeline '{purpose}' must have a \"githubEnvironment\" object.");
+            }
+
+            var pipeline = new PlatformPipelineConfig
+            {
+                Purpose = purpose,
+                UserAssignedIdentity = ParseUserAssignedIdentity(identityElement, environmentCode),
+                GitHubEnvironment = ParseGitHubEnvironment(githubElement, environmentCode)
+            };
+
+            foreach (var sibling in siblings)
+            {
+                RequireDistinct(pipeline.UserAssignedIdentity.Name, sibling.UserAssignedIdentity.Name, "userAssignedIdentity name", environmentCode, purpose, sibling.Purpose);
+                RequireDistinct(pipeline.UserAssignedIdentity.FederatedCredential.Name, sibling.UserAssignedIdentity.FederatedCredential.Name, "federatedCredential name", environmentCode, purpose, sibling.Purpose);
+                RequireDistinct(pipeline.GitHubEnvironment.Name, sibling.GitHubEnvironment.Name, "githubEnvironment name", environmentCode, purpose, sibling.Purpose);
+            }
+
+            return pipeline;
+        }
+
+        private static void RequireDistinct(string value, string siblingValue, string what, string environmentCode, string purpose, string siblingPurpose)
+        {
+            if (string.Equals(value, siblingValue, StringComparison.Ordinal))
+            {
+                throw new InvalidOperationException($"Environment '{environmentCode}' pipelines '{siblingPurpose}' and '{purpose}' must not share the same {what} ('{value}').");
+            }
+        }
+
+        // Folds the optional top-level "defaults" object of environments.jsonc into every environment, so the rest of the loader sees fully spelled-out entries.
+        // A value set on an environment always wins; the defaults only fill what it leaves out. Secrets and variables are merged by name.
+        private static string ApplyEnvironmentDefaults(string json, string path)
+        {
+            if (!(JsonNode.Parse(json, null, DocumentOptions) is JsonObject root) || !root.ContainsKey("defaults"))
+            {
+                return json;
+            }
+
+            if (!(root["defaults"] is JsonObject defaults))
+            {
+                throw new InvalidOperationException($"'{path}' has a \"defaults\" property that must be an object.");
+            }
+
+            if (root["environments"] is JsonArray environments)
+            {
+                foreach (var environment in environments.OfType<JsonObject>())
+                {
+                    ApplyDefaultsToEnvironment(environment, defaults);
+                }
+            }
+
+            return root.ToJsonString();
+        }
+
+        private static void ApplyDefaultsToEnvironment(JsonObject environment, JsonObject defaults)
+        {
+            if (!(environment["pipelines"] is JsonArray pipelines))
+            {
+                return;
+            }
+
+            foreach (var pipeline in pipelines.OfType<JsonObject>())
+            {
+                if (defaults["federatedCredential"] is JsonObject credentialDefaults &&
+                    pipeline["userAssignedIdentity"] is JsonObject identity &&
+                    identity["federatedCredential"] is JsonObject credential)
+                {
+                    FillMissingProperties(credential, credentialDefaults);
+                }
+
+                if (defaults["githubEnvironment"] is JsonObject githubDefaults && pipeline["githubEnvironment"] is JsonObject github)
+                {
+                    ApplyDefaultsToGitHubEnvironment(github, githubDefaults);
+                }
+            }
+        }
+
+        private static void ApplyDefaultsToGitHubEnvironment(JsonObject github, JsonObject defaults)
+        {
+            if (defaults["protectionRules"] is JsonObject ruleDefaults)
+            {
+                if (github["protectionRules"] is JsonObject rules)
+                {
+                    FillMissingProperties(rules, ruleDefaults);
+                }
+                else if (!github.ContainsKey("protectionRules"))
+                {
+                    github["protectionRules"] = ruleDefaults.DeepClone();
+                }
+            }
+
+            MergeNamedEntries(github, defaults, "secrets");
+            MergeNamedEntries(github, defaults, "variables");
+        }
+
+        private static void FillMissingProperties(JsonObject target, JsonObject defaults)
+        {
+            foreach (var property in defaults)
+            {
+                if (!target.ContainsKey(property.Key))
+                {
+                    target[property.Key] = property.Value?.DeepClone();
+                }
+            }
+        }
+
+        // Puts the default entries first, then the environment's own entries; an own entry replaces a default with the same name
+        private static void MergeNamedEntries(JsonObject target, JsonObject defaults, string propertyName)
+        {
+            if (!(defaults[propertyName] is JsonArray defaultEntries) || defaultEntries.Count == 0)
+            {
+                return;
+            }
+
+            if (target.ContainsKey(propertyName) && !(target[propertyName] is JsonArray))
+            {
+                return;
+            }
+
+            var ownEntries = target[propertyName] as JsonArray ?? new JsonArray();
+            var ownNames = new HashSet<string>(
+                ownEntries.OfType<JsonObject>().Select(entry => entry["name"] is JsonValue name && name.TryGetValue<string>(out var value) ? value : null).Where(name => name != null),
+                StringComparer.OrdinalIgnoreCase);
+
+            var merged = new JsonArray();
+            foreach (var entry in defaultEntries)
+            {
+                var name = entry is JsonObject entryObject && entryObject["name"] is JsonValue nameValue && nameValue.TryGetValue<string>(out var value) ? value : null;
+                if (name == null || !ownNames.Contains(name))
+                {
+                    merged.Add(entry?.DeepClone());
+                }
+            }
+
+            foreach (var entry in ownEntries)
+            {
+                merged.Add(entry?.DeepClone());
+            }
+
+            target[propertyName] = merged;
+        }
         private static void ValidateGlobalConfig(GlobalConfig config)
         {
             RequireGlobalConfigValue(config.TenantId, "tenantId");
@@ -486,7 +630,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform
 
             if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(issuer) || string.IsNullOrWhiteSpace(subjectType))
             {
-                throw new InvalidOperationException($"Environment '{environmentCode}' federatedCredential must have a non-empty \"name\", \"issuer\", and \"subjectType\".");
+                throw new InvalidOperationException($"Environment '{environmentCode}' federatedCredential must have a non-empty \"name\", \"issuer\", and \"subjectType\" (set them on the credential or under \"defaults.federatedCredential\").");
             }
 
             var federatedCredential = new PlatformFederatedCredentialConfig
@@ -500,7 +644,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform
                 audiencesElement.ValueKind != JsonValueKind.Array ||
                 audiencesElement.GetArrayLength() == 0)
             {
-                throw new InvalidOperationException($"Environment '{environmentCode}' federatedCredential must have a non-empty \"audiences\" array.");
+                throw new InvalidOperationException($"Environment '{environmentCode}' federatedCredential must have a non-empty \"audiences\" array (set it on the credential or under \"defaults.federatedCredential\").");
             }
 
             foreach (var audienceElement in audiencesElement.EnumerateArray())
