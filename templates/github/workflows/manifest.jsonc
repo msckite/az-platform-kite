@@ -16,8 +16,16 @@
         "destination": ".github/workflows/platform-provision.yml"
       },
       {
-        "source": "platform-config.jsonc",
-        "destination": "config/platform-config.jsonc"
+        "source": "platform/resource-groups.jsonc",
+        "destination": "config/platform/resource-groups.jsonc"
+      },
+      {
+        "source": "platform/security-groups.jsonc",
+        "destination": "config/platform/security-groups.jsonc"
+      },
+      {
+        "source": "platform/environments.jsonc",
+        "destination": "config/platform/environments.jsonc"
       }
     ],
     "files": [
