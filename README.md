@@ -60,7 +60,7 @@ flowchart LR
     B -- "least-privilege<br/>role per environment" --> C
 ```
 
-You describe your platform once, in `platform-config.jsonc`. Kite then sets it up in four ordered steps:
+You describe your platform once, across the three files in `config/platform/` (`resource-groups.jsonc`, `security-groups.jsonc` and `environments.jsonc`). Kite then sets it up in four ordered steps:
 
 | Step | What Kite creates | Why it matters |
 | ---- | ----------------- | -------------- |
@@ -85,7 +85,7 @@ Access is enforced at every link of the chain, from the person writing code to t
 | Application pipeline | Deploy code | Deploy code | Deploy code |
 | Infrastructure pipeline | Deploy infrastructure | Deploy infrastructure | Deploy infrastructure |
 
-These roles are the defaults in the starter configuration. You can change them in `platform-config.jsonc`.
+These roles are the defaults in the starter configuration. You can change them in `config/platform/security-groups.jsonc`.
 
 What this gives you:
 
@@ -221,12 +221,12 @@ Set-GitHubDefault $null
 
 ### Staged platform setup
 
-Working from your local repository, download the templates, scaffold the configuration folder from them, and fill in `global-config.jsonc` and `platform-config.jsonc`:
+Working from your local repository, download the templates, scaffold the configuration folder from them, and fill in `global-config.jsonc` and the files in `config/platform/`:
 
 ```powershell
 Get-PlatformTemplate -IncludedFolders 'templates' -OutputFolder ./.tmp
 New-PlatformConfigStructure -InputFolder ./.tmp/templates -OutputFolder ./config
-Copy-Item ./.tmp/templates/platform-config.jsonc ./config
+Copy-Item ./.tmp/templates/platform ./config -Recurse
 ```
 
 `Get-PlatformTemplate` downloads `global-config.jsonc` and the other templates of the Kite release you are running (its release tag, not `main`) into `.tmp`. `New-PlatformConfigStructure` seeds your repository's `config` folder with the downloaded `global-config.jsonc`, so nothing you edit later is ever overwritten by a new download. It also sets `kiteVersion` to the module version you are running, which pins your pipelines to this Kite release until you change it in a pull request (see [Pinning the Kite version](templates/github/workflows/README.md#pinning-the-kite-version)).
@@ -234,7 +234,7 @@ Copy-Item ./.tmp/templates/platform-config.jsonc ./config
 <br/>
 
 > [!IMPORTANT]
-> Leave the `${placeholder}` tokens in `platform-config.jsonc` intact: they are resolved at runtime against `global-config.jsonc` and the environment being provisioned, which is what keeps names, tags and secrets consistent across every phase. Replacing them with literal values breaks that single source of truth.
+> Leave the `${placeholder}` tokens in the `config/platform/` files intact: they are resolved at runtime against `global-config.jsonc` and the environment being provisioned, which is what keeps names, tags and secrets consistent across every phase. Replacing them with literal values breaks that single source of truth.
 
 <br/>
 
@@ -264,7 +264,7 @@ New-PlatformWorkflow
 > Before the pipeline can run phase 4, add `PLATFORM_GITHUB_TOKEN` by hand as an **environment secret** on the `platform` GitHub environment; the built-in `GITHUB_TOKEN` cannot manage environment secrets. See the [prerequisites](templates/github/workflows/README.md#prerequisites) section of the workflow templates README for the full setup steps.
 
 > [!NOTE]
-> The platform pipeline signs in as dedicated environments declared in `platform-config.jsonc`, not one of your app environments. `platform-cd.yml` uses `platform`, whose identity holds subscription-level RBAC (`Contributor` and `User Access Administrator`, both scoped to `subscription`) and which only accepts runs from `main`. `platform-ci.yml` previews pull requests as `platform-plan`, a read-only twin with subscription-level `Reader`. See the [prerequisites](templates/github/workflows/README.md#prerequisites) for the one-time setup of both.
+> The platform pipeline signs in as dedicated environments declared in `config/platform/environments.jsonc`, not one of your app environments. `platform-cd.yml` uses `platform`, whose identity holds subscription-level RBAC (`Contributor` and `User Access Administrator`, both scoped to `subscription`) and which only accepts runs from `main`. `platform-ci.yml` previews pull requests as `platform-plan`, a read-only twin with subscription-level `Reader`. See the [prerequisites](templates/github/workflows/README.md#prerequisites) for the one-time setup of both.
 
 ## Upgrading
 

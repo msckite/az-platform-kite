@@ -19,7 +19,7 @@ human contributors should read [CONTRIBUTING.md](./CONTRIBUTING.md), which this 
 Run these before opening a pull request:
 
 ```powershell
-Invoke-psake ./build.ps1 -taskList Test        # expect 95 passed, 3 skipped
+Invoke-psake ./build.ps1 -taskList Test        # expect 108 passed, 3 skipped
 ./platyps.ps1 -Mode Test
 Invoke-ScriptAnalyzer -Path . -Recurse -Settings ./scripts/PSScriptAnalyzerSettings.psd1
 npx markdownlint-cli "**/*.md"
