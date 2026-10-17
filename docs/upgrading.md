@@ -13,7 +13,8 @@ release also has release notes on its GitHub Release.
   - [3. Raise `templateVersion` to 2.0.0](#3-raise-templateversion-to-200)
   - [4. Update calls to the phase cmdlets](#4-update-calls-to-the-phase-cmdlets)
   - [5. Update your platform workflows](#5-update-your-platform-workflows)
-  - [6. Optional: move repeated settings into `defaults`](#6-optional-move-repeated-settings-into-defaults)
+  - [6. Rename the workload and infra trigger workflows](#6-rename-the-workload-and-infra-trigger-workflows)
+  - [7. Optional: move repeated settings into `defaults`](#7-optional-move-repeated-settings-into-defaults)
 - [From 1.0.x to 1.1.0](#from-10x-to-110)  - [1. Raise `templateVersion` to 1.1.0](#1-raise-templateversion-to-110)
   - [2. Pin `kiteVersion`](#2-pin-kiteversion)
   - [3. Know that `Get-PlatformTemplate` now defaults to the release tag](#3-know-that-get-platformtemplate-now-defaults-to-the-release-tag)
@@ -113,7 +114,28 @@ If you copied the platform workflows, compare them with the 2.0.0 templates:
 
 A caller that passed `platform-config-path` must pass `platform-config-folder` instead.
 
-### 6. Optional: move repeated settings into `defaults`
+### 6. Rename the workload and infra trigger workflows
+
+`New-PlatformWorkflow` used to install the workload and infra trigger workflows with a `-flow` part
+in the file name. It now keeps the name of the template, like the platform workflows:
+
+| Before | Now |
+| --- | --- |
+| `workload-flow-ci.yml` | `workload-ci.yml` |
+| `workload-flow-cd.yml` | `workload-cd.yml` |
+| `workload-flow-release.yml` | `workload-release.yml` |
+| `infra-flow-ci.yml` | `infra-ci.yml` |
+| `infra-flow-cd.yml` | `infra-cd.yml` |
+| `infra-flow-release.yml` | `infra-release.yml` |
+
+Nothing breaks if you keep your copies under the old names: you own them, and the workflows that
+call each other do so by the names of the shared workflows, which did not change. To adopt the new
+names, re-copy the workflows with `New-PlatformWorkflow` and delete the old files in the same pull
+request; leaving both would run each trigger twice. With the `release` strategy, the
+`gh workflow run` lines in `release-please.yml` start `infra-release.yml` and
+`workload-release.yml`, so update them if you rename the release workflows.
+
+### 7. Optional: move repeated settings into `defaults`
 
 `environments.jsonc` accepts a new top-level `defaults` object, so the settings every environment
 shares are written once. The 2.0.0 template uses it. Your own file keeps working without it, so

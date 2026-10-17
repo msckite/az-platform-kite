@@ -315,7 +315,7 @@ How a release works:
    deliverable, for example `chore(main): release infra 1.3.0`, holding the next version and its
    `CHANGELOG.md` entries. It keeps collecting changes while you test `stg`.
 3. **Merging a release pull request is the decision to go to production.** release-please creates
-   the tag and GitHub release, then starts `infra-flow-release.yml` or `workload-flow-release.yml`
+   the tag and GitHub release, then starts `infra-release.yml` or `workload-release.yml`
    with that tag. The release workflow verifies the content was deployed to `stg` and deploys `prd`.
    Infra and workload each have their own release pull request, so one can go to production without
    the other.
@@ -357,7 +357,7 @@ together:
 | The location or name of `config.json` or `manifest.json` | `config-file` and `manifest-file` in `release-please.yml`. |
 | A deliverable folder, for example `iac` to `infra` | Its package key in `config.json` and in `manifest.json` (both must match the folder path), the `iac--release_created` and `iac--tag_name` outputs in `release-please.yml`, the folder argument of the `stg-verification.sh` calls in the CD and release workflows, and the `iac/**` path filters of CI and CD. |
 | A component name (the tag prefix), for example `infra` | The `startsWith(..., 'infra/')` conditions in the matching release workflow. |
-| A release workflow file name, for example `infra-flow-release.yml` | The `gh workflow run` line in `release-please.yml`. |
+| A release workflow file name, for example `infra-release.yml` | The `gh workflow run` line in `release-please.yml`. |
 | The changelog or version file (`changelog-path`, `version-file`, or another `release-type`) | The `!` exclusions in the CI and CD path filters, and the ignored files in `stg-verification.sh`, so release commits still skip `stg` and pass the staging verification. |
 
 The workflow file name `release-please.yml` itself is free: nothing refers to it.

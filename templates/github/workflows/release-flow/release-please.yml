@@ -50,10 +50,10 @@ jobs:
           WORKLOAD_TAG: ${{ steps.release.outputs['src--release_created'] == 'true' && steps.release.outputs['src--tag_name'] || '' }}
         run: |
           if [ -n "$INFRA_TAG" ]; then
-            gh workflow run infra-flow-release.yml --repo "$GITHUB_REPOSITORY" --ref main -f tag="$INFRA_TAG"
+            gh workflow run infra-release.yml --repo "$GITHUB_REPOSITORY" --ref main -f tag="$INFRA_TAG"
             echo "Started 'Infra Release (prd)' for $INFRA_TAG."
           fi
           if [ -n "$WORKLOAD_TAG" ]; then
-            gh workflow run workload-flow-release.yml --repo "$GITHUB_REPOSITORY" --ref main -f tag="$WORKLOAD_TAG"
+            gh workflow run workload-release.yml --repo "$GITHUB_REPOSITORY" --ref main -f tag="$WORKLOAD_TAG"
             echo "Started 'Workload Release (prd)' for $WORKLOAD_TAG."
           fi

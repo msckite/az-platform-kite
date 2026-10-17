@@ -50,7 +50,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v7
 
-      # infra-flow-release only deploys prd content that carries this status. Kept separate from the
+      # infra-release only deploys prd content that carries this status. Kept separate from the
       # workload pipeline's own status, since infra and workload changes promote independently.
       - name: Record 'iac' content as deployed to staging
         env:
