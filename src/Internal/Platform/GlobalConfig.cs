@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace MSCKite.Azure.Platform.Internal.Platform
 {
-    // Parsed representation of global-config.jsonc, used to resolve ${placeholder} tokens in platform-config.jsonc
+    // Parsed representation of global-config.jsonc, used to resolve ${placeholder} tokens in the platform config files
     internal class GlobalConfig
     {
         internal string TenantId { get; set; }
@@ -21,7 +21,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform
 
         internal SourceControlConfig SourceControl { get; set; }
 
-        // Every value a platform-config.jsonc template may reference via ${key}
+        // Every value a platform config template may reference via ${key}
         internal Dictionary<string, string> ToPlaceholderMap()
         {
             var map = new Dictionary<string, string>

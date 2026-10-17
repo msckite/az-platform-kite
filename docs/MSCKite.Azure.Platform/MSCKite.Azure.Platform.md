@@ -78,20 +78,20 @@ Creates, updates, and removes GitHub repository labels to match a labels definit
 ### [Set-PlatformEnvironmentIdentity](Set-PlatformEnvironmentIdentity.md)
 
 Creates the federated user-assigned managed identity for each environment declared in
-platform-config.jsonc, and assigns its RBAC roles against the resource groups from phase 1.
+environments.jsonc, and assigns its RBAC roles against the resource groups from phase 1.
 
 ### [Set-PlatformGitHubEnvironment](Set-PlatformGitHubEnvironment.md)
 
 Creates or updates each environment's GitHub deployment environment declared in
-platform-config.jsonc, including its protection rules, secrets, and variables.
+environments.jsonc, including its protection rules, secrets, and variables.
 
 ### [Set-PlatformResourceGroup](Set-PlatformResourceGroup.md)
 
-Creates or updates the Azure resource groups declared in platform-config.jsonc.
+Creates or updates the Azure resource groups declared in resource-groups.jsonc.
 
 ### [Set-PlatformSecurityGroup](Set-PlatformSecurityGroup.md)
 
-Creates or updates the Microsoft Entra security groups declared in platform-config.jsonc, and
+Creates or updates the Microsoft Entra security groups declared in security-groups.jsonc, and
 assigns their RBAC roles against the resource groups from phase 1.
 
 ### [Test-PlatformTemplate](Test-PlatformTemplate.md)

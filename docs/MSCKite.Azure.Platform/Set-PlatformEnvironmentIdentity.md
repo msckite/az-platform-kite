@@ -4,7 +4,7 @@ external help file: MSCKite.Azure.Platform.dll-Help.xml
 HelpUri: ''
 Locale: en-NL
 Module Name: MSCKite.Azure.Platform
-ms.date: 09/23/2026
+ms.date: 10/16/2026
 PlatyPS schema version: 2024-05-01
 title: Set-PlatformEnvironmentIdentity
 ---
@@ -14,24 +14,25 @@ title: Set-PlatformEnvironmentIdentity
 ## SYNOPSIS
 
 Creates the federated user-assigned managed identity for each environment declared in
-platform-config.jsonc, and assigns its RBAC roles against the resource groups from phase 1.
+environments.jsonc, and assigns its RBAC roles against the resource groups from phase 1.
 
 ## SYNTAX
 
 ### __AllParameterSets
 
 ```
-Set-PlatformEnvironmentIdentity [[-GlobalConfigPath] <string>] [[-PlatformConfigPath] <string>]
- [-AsHashtable] [-WhatIf] [-Confirm] [<CommonParameters>]
+Set-PlatformEnvironmentIdentity [[-GlobalConfigPath] <string>]
+ [[-ResourceGroupsConfigPath] <string>] [[-EnvironmentsConfigPath] <string>] [-AsHashtable]
+ [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## ALIASES
 
 ## DESCRIPTION
 
-Phase 3 of the platform-config.jsonc provisioning workflow.
-For each entry in the `environments`
-array, resolves `${placeholder}` tokens (including the environment's own `${environmentCode}` and
+Phase 3 of the platform provisioning workflow.
+For each pipeline of each entry in the
+`environments` array, resolves `${placeholder}` tokens (including the environment's own `${environmentCode}` and
 `${tool}`) and creates the user-assigned managed identity in its resource group if it doesn't
 exist yet, waiting for its principal to become readable before it's used further. It then creates
 or updates the identity's federated credential using an immutable GitHub Actions OIDC subject
@@ -50,13 +51,13 @@ managed identities, federated credentials, and RBAC role assignments. The active
 tenant and subscription must match the `tenantId` and `subscriptionId` in global-config.jsonc
 before processing begins.
 
-An environment can declare a second, narrower identity for the workload (application/service/
-solution code) pipeline: `workloadUserAssignedIdentity`, paired with `workloadGithubEnvironment`.
-When present, this cmdlet processes both the infra identity (`userAssignedIdentity`) and the
-workload identity in the same run, each with its own federated credential and role assignments.
-`workloadUserAssignedIdentity` and `workloadGithubEnvironment` must be declared together; declaring
-only one of them is a configuration error. Omitting both is still valid: the environment then has a
-single identity for both pipelines, as before.
+Each environment declares its identities in a `pipelines` array. An entry has a `purpose`, a
+`userAssignedIdentity` and the `githubEnvironment` that receives its client id, so an environment
+can have, for example, a broad `infra` identity and a narrower `workload` identity for the
+application/service/solution code pipeline. This cmdlet processes every pipeline in the same run,
+each with its own federated credential and role assignments, and reports the pipeline's `purpose`
+as `Purpose`. Within one environment the `purpose`, identity names, federated credential names and
+GitHub environment names must be unique.
 
 By default, each environment's result is emitted once processing finishes; under `-WhatIf`,
 `Action` reports actions that would happen instead of applying a mutation. Pass `-AsHashtable` to collect
@@ -71,12 +72,12 @@ Set-PlatformEnvironmentIdentity
 ```
 
 Creates or updates the identity, federated credential, and role assignments for every environment
-declared in `config/global-config.jsonc` and `config/platform-config.jsonc`.
+declared in `config/global-config.jsonc` and `config/platform/resource-groups.jsonc` and `config/platform/environments.jsonc`.
 
 ### Example 2 - Preview changes without applying them
 
 ```powershell
-Set-PlatformEnvironmentIdentity -GlobalConfigPath ./config/global-config.jsonc -PlatformConfigPath ./config/platform-config.jsonc -WhatIf
+Set-PlatformEnvironmentIdentity -GlobalConfigPath ./config/global-config.jsonc -ResourceGroupsConfigPath ./config/platform/resource-groups.jsonc -EnvironmentsConfigPath ./config/platform/environments.jsonc -WhatIf
 ```
 
 ## PARAMETERS
@@ -126,10 +127,32 @@ AcceptedValues: []
 HelpMessage: ''
 ```
 
+### -EnvironmentsConfigPath
+
+Path to the environments.jsonc file whose `environments` array is provisioned.
+Defaults to `config/platform/environments.jsonc`.
+
+```yaml
+Type: System.String
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: 2
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: true
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
 ### -GlobalConfigPath
 
 Path to the global-config.jsonc file whose values resolve `${placeholder}` tokens in
-platform-config.jsonc.
+the platform config files.
 Defaults to `config/global-config.jsonc`.
 
 ```yaml
@@ -149,11 +172,10 @@ AcceptedValues: []
 HelpMessage: ''
 ```
 
-### -PlatformConfigPath
+### -ResourceGroupsConfigPath
 
-Path to the platform-config.jsonc file whose `environments` array is provisioned.
-Defaults to
-`config/platform-config.jsonc`.
+Path to the resource-groups.jsonc file whose `resourceGroups` array is provisioned or, in later phases, used to resolve `resourceGroupId` references.
+Defaults to `config/platform/resource-groups.jsonc`.
 
 ```yaml
 Type: System.String

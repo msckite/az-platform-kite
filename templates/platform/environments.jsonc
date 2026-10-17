@@ -1,0 +1,325 @@
+{
+  "$schema": "https://raw.githubusercontent.com/msckite/az-platform-kite/refs/heads/main/schemas/environments.schema.json",
+  "templateVersion": "2.0.0",
+  // Applied to every environment that does not set the value itself; a value on an environment always wins.
+  // Credential settings and protection rules are filled in field by field; secrets and variables are merged by name.
+  "defaults": {
+    "federatedCredential": {
+      "issuer": "https://token.actions.githubusercontent.com",
+      "subjectType": "environment",
+      "audiences": [
+        "api://AzureADTokenExchange"
+      ]
+    },
+    "githubEnvironment": {
+      "protectionRules": {
+        "requiredReviewers": [],
+        "waitTimerMinutes": 0
+      },
+      "secrets": [
+        {
+          "name": "AZURE_CLIENT_ID",
+          "value": "${clientId}" // Populated from the clientId of the userAssignedIdentity created for the environment, once it exists
+        },
+        {
+          "name": "AZURE_SUBSCRIPTION_ID",
+          "value": "${subscriptionId}"
+        },
+        {
+          "name": "AZURE_TENANT_ID",
+          "value": "${tenantId}"
+        }
+      ]
+    }
+  },
+  // Phase 3: Entra federated user-assigned identity, Phase 4: GitHub environment (both per-environment).
+  // Each environment's resourceGroupId, and each roleAssignment's resourceGroupId, must match an id in resource-groups.jsonc.
+  "environments": [
+    {
+      // The bootstrap environment: platform-ci.yml/platform-cd.yml sign in as this identity to run all four
+      // phases. Its role assignments are scoped to the whole subscription (not a single resource group).
+      "displayName": "Platform",
+      "environmentCode": "platform",
+      "description": "Bootstrap environment whose identity runs the platform provisioning pipeline",
+      "resourceGroupId": "platform",
+      "pipelines": [
+        {
+          "purpose": "provision",
+          "userAssignedIdentity": {
+            "name": "id-${serviceShort}${uniqueId}-${tool}-${environmentCode}",
+            "federatedCredential": {
+              "name": "fic-${serviceShort}${uniqueId}-${tool}-${environmentCode}"
+            },
+            "roleAssignments": [
+              {
+                "role": "Contributor",
+                "scope": "subscription"
+              },
+              {
+                "role": "User Access Administrator", // Needed to assign RBAC roles to the security groups and identities provisioned by phases 2 and 3
+                "scope": "subscription"
+              }
+            ]
+          },
+          "githubEnvironment": {
+            "name": "${environmentCode}",
+            "protectionRules": {
+              // Only runs from main may sign in as this subscription-wide identity; pull requests use 'platform-plan' below
+              "deploymentBranchPolicy": {
+                "branches": [
+                  "main"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      // Read-only twin of the platform environment: platform-ci.yml signs in as this identity on pull requests to
+      // run all four phases with -WhatIf, which only reads. Every branch may use it, so it must never get write access.
+      "displayName": "Platform (plan)",
+      "environmentCode": "platform",
+      "description": "Read-only environment whose identity previews the platform provisioning pipeline",
+      "resourceGroupId": "platform",
+      "pipelines": [
+        {
+          "purpose": "plan",
+          "userAssignedIdentity": {
+            "name": "id-${serviceShort}${uniqueId}-${tool}-${environmentCode}-plan",
+            "federatedCredential": {
+              "name": "fic-${serviceShort}${uniqueId}-${tool}-${environmentCode}-plan"
+            },
+            "roleAssignments": [
+              {
+                "role": "Reader", // Reads resource groups, identities, federated credentials, and role assignments across the subscription
+                "scope": "subscription"
+              }
+            ]
+          },
+          "githubEnvironment": {
+            "name": "${environmentCode}-plan"
+          }
+        }
+      ]
+    },
+    {
+      "displayName": "Development",
+      "environmentCode": "dev",
+      "description": "Development environment for the ${displayName} service",
+      "resourceGroupId": "dev",
+      "pipelines": [
+        {
+          // Broad rights, including deployment stacks: used by the infra (IaC) pipeline.
+          "purpose": "infra",
+          "userAssignedIdentity": {
+            "name": "id-${serviceShort}${uniqueId}-${tool}-${environmentCode}-infra",
+            "federatedCredential": {
+              "name": "fic-${serviceShort}${uniqueId}-${tool}-${environmentCode}-infra"
+            },
+            "roleAssignments": [
+              {
+                "role": "Contributor",
+                "resourceGroupId": "dev"
+              },
+              {
+                "role": "Azure Deployment Stack Contributor",
+                "resourceGroupId": "dev"
+              }
+            ]
+          },
+          "githubEnvironment": {
+            "name": "${environmentCode}-infra",
+            "variables": [
+              {
+                "name": "ENV_CODE",
+                "value": "${environmentCode}"
+              },
+              {
+                "name": "RESOURCE_GROUP_NAME",
+                "value": "rg-${serviceShort}${uniqueId}-${environmentCode}-${regionCode}"
+              },
+              {
+                "name": "DEPLOYMENT_STACK_NAME",
+                "value": "rgds-${serviceShort}${uniqueId}-${environmentCode}-${regionCode}"
+              }
+            ]
+          }
+        },
+        {
+          // Narrower rights, no deployment-stack role: developers pushing workload code cannot alter infrastructure through this identity.
+          "purpose": "workload",
+          "userAssignedIdentity": {
+            "name": "id-${serviceShort}${uniqueId}-${tool}-${environmentCode}-workload",
+            "federatedCredential": {
+              "name": "fic-${serviceShort}${uniqueId}-${tool}-${environmentCode}-workload"
+            },
+            "roleAssignments": [
+              {
+                "role": "Contributor",
+                "resourceGroupId": "dev"
+              }
+            ]
+          },
+          "githubEnvironment": {
+            "name": "${environmentCode}-workload",
+            "variables": [
+              {
+                "name": "ENV_CODE",
+                "value": "${environmentCode}"
+              },
+              {
+                "name": "RESOURCE_GROUP_NAME",
+                "value": "rg-${serviceShort}${uniqueId}-${environmentCode}-${regionCode}"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "displayName": "Staging",
+      "environmentCode": "stg",
+      "description": "Staging environment for the ${displayName} service",
+      "resourceGroupId": "stg",
+      "pipelines": [
+        {
+          "purpose": "infra",
+          "userAssignedIdentity": {
+            "name": "id-${serviceShort}${uniqueId}-${tool}-${environmentCode}-infra",
+            "federatedCredential": {
+              "name": "fic-${serviceShort}${uniqueId}-${tool}-${environmentCode}-infra"
+            },
+            "roleAssignments": [
+              {
+                "role": "Contributor",
+                "resourceGroupId": "stg"
+              },
+              {
+                "role": "Azure Deployment Stack Contributor",
+                "resourceGroupId": "stg"
+              }
+            ]
+          },
+          "githubEnvironment": {
+            "name": "${environmentCode}-infra",
+            "variables": [
+              {
+                "name": "ENV_CODE",
+                "value": "${environmentCode}"
+              },
+              {
+                "name": "RESOURCE_GROUP_NAME",
+                "value": "rg-${serviceShort}${uniqueId}-${environmentCode}-${regionCode}"
+              },
+              {
+                "name": "DEPLOYMENT_STACK_NAME",
+                "value": "rgds-${serviceShort}${uniqueId}-${environmentCode}-${regionCode}"
+              }
+            ]
+          }
+        },
+        {
+          "purpose": "workload",
+          "userAssignedIdentity": {
+            "name": "id-${serviceShort}${uniqueId}-${tool}-${environmentCode}-workload",
+            "federatedCredential": {
+              "name": "fic-${serviceShort}${uniqueId}-${tool}-${environmentCode}-workload"
+            },
+            "roleAssignments": [
+              {
+                "role": "Contributor",
+                "resourceGroupId": "stg"
+              }
+            ]
+          },
+          "githubEnvironment": {
+            "name": "${environmentCode}-workload",
+            "variables": [
+              {
+                "name": "ENV_CODE",
+                "value": "${environmentCode}"
+              },
+              {
+                "name": "RESOURCE_GROUP_NAME",
+                "value": "rg-${serviceShort}${uniqueId}-${environmentCode}-${regionCode}"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "displayName": "Production",
+      "environmentCode": "prd",
+      "description": "Production environment for the ${displayName} service",
+      "resourceGroupId": "prd",
+      "pipelines": [
+        {
+          "purpose": "infra",
+          "userAssignedIdentity": {
+            "name": "id-${serviceShort}${uniqueId}-${tool}-${environmentCode}-infra",
+            "federatedCredential": {
+              "name": "fic-${serviceShort}${uniqueId}-${tool}-${environmentCode}-infra"
+            },
+            "roleAssignments": [
+              {
+                "role": "Contributor",
+                "resourceGroupId": "prd"
+              },
+              {
+                "role": "Azure Deployment Stack Contributor",
+                "resourceGroupId": "prd"
+              }
+            ]
+          },
+          "githubEnvironment": {
+            "name": "${environmentCode}-infra",
+            "variables": [
+              {
+                "name": "ENV_CODE",
+                "value": "${environmentCode}"
+              },
+              {
+                "name": "RESOURCE_GROUP_NAME",
+                "value": "rg-${serviceShort}${uniqueId}-${environmentCode}-${regionCode}"
+              },
+              {
+                "name": "DEPLOYMENT_STACK_NAME",
+                "value": "rgds-${serviceShort}${uniqueId}-${environmentCode}-${regionCode}"
+              }
+            ]
+          }
+        },
+        {
+          "purpose": "workload",
+          "userAssignedIdentity": {
+            "name": "id-${serviceShort}${uniqueId}-${tool}-${environmentCode}-workload",
+            "federatedCredential": {
+              "name": "fic-${serviceShort}${uniqueId}-${tool}-${environmentCode}-workload"
+            },
+            "roleAssignments": [
+              {
+                "role": "Contributor",
+                "resourceGroupId": "prd"
+              }
+            ]
+          },
+          "githubEnvironment": {
+            "name": "${environmentCode}-workload",
+            "variables": [
+              {
+                "name": "ENV_CODE",
+                "value": "${environmentCode}"
+              },
+              {
+                "name": "RESOURCE_GROUP_NAME",
+                "value": "rg-${serviceShort}${uniqueId}-${environmentCode}-${regionCode}"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

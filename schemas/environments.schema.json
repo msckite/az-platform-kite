@@ -1,15 +1,13 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://raw.githubusercontent.com/msckite/az-platform-kite/refs/heads/main/schemas/platform-config.schema.json",
-  "schemaVersion": "1.1.0",
-  "title": "Platform Config Schema",
-  "description": "Per-service configuration describing the Azure and GitHub environments to provision for a repository.",
+  "$id": "https://raw.githubusercontent.com/msckite/az-platform-kite/refs/heads/main/schemas/environments.schema.json",
+  "schemaVersion": "2.0.0",
+  "title": "Environments Config Schema",
+  "description": "Phase 3 and 4 configuration: the environments to provision a federated user-assigned identity and a GitHub environment for. Each environment references a resource group declared in resource-groups.jsonc.",
   "type": "object",
   "additionalProperties": false,
   "required": [
     "templateVersion",
-    "resourceGroups",
-    "securityGroups",
     "environments"
   ],
   "properties": {
@@ -19,26 +17,13 @@
     },
     "templateVersion": {
       "description": "Version of the template contract.",
-      "const": "1.1.0"
+      "const": "2.0.0"
     },
-    "resourceGroups": {
-      "description": "Azure resource groups to create first, ahead of any security group, environment, identity, or GitHub environment resources. Each represents a stage in the deployment (e.g. dev, stg, prd).",
-      "type": "array",
-      "minItems": 1,
-      "items": {
-        "$ref": "#/definitions/resourceGroup"
-      }
-    },
-    "securityGroups": {
-      "description": "Microsoft Entra security groups to create once RBAC roles are assigned against the resource groups created above. Created as phase 2, ahead of any per-environment identity or GitHub environment resources.",
-      "type": "array",
-      "minItems": 1,
-      "items": {
-        "$ref": "#/definitions/securityGroup"
-      }
+    "defaults": {
+      "$ref": "#/definitions/environmentDefaults"
     },
     "environments": {
-      "description": "The environments (e.g. dev, prd) to provision a federated user-assigned identity and a GitHub environment for. Each environment references a resource group created in the top-level 'resourceGroups' array.",
+      "description": "The environments (e.g. dev, prd) to provision a federated user-assigned identity and a GitHub environment for. Each environment references a resource group declared in resource-groups.jsonc.",
       "type": "array",
       "minItems": 1,
       "items": {
@@ -47,6 +32,45 @@
     }
   },
   "definitions": {
+    "environmentDefaults": {
+      "description": "Settings applied to every environment that does not set them itself, so they are written once instead of per environment. A value set on an environment always wins. Secrets and variables are merged by name; protection rules and credential settings are filled in field by field.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "federatedCredential": {
+          "description": "Defaults for the 'federatedCredential' of every identity, including the workload identities.",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "issuer": {
+              "$ref": "#/definitions/federatedCredential/properties/issuer"
+            },
+            "subjectType": {
+              "$ref": "#/definitions/federatedCredential/properties/subjectType"
+            },
+            "audiences": {
+              "$ref": "#/definitions/federatedCredential/properties/audiences"
+            }
+          }
+        },
+        "githubEnvironment": {
+          "description": "Defaults for the 'githubEnvironment' of every pipeline. The name is always set per environment.",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "protectionRules": {
+              "$ref": "#/definitions/protectionRules"
+            },
+            "secrets": {
+              "$ref": "#/definitions/githubEnvironment/properties/secrets"
+            },
+            "variables": {
+              "$ref": "#/definitions/githubEnvironment/properties/variables"
+            }
+          }
+        }
+      }
+    },
     "environmentConfig": {
       "type": "object",
       "additionalProperties": false,
@@ -54,8 +78,7 @@
         "displayName",
         "environmentCode",
         "resourceGroupId",
-        "userAssignedIdentity",
-        "githubEnvironment"
+        "pipelines"
       ],
       "properties": {
         "displayName": {
@@ -77,90 +100,45 @@
           "type": "string"
         },
         "resourceGroupId": {
-          "description": "Id of the resource group (from the top-level 'resourceGroups' array) this environment deploys into.",
+          "description": "Id of the resource group (from resource-groups.jsonc) this environment deploys into.",
           "type": "string",
           "minLength": 1
         },
-        "userAssignedIdentity": {
-          "description": "Federated identity used by the infra (IaC) pipeline. Keeps broader rights (e.g. 'Azure Deployment Stack Contributor') needed to create, update, and delete resources.",
-          "$ref": "#/definitions/userAssignedIdentity"
-        },
-        "githubEnvironment": {
-          "description": "GitHub environment paired with 'userAssignedIdentity', used as the infra pipeline's approval and OIDC gate.",
-          "$ref": "#/definitions/githubEnvironment"
-        },
-        "workloadUserAssignedIdentity": {
-          "description": "Optional, separate federated identity used by the workload (application/service/solution code) pipeline. Scoped narrower than 'userAssignedIdentity': no deployment-stack rights, so developers cannot alter infrastructure through this identity. Falls back to 'userAssignedIdentity' when omitted.",
-          "$ref": "#/definitions/userAssignedIdentity"
-        },
-        "workloadGithubEnvironment": {
-          "description": "Optional GitHub environment paired with 'workloadUserAssignedIdentity'. Falls back to 'githubEnvironment' when omitted.",
-          "$ref": "#/definitions/githubEnvironment"
-        }
-      }
-    },
-    "resourceGroup": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "id",
-        "name",
-        "location"
-      ],
-      "properties": {
-        "id": {
-          "description": "Local id used to reference this resource group from 'environmentConfig.resourceGroupId' and 'roleAssignment.resourceGroupId'. Not an Azure identifier.",
-          "type": "string",
-          "minLength": 1
-        },
-        "name": {
-          "description": "Azure resource group name.",
-          "type": "string",
-          "minLength": 1
-        },
-        "location": {
-          "description": "Azure location name for the resource group.",
-          "type": "string",
-          "minLength": 1
-        },
-        "tags": {
-          "description": "Tags to apply to the resource group.",
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    "securityGroup": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "displayName",
-        "mailNickname",
-        "roleAssignments"
-      ],
-      "properties": {
-        "displayName": {
-          "description": "Display name of the Microsoft Entra security group.",
-          "type": "string",
-          "minLength": 1
-        },
-        "mailNickname": {
-          "description": "Mail nickname (alias) of the security group.",
-          "type": "string",
-          "minLength": 1
-        },
-        "description": {
-          "description": "Optional description of the security group.",
-          "type": "string"
-        },
-        "roleAssignments": {
+        "pipelines": {
+          "description": "The pipelines that deploy into this environment, each with its own federated identity and the GitHub environment it signs in with. Declare one per kind of access, for example 'infra' (broad rights, including 'Azure Deployment Stack Contributor') and 'workload' (narrower rights, so pushing application code cannot alter infrastructure).",
           "type": "array",
           "minItems": 1,
           "items": {
-            "$ref": "#/definitions/roleAssignment"
+            "$ref": "#/definitions/pipeline"
           }
+        }
+      }
+    },
+    "pipeline": {
+      "description": "A federated user-assigned identity and the GitHub environment that receives its client id. Within one environment the identity, federated credential and GitHub environment names must differ between pipelines.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "purpose",
+        "userAssignedIdentity",
+        "githubEnvironment"
+      ],
+      "properties": {
+        "purpose": {
+          "description": "Short label for what the pipeline does, unique within the environment (e.g. infra, workload). Reported in the cmdlet output.",
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$",
+          "examples": [
+            "infra",
+            "workload"
+          ]
+        },
+        "userAssignedIdentity": {
+          "$ref": "#/definitions/userAssignedIdentity"
+        },
+        "githubEnvironment": {
+          "description": "GitHub environment paired with 'userAssignedIdentity', used as the pipeline's approval and OIDC gate.",
+          "$ref": "#/definitions/githubEnvironment"
         }
       }
     },
@@ -195,10 +173,7 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "name",
-        "issuer",
-        "subjectType",
-        "audiences"
+        "name"
       ],
       "properties": {
         "name": {
@@ -207,14 +182,14 @@
           "minLength": 1
         },
         "issuer": {
-          "description": "OIDC issuer URL.",
+          "description": "OIDC issuer URL. Falls back to 'defaults.federatedCredential.issuer'; one of the two must be set.",
           "type": "string",
           "examples": [
             "https://token.actions.githubusercontent.com"
           ]
         },
         "subjectType": {
-          "description": "The kind of GitHub OIDC subject claim to bind the trust to. The command resolves this to the immutable subject at runtime.",
+          "description": "The kind of GitHub OIDC subject claim to bind the trust to. The command resolves this to the immutable subject at runtime. Falls back to 'defaults.federatedCredential.subjectType'; one of the two must be set.",
           "type": "string",
           "enum": [
             "environment",
@@ -223,6 +198,7 @@
           ]
         },
         "audiences": {
+          "description": "Token audiences accepted by the credential. Falls back to ''defaults.federatedCredential.audiences''; one of the two must be set.",
           "type": "array",
           "minItems": 1,
           "items": {
@@ -256,7 +232,7 @@
           "minLength": 1
         },
         "resourceGroupId": {
-          "description": "Id of the resource group (from the top-level 'resourceGroups' array) this role is scoped to. The command resolves this to the resource group's full Azure resource ID, which allows cross-environment role assignments without duplicating naming logic. Mutually exclusive with 'scope'.",
+          "description": "Id of the resource group (from resource-groups.jsonc) this role is scoped to. The command resolves this to the resource group's full Azure resource ID, which allows cross-environment role assignments without duplicating naming logic. Mutually exclusive with 'scope'.",
           "type": "string",
           "minLength": 1
         },
@@ -273,9 +249,7 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "name",
-        "secrets",
-        "variables"
+        "name"
       ],
       "properties": {
         "name": {
@@ -287,12 +261,14 @@
           "$ref": "#/definitions/protectionRules"
         },
         "secrets": {
+          "description": "Environment secrets. Merged by name with 'defaults.githubEnvironment.secrets': an entry here replaces the default with the same name.",
           "type": "array",
           "items": {
             "$ref": "#/definitions/keyValue"
           }
         },
         "variables": {
+          "description": "Environment variables. Merged by name with 'defaults.githubEnvironment.variables': an entry here replaces the default with the same name.",
           "type": "array",
           "items": {
             "$ref": "#/definitions/keyValue"

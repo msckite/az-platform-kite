@@ -16,8 +16,16 @@
         "destination": ".github/workflows/platform-provision.yml"
       },
       {
-        "source": "platform-config.jsonc",
-        "destination": "config/platform-config.jsonc"
+        "source": "platform/resource-groups.jsonc",
+        "destination": "config/platform/resource-groups.jsonc"
+      },
+      {
+        "source": "platform/security-groups.jsonc",
+        "destination": "config/platform/security-groups.jsonc"
+      },
+      {
+        "source": "platform/environments.jsonc",
+        "destination": "config/platform/environments.jsonc"
       }
     ],
     "files": [
@@ -55,11 +63,11 @@
         "files": [
           {
             "source": "github/workflows/github-flow/workload-ci.yml",
-            "destination": ".github/workflows/workload-flow-ci.yml"
+            "destination": ".github/workflows/workload-ci.yml"
           },
           {
             "source": "github/workflows/github-flow/workload-cd.yml",
-            "destination": ".github/workflows/workload-flow-cd.yml"
+            "destination": ".github/workflows/workload-cd.yml"
           }
         ]
       },
@@ -83,15 +91,15 @@
           },
           {
             "source": "github/workflows/release-flow/workload-ci.yml",
-            "destination": ".github/workflows/workload-flow-ci.yml"
+            "destination": ".github/workflows/workload-ci.yml"
           },
           {
             "source": "github/workflows/release-flow/workload-cd.yml",
-            "destination": ".github/workflows/workload-flow-cd.yml"
+            "destination": ".github/workflows/workload-cd.yml"
           },
           {
             "source": "github/workflows/release-flow/workload-release.yml",
-            "destination": ".github/workflows/workload-flow-release.yml"
+            "destination": ".github/workflows/workload-release.yml"
           }
         ]
       }
@@ -157,11 +165,11 @@
         "files": [
           {
             "source": "github/workflows/github-flow/infra-ci.yml",
-            "destination": ".github/workflows/infra-flow-ci.yml"
+            "destination": ".github/workflows/infra-ci.yml"
           },
           {
             "source": "github/workflows/github-flow/infra-cd.yml",
-            "destination": ".github/workflows/infra-flow-cd.yml"
+            "destination": ".github/workflows/infra-cd.yml"
           }
         ]
       },
@@ -185,15 +193,15 @@
           },
           {
             "source": "github/workflows/release-flow/infra-ci.yml",
-            "destination": ".github/workflows/infra-flow-ci.yml"
+            "destination": ".github/workflows/infra-ci.yml"
           },
           {
             "source": "github/workflows/release-flow/infra-cd.yml",
-            "destination": ".github/workflows/infra-flow-cd.yml"
+            "destination": ".github/workflows/infra-cd.yml"
           },
           {
             "source": "github/workflows/release-flow/infra-release.yml",
-            "destination": ".github/workflows/infra-flow-release.yml"
+            "destination": ".github/workflows/infra-release.yml"
           }
         ]
       }

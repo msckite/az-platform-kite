@@ -1,6 +1,6 @@
 name: 'Jobs: Platform Validate'
 
-# Reusable job: verifies that config/global-config.jsonc and config/platform-config.jsonc are
+# Reusable job: verifies that config/global-config.jsonc and the three config/platform/*.jsonc files are
 # compatible with the schemas they declare, and reports whether a newer template is published.
 # Runs without any Azure or GitHub credentials, so it is safe to run on pull requests from forks.
 
@@ -12,11 +12,11 @@ on:
         type: string
         required: false
         default: config/global-config.jsonc
-      platform-config-path:
-        description: Path to platform-config.jsonc.
+      platform-config-folder:
+        description: Folder holding resource-groups.jsonc, security-groups.jsonc and environments.jsonc.
         type: string
         required: false
-        default: config/platform-config.jsonc
+        default: config/platform
       template-branch:
         description: Branch or tag of the az-platform-kite repository whose schemas the configuration must match. Defaults to the release tag of the pinned module version ('kiteVersion').
         type: string
@@ -87,7 +87,7 @@ jobs:
         shell: pwsh
         env:
           GLOBAL_CONFIG_PATH: ${{ inputs.global-config-path }}
-          PLATFORM_CONFIG_PATH: ${{ inputs.platform-config-path }}
+          PLATFORM_CONFIG_FOLDER: ${{ inputs.platform-config-folder }}
           FAIL_ON_UPDATE: ${{ inputs.fail-on-update-available }}
           PINNED_REF: ${{ steps.pinned.outputs.ref }}
           LATEST_REF: ${{ steps.latest.outputs.ref }}
@@ -102,14 +102,35 @@ jobs:
               Latest   = '.tmp/latest/templates/global-config.jsonc'
             }
             @{
-              Template = $env:PLATFORM_CONFIG_PATH
-              Schema   = '.tmp/pinned/schemas/platform-config.schema.json'
-              Latest   = '.tmp/latest/templates/platform-config.jsonc'
+              Template = Join-Path $env:PLATFORM_CONFIG_FOLDER 'resource-groups.jsonc'
+              Schema   = '.tmp/pinned/schemas/resource-groups.schema.json'
+              Latest   = '.tmp/latest/templates/platform/resource-groups.jsonc'
+            }
+            @{
+              Template = Join-Path $env:PLATFORM_CONFIG_FOLDER 'security-groups.jsonc'
+              Schema   = '.tmp/pinned/schemas/security-groups.schema.json'
+              Latest   = '.tmp/latest/templates/platform/security-groups.jsonc'
+            }
+            @{
+              Template = Join-Path $env:PLATFORM_CONFIG_FOLDER 'environments.jsonc'
+              Schema   = '.tmp/pinned/schemas/environments.schema.json'
+              Latest   = '.tmp/latest/templates/platform/environments.jsonc'
             }
           )
 
           $results = foreach ($pair in $pairs) {
-            Test-PlatformTemplate -TemplatePath $pair.Template -SchemaPath $pair.Schema -LatestTemplatePath $pair.Latest
+            $parameters = @{ TemplatePath = $pair.Template; SchemaPath = $pair.Schema }
+
+            # The latest release may not ship this template yet (for example while it still predates the
+            # config/platform layout), so the update check is skipped for it instead of failing the run
+            if (Test-Path -Path $pair.Latest) {
+              $parameters.LatestTemplatePath = $pair.Latest
+            }
+            else {
+              Write-Host "::notice file=$($pair.Template)::Release '$env:LATEST_REF' has no '$(Split-Path -Path $pair.Latest -Leaf)' template, so the update check is skipped for this file."
+            }
+
+            Test-PlatformTemplate @parameters
           }
 
           $results | Format-List | Out-String | Write-Host
