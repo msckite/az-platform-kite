@@ -119,7 +119,18 @@ jobs:
           )
 
           $results = foreach ($pair in $pairs) {
-            Test-PlatformTemplate -TemplatePath $pair.Template -SchemaPath $pair.Schema -LatestTemplatePath $pair.Latest
+            $parameters = @{ TemplatePath = $pair.Template; SchemaPath = $pair.Schema }
+
+            # The latest release may not ship this template yet (for example while it still predates the
+            # config/platform layout), so the update check is skipped for it instead of failing the run
+            if (Test-Path -Path $pair.Latest) {
+              $parameters.LatestTemplatePath = $pair.Latest
+            }
+            else {
+              Write-Host "::notice file=$($pair.Template)::Release '$env:LATEST_REF' has no '$(Split-Path -Path $pair.Latest -Leaf)' template, so the update check is skipped for this file."
+            }
+
+            Test-PlatformTemplate @parameters
           }
 
           $results | Format-List | Out-String | Write-Host
