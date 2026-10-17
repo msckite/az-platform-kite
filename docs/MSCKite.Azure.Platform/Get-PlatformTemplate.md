@@ -66,9 +66,9 @@ Get-PlatformTemplate -IncludedFolders 'templates', 'templates/github' -OutputFol
 Get-PlatformTemplate -IncludedFolders 'schemas' -Force
 Get-PlatformTemplate -Branch latest -OutputFolder ./.tmp/latest -Force
 Test-PlatformTemplate `
-  -TemplatePath ./config/platform-config.jsonc `
-  -SchemaPath ./.tmp/schemas/platform-config.schema.json `
-  -LatestTemplatePath ./.tmp/latest/templates/platform-config.jsonc
+  -TemplatePath ./config/platform/environments.jsonc `
+  -SchemaPath ./.tmp/schemas/environments.schema.json `
+  -LatestTemplatePath ./.tmp/latest/templates/platform/environments.jsonc
 ```
 
 Downloads the templates of the newest stable release next to the ones of your pinned release, then

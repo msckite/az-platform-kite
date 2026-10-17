@@ -1,6 +1,6 @@
 name: 'Jobs: Platform Provision'
 
-# Reusable job set: runs the four platform-config.jsonc provisioning phases in dependency order.
+# Reusable job set: runs the four platform provisioning phases (config/platform/*.jsonc) in dependency order.
 #
 #   phase 1  resource-groups         Azure resource groups                      (no dependencies)
 #   phase 2  security-groups         Entra groups + RBAC on the resource groups (needs phase 1)
@@ -26,11 +26,11 @@ on:
         type: string
         required: false
         default: config/global-config.jsonc
-      platform-config-path:
-        description: Path to platform-config.jsonc.
+      platform-config-folder:
+        description: Folder holding resource-groups.jsonc, security-groups.jsonc and environments.jsonc.
         type: string
         required: false
-        default: config/platform-config.jsonc
+        default: config/platform
       what-if:
         description: Run every phase with -WhatIf so nothing is changed.
         type: boolean
@@ -53,7 +53,7 @@ permissions:
 
 env:
   GLOBAL_CONFIG_PATH: ${{ inputs.global-config-path }}
-  PLATFORM_CONFIG_PATH: ${{ inputs.platform-config-path }}
+  PLATFORM_CONFIG_FOLDER: ${{ inputs.platform-config-folder }}
   WHAT_IF: ${{ inputs.what-if }}
 
 jobs:
@@ -84,9 +84,9 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           $parameters = @{
-            GlobalConfigPath   = $env:GLOBAL_CONFIG_PATH
-            PlatformConfigPath = $env:PLATFORM_CONFIG_PATH
-            Verbose            = $true
+            GlobalConfigPath         = $env:GLOBAL_CONFIG_PATH
+            ResourceGroupsConfigPath = (Join-Path $env:PLATFORM_CONFIG_FOLDER 'resource-groups.jsonc')
+            Verbose                  = $true
           }
           if ($env:WHAT_IF -eq 'true') { $parameters.WhatIf = $true }
 
@@ -119,9 +119,10 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           $parameters = @{
-            GlobalConfigPath   = $env:GLOBAL_CONFIG_PATH
-            PlatformConfigPath = $env:PLATFORM_CONFIG_PATH
-            Verbose            = $true
+            GlobalConfigPath         = $env:GLOBAL_CONFIG_PATH
+            ResourceGroupsConfigPath = (Join-Path $env:PLATFORM_CONFIG_FOLDER 'resource-groups.jsonc')
+            SecurityGroupsConfigPath = (Join-Path $env:PLATFORM_CONFIG_FOLDER 'security-groups.jsonc')
+            Verbose                  = $true
           }
           if ($env:WHAT_IF -eq 'true') { $parameters.WhatIf = $true }
 
@@ -157,9 +158,10 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           $parameters = @{
-            GlobalConfigPath   = $env:GLOBAL_CONFIG_PATH
-            PlatformConfigPath = $env:PLATFORM_CONFIG_PATH
-            Verbose            = $true
+            GlobalConfigPath         = $env:GLOBAL_CONFIG_PATH
+            ResourceGroupsConfigPath = (Join-Path $env:PLATFORM_CONFIG_FOLDER 'resource-groups.jsonc')
+            EnvironmentsConfigPath   = (Join-Path $env:PLATFORM_CONFIG_FOLDER 'environments.jsonc')
+            Verbose                  = $true
           }
           if ($env:WHAT_IF -eq 'true') { $parameters.WhatIf = $true }
 
@@ -201,9 +203,10 @@ jobs:
           }
 
           $parameters = @{
-            GlobalConfigPath   = $env:GLOBAL_CONFIG_PATH
-            PlatformConfigPath = $env:PLATFORM_CONFIG_PATH
-            Verbose            = $true
+            GlobalConfigPath         = $env:GLOBAL_CONFIG_PATH
+            ResourceGroupsConfigPath = (Join-Path $env:PLATFORM_CONFIG_FOLDER 'resource-groups.jsonc')
+            EnvironmentsConfigPath   = (Join-Path $env:PLATFORM_CONFIG_FOLDER 'environments.jsonc')
+            Verbose                  = $true
           }
           if ($env:WHAT_IF -eq 'true') { $parameters.WhatIf = $true }
 

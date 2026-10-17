@@ -41,13 +41,13 @@ Describe 'New-PlatformWorkflow' {
       "github": {
         "environments": [ "dev", "prd" ],
         "files": [
-          { "source": "github/workflows/github-flow/workload-ci.yml", "destination": ".github/workflows/workload-flow-ci.yml" }
+          { "source": "github/workflows/github-flow/workload-ci.yml", "destination": ".github/workflows/workload-ci.yml" }
         ]
       },
       "release": {
         "environments": [ "dev", "stg", "prd" ],
         "files": [
-          { "source": "github/workflows/release-flow/workload-ci.yml", "destination": ".github/workflows/workload-flow-ci.yml" }
+          { "source": "github/workflows/release-flow/workload-ci.yml", "destination": ".github/workflows/workload-ci.yml" }
         ]
       }
     }
@@ -62,12 +62,12 @@ Describe 'New-PlatformWorkflow' {
     "strategies": {
       "github": {
         "files": [
-          { "source": "github/workflows/github-flow/infra-ci.yml", "destination": ".github/workflows/infra-flow-ci.yml" }
+          { "source": "github/workflows/github-flow/infra-ci.yml", "destination": ".github/workflows/infra-ci.yml" }
         ]
       },
       "release": {
         "files": [
-          { "source": "github/workflows/release-flow/infra-ci.yml", "destination": ".github/workflows/infra-flow-ci.yml" }
+          { "source": "github/workflows/release-flow/infra-ci.yml", "destination": ".github/workflows/infra-ci.yml" }
         ]
       }
     }
@@ -155,7 +155,7 @@ Describe 'New-PlatformWorkflow' {
 
         $result.WorkflowType | Should -Be 'workload'
         Test-Path (Join-Path $script:repoRoot '.github/workflows/workload-validate.yml') | Should -BeTrue
-        Test-Path (Join-Path $script:repoRoot '.github/workflows/workload-flow-ci.yml') | Should -BeTrue
+        Test-Path (Join-Path $script:repoRoot '.github/workflows/workload-ci.yml') | Should -BeTrue
         Test-Path (Join-Path $script:repoRoot '.github/workflows/platform-provision.yml') | Should -BeFalse
     }
 
@@ -166,7 +166,7 @@ Describe 'New-PlatformWorkflow' {
         $result = New-PlatformWorkflow -InputFolder $script:templateRoot -OutputFolder $script:repoRoot -GlobalConfigPath $globalConfigPath -WorkflowType workload
 
         $result.BranchStrategy | Should -Be 'release'
-        Test-Path (Join-Path $script:repoRoot '.github/workflows/workload-flow-ci.yml') | Should -BeTrue
+        Test-Path (Join-Path $script:repoRoot '.github/workflows/workload-ci.yml') | Should -BeTrue
         Test-Path (Join-Path $script:repoRoot '.github/workflows/platform-cd.yml') | Should -BeFalse
     }
 
@@ -202,7 +202,7 @@ Describe 'New-PlatformWorkflow' {
 
         $result.WorkflowType | Should -Be 'infra'
         Test-Path (Join-Path $script:repoRoot '.github/workflows/infra-validate.yml') | Should -BeTrue
-        Test-Path (Join-Path $script:repoRoot '.github/workflows/infra-flow-ci.yml') | Should -BeTrue
+        Test-Path (Join-Path $script:repoRoot '.github/workflows/infra-ci.yml') | Should -BeTrue
         Test-Path (Join-Path $script:repoRoot '.github/workflows/workload-validate.yml') | Should -BeFalse
         Test-Path (Join-Path $script:repoRoot '.github/workflows/platform-provision.yml') | Should -BeFalse
 

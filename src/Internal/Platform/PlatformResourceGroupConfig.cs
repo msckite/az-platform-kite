@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace MSCKite.Azure.Platform.Internal.Platform
 {
-    // Raw (unresolved) representation of one entry in platform-config.jsonc's "resourceGroups" array
+    // Raw (unresolved) representation of one entry in resource-groups.jsonc's "resourceGroups" array
     internal class PlatformResourceGroupConfig
     {
         internal string Id { get; set; }

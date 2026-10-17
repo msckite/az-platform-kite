@@ -4,7 +4,7 @@ external help file: MSCKite.Azure.Platform.dll-Help.xml
 HelpUri: ''
 Locale: en-NL
 Module Name: MSCKite.Azure.Platform
-ms.date: 09/23/2026
+ms.date: 10/16/2026
 PlatyPS schema version: 2024-05-01
 title: Set-PlatformGitHubEnvironment
 ---
@@ -14,23 +14,23 @@ title: Set-PlatformGitHubEnvironment
 ## SYNOPSIS
 
 Creates or updates each environment's GitHub deployment environment declared in
-platform-config.jsonc, including its protection rules, secrets, and variables.
+environments.jsonc, including its protection rules, secrets, and variables.
 
 ## SYNTAX
 
 ### __AllParameterSets
 
 ```
-Set-PlatformGitHubEnvironment [[-GlobalConfigPath] <string>] [[-PlatformConfigPath] <string>]
- [-AsHashtable] [-WhatIf] [-Confirm] [<CommonParameters>]
+Set-PlatformGitHubEnvironment [[-GlobalConfigPath] <string>] [[-ResourceGroupsConfigPath] <string>]
+ [[-EnvironmentsConfigPath] <string>] [-AsHashtable] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## ALIASES
 
 ## DESCRIPTION
 
-Phase 4 (final) of the platform-config.jsonc provisioning workflow.
-For each entry in the
+Phase 4 (final) of the platform provisioning workflow.
+For each pipeline of each entry in the
 `environments` array, resolves `${clientId}` by reading the identity created in phase 3, then
 creates or updates the GitHub deployment environment's protection rules (wait timer and required
 reviewers, resolved to their live GitHub user or team id), sets its `secrets` (always re-applied,
@@ -40,11 +40,11 @@ since GitHub never exposes secret values so they can't be diffed), and syncs its
 The identity referenced by each environment must already exist, so
 `Set-PlatformEnvironmentIdentity` must be run first.
 
-An environment can declare a second, narrower GitHub environment for the workload (application/
-service/solution code) pipeline: `workloadGithubEnvironment`, paired with
-`workloadUserAssignedIdentity`. When present, this cmdlet creates or updates both the infra GitHub
-environment (`githubEnvironment`) and the workload GitHub environment in the same run, each
-resolving `${clientId}` from its own identity so their secrets never collide.
+Each environment declares its GitHub environments in a `pipelines` array, where every entry pairs
+a `githubEnvironment` with the `userAssignedIdentity` it receives the client id from. This cmdlet
+creates or updates the GitHub environment of every pipeline, for example an `infra` and a
+`workload` one, in the same run, each resolving `${clientId}` from its own identity so their
+secrets never collide, and reports the pipeline's `purpose` as `Purpose`.
 
 `protectionRules.deploymentBranchPolicy` restricts which branches and tags may deploy to the GitHub
 environment, for example `{ "branches": ["main"], "tags": ["infra/*"] }`. GitHub enforces this before
@@ -74,12 +74,12 @@ Set-PlatformGitHubEnvironment
 ```
 
 Creates or updates the GitHub deployment environment, secrets, and variables for every environment
-declared in `config/global-config.jsonc` and `config/platform-config.jsonc`.
+declared in `config/global-config.jsonc` and `config/platform/resource-groups.jsonc` and `config/platform/environments.jsonc`.
 
 ### Example 2 - Preview changes without applying them
 
 ```powershell
-Set-PlatformGitHubEnvironment -GlobalConfigPath ./config/global-config.jsonc -PlatformConfigPath ./config/platform-config.jsonc -WhatIf
+Set-PlatformGitHubEnvironment -GlobalConfigPath ./config/global-config.jsonc -ResourceGroupsConfigPath ./config/platform/resource-groups.jsonc -EnvironmentsConfigPath ./config/platform/environments.jsonc -WhatIf
 ```
 
 ## PARAMETERS
@@ -129,10 +129,32 @@ AcceptedValues: []
 HelpMessage: ''
 ```
 
+### -EnvironmentsConfigPath
+
+Path to the environments.jsonc file whose `environments` array is provisioned.
+Defaults to `config/platform/environments.jsonc`.
+
+```yaml
+Type: System.String
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: 2
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: true
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
 ### -GlobalConfigPath
 
 Path to the global-config.jsonc file whose values resolve `${placeholder}` tokens in
-platform-config.jsonc.
+the platform config files.
 Defaults to `config/global-config.jsonc`.
 
 ```yaml
@@ -152,11 +174,10 @@ AcceptedValues: []
 HelpMessage: ''
 ```
 
-### -PlatformConfigPath
+### -ResourceGroupsConfigPath
 
-Path to the platform-config.jsonc file whose `environments` array is provisioned.
-Defaults to
-`config/platform-config.jsonc`.
+Path to the resource-groups.jsonc file whose `resourceGroups` array is provisioned or, in later phases, used to resolve `resourceGroupId` references.
+Defaults to `config/platform/resource-groups.jsonc`.
 
 ```yaml
 Type: System.String

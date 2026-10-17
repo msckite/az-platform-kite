@@ -132,31 +132,33 @@ Set the `what-if` input to `true` to run every phase with `-WhatIf`, which is wh
 
 ## Workload and infra identity split
 
-Each `dev`/`stg`/`prd` environment in `platform-config.jsonc` can declare two identities instead of
-one: `userAssignedIdentity` (paired with `githubEnvironment`, named e.g. `dev-infra`) and an optional
-`workloadUserAssignedIdentity` (paired with `workloadGithubEnvironment`, named e.g. `dev-workload`).
-Phases 3 and 4 process both when the workload pair is present.
+Each `dev`/`stg`/`prd` environment in `config/platform/environments.jsonc` declares its identities as
+a `pipelines` array. An entry bundles a `purpose`, a `userAssignedIdentity` and the
+`githubEnvironment` that receives that identity's client id. The sample declares two pipelines per
+environment, `infra` (GitHub environment named e.g. `dev-infra`) and `workload` (named e.g.
+`dev-workload`). Phases 3 and 4 provision every pipeline.
 
-- **Infra identity** (`userAssignedIdentity`): broader rights, including `Azure Deployment Stack Contributor`,
-  so it can create, update, and delete resources through a deployment stack. Used by the `infra-*.yml` workflows,
-  which sign in with `environment: dev-infra`.
-- **Workload identity** (`workloadUserAssignedIdentity`): narrower rights, `Contributor` only, no
-  deployment-stack role, so pushing application/service/solution code cannot alter infrastructure through
-  this identity. Used by the `workload-*.yml` workflows, which sign in with `environment: dev-workload`.
+- **Infra pipeline** (`purpose: infra`): broader rights, including `Azure Deployment Stack Contributor`,
+  so it can create, update, and delete resources through a deployment stack. Used by the `infra-*.yml`
+  workflows, which sign in with `environment: dev-infra`.
+- **Workload pipeline** (`purpose: workload`): narrower rights, `Contributor` only, no
+  deployment-stack role, so pushing application/service/solution code cannot alter infrastructure
+  through this identity. Used by the `workload-*.yml` workflows, which sign in with
+  `environment: dev-workload`.
 
 Both suffixes name the GitHub environment (and, through the OIDC `environment` subject, the
 federated credential) only. `environmentCode` (`dev`, `stg`, `prd`) stays unsuffixed everywhere else:
 resource group ids, Azure resource names, and the `ENV_CODE` environment variable that
-`platform-config.jsonc` sets on the `githubEnvironment`, which `infra-provision.yml` reads
+`environments.jsonc` sets on the `githubEnvironment`, which `infra-provision.yml` reads
 via `vars.ENV_CODE` instead of deriving it from the (now `-infra`-suffixed) `environment` input.
 
 This is what actually enforces "developers deploy code, platform/cloud engineers deploy
 infrastructure": two separate GitHub environments with two separate federated identities, not just two
-separate workflow files. Declaring `workloadUserAssignedIdentity` without
-`workloadGithubEnvironment` (or the reverse) is rejected, since their secrets would otherwise
-collide with the infra environment's. Omitting both is still valid: the environment then has a
-single identity for both pipelines, as before.
-
+separate workflow files. Because the identity and its GitHub environment are one object, they cannot
+be paired up wrongly, and the loader rejects pipelines of one environment that share a purpose, an
+identity name, a federated credential name or a GitHub environment name, since their secrets would
+otherwise collide. An environment may declare a single pipeline, and a further kind of access is one
+more entry.
 ## Platform flow
 
 Pull requests run validation and a `-WhatIf` platform reconciliation. A push to `main` runs the same validation and reconciles the complete platform configuration once.
@@ -170,7 +172,7 @@ flowchart LR
 ```
 
 Make `platform-ci` a required status check on `main`. The two workflows sign in with different
-identities, both declared in `platform-config.jsonc` rather than being one of the workload's `dev`/
+identities, both declared in `environments.jsonc` rather than being one of the workload's `dev`/
 `stg`/`prd` environments:
 
 | Workflow | GitHub environment | Identity rights | Who may use it |
@@ -313,7 +315,7 @@ How a release works:
    deliverable, for example `chore(main): release infra 1.3.0`, holding the next version and its
    `CHANGELOG.md` entries. It keeps collecting changes while you test `stg`.
 3. **Merging a release pull request is the decision to go to production.** release-please creates
-   the tag and GitHub release, then starts `infra-flow-release.yml` or `workload-flow-release.yml`
+   the tag and GitHub release, then starts `infra-release.yml` or `workload-release.yml`
    with that tag. The release workflow verifies the content was deployed to `stg` and deploys `prd`.
    Infra and workload each have their own release pull request, so one can go to production without
    the other.
@@ -355,7 +357,7 @@ together:
 | The location or name of `config.json` or `manifest.json` | `config-file` and `manifest-file` in `release-please.yml`. |
 | A deliverable folder, for example `iac` to `infra` | Its package key in `config.json` and in `manifest.json` (both must match the folder path), the `iac--release_created` and `iac--tag_name` outputs in `release-please.yml`, the folder argument of the `stg-verification.sh` calls in the CD and release workflows, and the `iac/**` path filters of CI and CD. |
 | A component name (the tag prefix), for example `infra` | The `startsWith(..., 'infra/')` conditions in the matching release workflow. |
-| A release workflow file name, for example `infra-flow-release.yml` | The `gh workflow run` line in `release-please.yml`. |
+| A release workflow file name, for example `infra-release.yml` | The `gh workflow run` line in `release-please.yml`. |
 | The changelog or version file (`changelog-path`, `version-file`, or another `release-type`) | The `!` exclusions in the CI and CD path filters, and the ignored files in `stg-verification.sh`, so release commits still skip `stg` and pass the staging verification. |
 
 The workflow file name `release-please.yml` itself is free: nothing refers to it.
@@ -427,10 +429,10 @@ older ones.
 
    Grant the `platform-plan` identity (`Platform (plan)` in phase 3's output) `Group.Read.All` as
    well, and never more: `platform-ci` runs phase 2 as that identity on pull requests.
-3. Confirm every environment in `platform-config.jsonc` has a matching GitHub environment holding
+3. Confirm every environment in `environments.jsonc` has a matching GitHub environment holding
    `AZURE_CLIENT_ID`, `AZURE_TENANT_ID` and `AZURE_SUBSCRIPTION_ID`. Phase 4 writes these. The
    `infra-*.yml` workflows sign in to the `-infra`-suffixed environment (e.g. `dev-infra`). If an
-   environment declares `workloadUserAssignedIdentity`/`workloadGithubEnvironment`, confirm the
+   environment declares a `workload` pipeline, confirm the
    `-workload`-suffixed environment (e.g. `dev-workload`) exists too; the `workload-*.yml` workflows
    sign in to that one instead.
 4. Add `PLATFORM_GITHUB_TOKEN` by hand as an **environment secret** on the `platform` GitHub
@@ -438,7 +440,7 @@ older ones.
    access is scoped to just the identity that runs the platform pipeline. Use a fine-grained
    personal access token or GitHub App token with administration, environment, secret and
    variable write access on the repository. The built-in `GITHUB_TOKEN` cannot manage environment
-   secrets, so phase 4 fails without it. Deliberately leave it out of `platform-config.jsonc`'s
+   secrets, so phase 4 fails without it. Deliberately leave it out of `environments.jsonc`'s
    `githubEnvironment.secrets`: every entry in that array is re-applied on each phase 4 run, which
    would overwrite it with whatever placeholder text sits in the file. Maintain its value only
    through the GitHub UI (or `gh secret set`), never through the config file.

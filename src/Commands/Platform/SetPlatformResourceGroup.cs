@@ -12,7 +12,7 @@ using MSCKite.Azure.Platform.Models;
 
 namespace MSCKite.Azure.Platform.Commands.Platform
 {
-    // Phase 1: creates or updates the Azure resource groups declared in platform-config.jsonc, ahead of any security group, identity, or GitHub environment resources
+    // Phase 1: creates or updates the Azure resource groups declared in the platform config files, ahead of any security group, identity, or GitHub environment resources
     [Cmdlet(VerbsCommon.Set, "PlatformResourceGroup", SupportsShouldProcess = true, ConfirmImpact = ConfirmImpact.Medium)]
     [OutputType(typeof(PlatformResourceGroupActionResult))]
     [OutputType(typeof(Hashtable))]
@@ -28,7 +28,7 @@ namespace MSCKite.Azure.Platform.Commands.Platform
 
         [Parameter(Position = 1, ValueFromPipelineByPropertyName = true)]
         [ValidateNotNullOrEmpty]
-        public string PlatformConfigPath { get; set; } = Path.Combine("config", "platform-config.jsonc");
+        public string ResourceGroupsConfigPath { get; set; } = Path.Combine("config", "platform", "resource-groups.jsonc");
 
         // Collects every result in memory and emits a single summary Hashtable at the end, instead of streaming each result as it's created
         [Parameter]
@@ -42,25 +42,25 @@ namespace MSCKite.Azure.Platform.Commands.Platform
         protected override void ProcessRecord()
         {
             var globalConfigPath = GetUnresolvedProviderPathFromPSPath(GlobalConfigPath);
-            var platformConfigPath = GetUnresolvedProviderPathFromPSPath(PlatformConfigPath);
+            var resourceGroupsConfigPath = GetUnresolvedProviderPathFromPSPath(ResourceGroupsConfigPath);
 
             WriteVerbose($"Loading global config from '{globalConfigPath}'.");
-            WriteVerbose($"Loading platform config from '{platformConfigPath}'.");
+            WriteVerbose($"Loading resource groups config from '{resourceGroupsConfigPath}'.");
 
             GlobalConfig globalConfig;
             List<PlatformResourceGroupConfig> resourceGroups;
             try
             {
                 globalConfig = PlatformConfigLoader.LoadGlobalConfig(globalConfigPath);
-                resourceGroups = PlatformConfigLoader.LoadResourceGroups(platformConfigPath);
+                resourceGroups = PlatformConfigLoader.LoadResourceGroups(resourceGroupsConfigPath);
             }
             catch (Exception ex) when (ex is IOException || ex is InvalidOperationException || ex is JsonException)
             {
-                ThrowTerminatingError(new ErrorRecord(ex, "PlatformResourceGroupInvalidConfig", ErrorCategory.InvalidData, PlatformConfigPath));
+                ThrowTerminatingError(new ErrorRecord(ex, "PlatformResourceGroupInvalidConfig", ErrorCategory.InvalidData, ResourceGroupsConfigPath));
                 return;
             }
 
-            WriteVerbose($"Found {resourceGroups.Count} resource group(s) in platform config.");
+            WriteVerbose($"Found {resourceGroups.Count} resource group(s) in the config.");
 
             if (!AzureContextHelper.TryGetConfiguredContext(this, globalConfig, out var azureContext, out var azureMessage))
             {

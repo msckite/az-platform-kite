@@ -6,7 +6,7 @@ on:
       - main
     paths:
       - 'config/global-config.jsonc'
-      - 'config/platform-config.jsonc'
+      - 'config/platform/**'
       - '.github/workflows/platform-*.yml'
       - '.github/actions/setup-platform-kite/**'
   workflow_dispatch:

@@ -31,7 +31,7 @@ namespace MSCKite.Azure.Platform.Internal.GitHub
 
                 case "branch":
                     throw new NotSupportedException(
-                        "subjectType 'branch' is not yet supported: platform-config.jsonc has no field for the branch name the subject should bind to.");
+                        "subjectType 'branch' is not yet supported: the environments config has no field for the branch name the subject should bind to.");
 
                 default:
                     throw new NotSupportedException($"Unsupported federated credential subjectType '{subjectType}'.");

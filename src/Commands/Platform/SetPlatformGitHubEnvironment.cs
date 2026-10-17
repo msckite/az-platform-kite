@@ -12,7 +12,7 @@ using MSCKite.Azure.Platform.Models;
 
 namespace MSCKite.Azure.Platform.Commands.Platform
 {
-    // Phase 4: creates or updates each environment's GitHub deployment environment declared in platform-config.jsonc (protection rules, secrets, and variables)
+    // Phase 4: creates or updates each environment's GitHub deployment environment declared in the platform config files (protection rules, secrets, and variables)
     [Cmdlet(VerbsCommon.Set, "PlatformGitHubEnvironment", SupportsShouldProcess = true, ConfirmImpact = ConfirmImpact.Medium)]
     [OutputType(typeof(PlatformGitHubEnvironmentActionResult))]
     [OutputType(typeof(Hashtable))]
@@ -29,7 +29,11 @@ namespace MSCKite.Azure.Platform.Commands.Platform
 
         [Parameter(Position = 1, ValueFromPipelineByPropertyName = true)]
         [ValidateNotNullOrEmpty]
-        public string PlatformConfigPath { get; set; } = Path.Combine("config", "platform-config.jsonc");
+        public string ResourceGroupsConfigPath { get; set; } = Path.Combine("config", "platform", "resource-groups.jsonc");
+
+        [Parameter(Position = 2, ValueFromPipelineByPropertyName = true)]
+        [ValidateNotNullOrEmpty]
+        public string EnvironmentsConfigPath { get; set; } = Path.Combine("config", "platform", "environments.jsonc");
 
         // Collects every result in memory and emits a single summary Hashtable at the end, instead of streaming each result as it's created
         [Parameter]
@@ -43,10 +47,12 @@ namespace MSCKite.Azure.Platform.Commands.Platform
         protected override void ProcessRecord()
         {
             var globalConfigPath = GetUnresolvedProviderPathFromPSPath(GlobalConfigPath);
-            var platformConfigPath = GetUnresolvedProviderPathFromPSPath(PlatformConfigPath);
+            var resourceGroupsConfigPath = GetUnresolvedProviderPathFromPSPath(ResourceGroupsConfigPath);
+            var environmentsConfigPath = GetUnresolvedProviderPathFromPSPath(EnvironmentsConfigPath);
 
             WriteVerbose($"Loading global config from '{globalConfigPath}'.");
-            WriteVerbose($"Loading platform config from '{platformConfigPath}'.");
+            WriteVerbose($"Loading resource groups config from '{resourceGroupsConfigPath}'.");
+            WriteVerbose($"Loading environments config from '{environmentsConfigPath}'.");
 
             GlobalConfig globalConfig;
             List<PlatformResourceGroupConfig> resourceGroupConfigs;
@@ -54,16 +60,16 @@ namespace MSCKite.Azure.Platform.Commands.Platform
             try
             {
                 globalConfig = PlatformConfigLoader.LoadGlobalConfig(globalConfigPath);
-                resourceGroupConfigs = PlatformConfigLoader.LoadResourceGroups(platformConfigPath);
-                environmentConfigs = PlatformConfigLoader.LoadEnvironments(platformConfigPath);
+                resourceGroupConfigs = PlatformConfigLoader.LoadResourceGroups(resourceGroupsConfigPath);
+                environmentConfigs = PlatformConfigLoader.LoadEnvironments(environmentsConfigPath);
             }
             catch (Exception ex) when (ex is IOException || ex is InvalidOperationException || ex is JsonException)
             {
-                ThrowTerminatingError(new ErrorRecord(ex, "PlatformGitHubEnvironmentInvalidConfig", ErrorCategory.InvalidData, PlatformConfigPath));
+                ThrowTerminatingError(new ErrorRecord(ex, "PlatformGitHubEnvironmentInvalidConfig", ErrorCategory.InvalidData, EnvironmentsConfigPath));
                 return;
             }
 
-            WriteVerbose($"Found {environmentConfigs.Count} environment(s) in platform config.");
+            WriteVerbose($"Found {environmentConfigs.Count} environment(s) in the config.");
 
             var owner = globalConfig.SourceControl?.Owner;
             var repository = globalConfig.SourceControl?.Repository;
@@ -106,35 +112,25 @@ namespace MSCKite.Azure.Platform.Commands.Platform
                     continue;
                 }
 
-                // Always process the infra environment; only process the workload environment when the environment declares one
-                var slots = new List<Tuple<string, PlatformUserAssignedIdentityConfig, PlatformGitHubEnvironmentConfig>>
+                foreach (var pipeline in config.Pipelines)
                 {
-                    Tuple.Create("infra", config.UserAssignedIdentity, config.GitHubEnvironment)
-                };
-                if (config.WorkloadUserAssignedIdentity != null)
-                {
-                    slots.Add(Tuple.Create("workload", config.WorkloadUserAssignedIdentity, config.WorkloadGitHubEnvironment));
-                }
-
-                foreach (var slot in slots)
-                {
-                    // Each identity resolves its own "${clientId}", so copy the placeholders per slot instead of sharing one map
+                    // Each identity resolves its own "${clientId}", so copy the placeholders per pipeline instead of sharing one map
                     var placeholders = new Dictionary<string, string>(basePlaceholders, StringComparer.Ordinal);
 
-                    if (!TryResolveClientId(config, slot.Item2, resourceGroup, placeholders))
+                    if (!TryResolveClientId(config, pipeline.UserAssignedIdentity, resourceGroup, placeholders))
                     {
                         continue;
                     }
 
-                    var actionResult = SyncEnvironment(config, slot.Item1, slot.Item3, owner, repository, placeholders);
+                    var actionResult = SyncEnvironment(config, pipeline.Purpose, pipeline.GitHubEnvironment, owner, repository, placeholders);
                     if (actionResult == null)
                     {
                         continue;
                     }
 
-                    SyncDeploymentBranchPolicies(actionResult, slot.Item3, owner, repository);
-                    SyncSecrets(actionResult, slot.Item3, owner, repository, placeholders);
-                    SyncVariables(actionResult, slot.Item3, owner, repository, placeholders);
+                    SyncDeploymentBranchPolicies(actionResult, pipeline.GitHubEnvironment, owner, repository);
+                    SyncSecrets(actionResult, pipeline.GitHubEnvironment, owner, repository, placeholders);
+                    SyncVariables(actionResult, pipeline.GitHubEnvironment, owner, repository, placeholders);
                     items.Add(actionResult);
                 }
             }

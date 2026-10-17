@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/msckite/az-platform-kite/refs/heads/main/schemas/resource-groups.schema.json",
+  "schemaVersion": "2.0.0",
+  "title": "Resource Groups Config Schema",
+  "description": "Phase 1 configuration: the Azure resource groups to create first, ahead of any security group, environment, identity, or GitHub environment resources.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "templateVersion",
+    "resourceGroups"
+  ],
+  "properties": {
+    "$schema": {
+      "description": "Optional schema reference for tooling.",
+      "type": "string"
+    },
+    "templateVersion": {
+      "description": "Version of the template contract.",
+      "const": "2.0.0"
+    },
+    "resourceGroups": {
+      "description": "Azure resource groups to create. Each represents a stage in the deployment (e.g. dev, stg, prd).",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/resourceGroup"
+      }
+    }
+  },
+  "definitions": {
+    "resourceGroup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "location"
+      ],
+      "properties": {
+        "id": {
+          "description": "Local id used to reference this resource group from 'environments.jsonc' and 'security-groups.jsonc' role assignments. Not an Azure identifier.",
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "description": "Azure resource group name.",
+          "type": "string",
+          "minLength": 1
+        },
+        "location": {
+          "description": "Azure location name for the resource group.",
+          "type": "string",
+          "minLength": 1
+        },
+        "tags": {
+          "description": "Tags to apply to the resource group.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

@@ -4,7 +4,7 @@ external help file: MSCKite.Azure.Platform.dll-Help.xml
 HelpUri: ''
 Locale: en-NL
 Module Name: MSCKite.Azure.Platform
-ms.date: 09/23/2026
+ms.date: 10/16/2026
 PlatyPS schema version: 2024-05-01
 title: Set-PlatformSecurityGroup
 ---
@@ -13,7 +13,7 @@ title: Set-PlatformSecurityGroup
 
 ## SYNOPSIS
 
-Creates or updates the Microsoft Entra security groups declared in platform-config.jsonc, and
+Creates or updates the Microsoft Entra security groups declared in security-groups.jsonc, and
 assigns their RBAC roles against the resource groups from phase 1.
 
 ## SYNTAX
@@ -21,15 +21,15 @@ assigns their RBAC roles against the resource groups from phase 1.
 ### __AllParameterSets
 
 ```
-Set-PlatformSecurityGroup [[-GlobalConfigPath] <string>] [[-PlatformConfigPath] <string>]
- [-AsHashtable] [-WhatIf] [-Confirm] [<CommonParameters>]
+Set-PlatformSecurityGroup [[-GlobalConfigPath] <string>] [[-ResourceGroupsConfigPath] <string>]
+ [[-SecurityGroupsConfigPath] <string>] [-AsHashtable] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## ALIASES
 
 ## DESCRIPTION
 
-Phase 2 of the platform-config.jsonc provisioning workflow.
+Phase 2 of the platform provisioning workflow.
 Reads the `securityGroups` array,
 resolves `${placeholder}` tokens against global-config.jsonc, and creates any security group
 (matched by `mailNickname`) that doesn't exist yet, or updates its display name/description if
@@ -59,13 +59,13 @@ By default, each security group's result is emitted once processing finishes; un
 Set-PlatformSecurityGroup
 ```
 
-Creates or updates the security groups declared in `config/global-config.jsonc` and
-`config/platform-config.jsonc`, and assigns their configured RBAC roles.
+Creates or updates the security groups declared in `config/global-config.jsonc`,
+`config/platform/resource-groups.jsonc` and `config/platform/security-groups.jsonc`, and assigns their configured RBAC roles.
 
 ### Example 2 - Preview changes without applying them
 
 ```powershell
-Set-PlatformSecurityGroup -GlobalConfigPath ./config/global-config.jsonc -PlatformConfigPath ./config/platform-config.jsonc -WhatIf
+Set-PlatformSecurityGroup -GlobalConfigPath ./config/global-config.jsonc -ResourceGroupsConfigPath ./config/platform/resource-groups.jsonc -SecurityGroupsConfigPath ./config/platform/security-groups.jsonc -WhatIf
 ```
 
 ## PARAMETERS
@@ -118,7 +118,7 @@ HelpMessage: ''
 ### -GlobalConfigPath
 
 Path to the global-config.jsonc file whose values resolve `${placeholder}` tokens in
-platform-config.jsonc.
+the platform config files.
 Defaults to `config/global-config.jsonc`.
 
 ```yaml
@@ -138,11 +138,10 @@ AcceptedValues: []
 HelpMessage: ''
 ```
 
-### -PlatformConfigPath
+### -ResourceGroupsConfigPath
 
-Path to the platform-config.jsonc file whose `securityGroups` array is provisioned.
-Defaults to
-`config/platform-config.jsonc`.
+Path to the resource-groups.jsonc file whose `resourceGroups` array is provisioned or, in later phases, used to resolve `resourceGroupId` references.
+Defaults to `config/platform/resource-groups.jsonc`.
 
 ```yaml
 Type: System.String
@@ -152,6 +151,28 @@ Aliases: []
 ParameterSets:
 - Name: (All)
   Position: 1
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: true
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
+### -SecurityGroupsConfigPath
+
+Path to the security-groups.jsonc file whose `securityGroups` array is provisioned.
+Defaults to `config/platform/security-groups.jsonc`.
+
+```yaml
+Type: System.String
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: 2
   IsRequired: false
   ValueFromPipeline: false
   ValueFromPipelineByPropertyName: true

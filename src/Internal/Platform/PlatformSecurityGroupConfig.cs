@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace MSCKite.Azure.Platform.Internal.Platform
 {
-    // Raw (unresolved) representation of one entry in platform-config.jsonc's "securityGroups" array
+    // Raw (unresolved) representation of one entry in security-groups.jsonc's "securityGroups" array
     internal class PlatformSecurityGroupConfig
     {
         internal string DisplayName { get; set; }
