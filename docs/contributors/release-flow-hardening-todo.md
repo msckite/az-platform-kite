@@ -87,7 +87,7 @@ Phase 3 never removes role assignments, so projects provisioned before that chan
 ## 4. Decide the direct-main-deployment policy
 
 `workload-cd.yml` still deploys on every push to `main`. That is an intentional part of the current
-design (see `templates/github/workflows/README.md`), but it only stays safe once items 1 and 2
+design (see `docs/consumers/workflows/release-flow.md`), but it only stays safe once items 1 and 2
 above are in place.
 
 - [ ] Confirm main-push auto-deploy to `dev` is the accepted policy for this project

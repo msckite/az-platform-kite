@@ -17,7 +17,7 @@
 
 To make life a bit easier, a `.vscode/settings.json` file is configured to enforce _some_ of the syntax and style guidelines automatically. These will apply when `Saving` a file for example `cs`, `ps1`, `json`, `yaml` or `md` files. For this to work you need to install the recommended `extensions` in vscode.
 
-All text files use LF line endings, in the repository and in every working copy; see [docs/line-endings.md](./docs/line-endings.md) for why and how this is enforced.
+All text files use LF line endings, in the repository and in every working copy; see [docs/contributors/line-endings.md](./docs/contributors/line-endings.md) for why and how this is enforced.
 
 - Use `PascalCase` for _all_ public identifiers like module names, function names, properties, parameters, global variables and constants.
 - Use `camelCase` for _all_ variables within functions (or modules) to distinguish private variables from parameters.
@@ -106,7 +106,7 @@ use the **Build** task:
 ## Help authoring
 
 `Get-Help` for this module is generated from Markdown source via PlatyPS, not from the C# XML
-doc comments on cmdlet classes. See [docs/help-authoring.md](./docs/help-authoring.md) for the
+doc comments on cmdlet classes. See [docs/contributors/help-authoring.md](./docs/contributors/help-authoring.md) for the
 `platyps.ps1` workflow used to create, update, validate, and publish that help content.
 
 ## Commits and pull requests
@@ -118,9 +118,9 @@ are squash-merged, so the pull request title becomes the commit title on `main`.
 
 ## Releases and decisions
 
-- [docs/releasing.md](./docs/releasing.md) describes how a GitHub Release publishes the module to the
+- [docs/contributors/releasing.md](./docs/contributors/releasing.md) describes how a GitHub Release publishes the module to the
   PowerShell Gallery and how to cut one.
-- [docs/adr](./docs/adr/README.md) records the decisions that shape Kite and why they were made.
+- [docs/contributors/adr](./docs/contributors/adr/README.md) records the decisions that shape Kite and why they were made.
   Read the relevant record before proposing a change in the same area.
 
 ## Working with coding agents

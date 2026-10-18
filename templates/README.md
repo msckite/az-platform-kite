@@ -5,7 +5,7 @@
 
 `github/workflows` holds ready-to-copy GitHub Actions workflows that provision the files in `platform/`
 in phase order, one set per `sourceControl.branchStrategy` value. See
-[github/workflows/README.md](github/workflows/README.md).
+[docs/consumers/workflows](../docs/consumers/workflows/README.md).
 
 ## Template versioning
 

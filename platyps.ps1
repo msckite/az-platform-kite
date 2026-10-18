@@ -26,7 +26,7 @@
     since PlatyPS reflects over the live module to discover cmdlets/parameters/output types.
     Load it in a separate pwsh process that exits afterwards (see the examples), never in the
     terminal you build in: that session would keep the DLL locked and the next build fails.
-    See docs/help-authoring.md.
+    See docs/contributors/help-authoring.md.
 
 .PARAMETER Mode
     Which stage of the PlatyPS workflow to run: New, Update, Test, or Publish.
@@ -145,7 +145,7 @@ function Repair-PlatyPSMarkdown {
 }
 
 if ($Mode -in 'New', 'Update' -and -not (Get-Module -Name $moduleName)) {
-    throw "Module '$moduleName' isn't loaded. Build it, then run this mode in a separate process that loads it: pwsh -NoProfile -Command 'Import-Module ./src/bin/Debug/netstandard2.0/$moduleName.dll; ./platyps.ps1 -Mode $Mode'. See docs/help-authoring.md."
+    throw "Module '$moduleName' isn't loaded. Build it, then run this mode in a separate process that loads it: pwsh -NoProfile -Command 'Import-Module ./src/bin/Debug/netstandard2.0/$moduleName.dll; ./platyps.ps1 -Mode $Mode'. See docs/contributors/help-authoring.md."
 }
 
 switch ($Mode) {
@@ -254,7 +254,7 @@ switch ($Mode) {
         }
 
         # Export-MamlCommandHelp writes CRLF on Windows and omits the final newline; normalize to the LF with a final newline
-        # that .gitattributes (docs/line-endings.md) and files.insertFinalNewline in .vscode/settings.json expect
+        # that .gitattributes (docs/contributors/line-endings.md) and files.insertFinalNewline in .vscode/settings.json expect
         $helpFilePath = Join-Path $outputFolder $helpFileName
         $helpContent = [System.IO.File]::ReadAllText($helpFilePath).Replace("`r`n", "`n")
         if (-not $helpContent.EndsWith("`n")) {

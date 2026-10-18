@@ -27,7 +27,7 @@ _Lighter Work. Higher Impact._
 - [What do you get?](#what-do-you-get)
 - [Why use Kite?](#why-use-kite)
 - [How to use it?](#how-to-use-it)
-- [Upgrading](#upgrading)
+- [Upgrade path](#upgrade-path)
 - [License](#license)
 
 ## What's this repo about?
@@ -37,9 +37,9 @@ separate environments for development, testing and production, and a governed pa
 change from a developer's pull request all the way to Azure.
 
 Setting this up by hand is slow and easy to get wrong. People end up with shared credentials, environments
-that drift apart, and nobody quite sure who is allowed to change what. Kite replaces that with one
-configuration file that describes your environments and who may do what in them. A set of PowerShell
-commands then creates everything from that file, and you can safely run them again whenever the file changes.
+that drift apart, and nobody quite sure who is allowed to change what. Kite replaces that with a small
+set of configuration files that describe your environments and who may do what in them. A set of PowerShell
+commands then creates everything from those files, and you can safely run them again whenever they change.
 
 The result is a foundation where:
 
@@ -60,7 +60,7 @@ flowchart LR
     B -- "least-privilege<br/>role per environment" --> C
 ```
 
-You describe your platform once, across the three files in `config/platform/` (`resource-groups.jsonc`, `security-groups.jsonc` and `environments.jsonc`). Kite then sets it up in four ordered steps:
+You describe your platform once, in a set of configuration files that this README calls your **config set**: `global-config.jsonc` for the settings of the whole repository, and one file each for resource groups, security groups and environments in `config/platform/`. Kite then sets it up in four ordered steps:
 
 | Step | What Kite creates | Why it matters |
 | ---- | ----------------- | -------------- |
@@ -105,7 +105,7 @@ What this gives you:
 Kite ships as a PowerShell module and a set of starter templates:
 
 - **The module** (`MSCKite.Azure.Platform`): commands that create the resource groups, Entra security groups, pipeline identities and GitHub environments described above, plus commands to inspect your current platform context.
-- **Configuration templates**: a starting point for the one file that describes your environments and who may do what.
+- **Configuration templates**: a starting point for your config set, the files that describe your environments and who may do what.
 - **Workflow templates**: GitHub Actions pipelines for the platform itself, application code and infrastructure, staged across your environments.
 
 <!-- omit from toc -->
@@ -221,7 +221,7 @@ Set-GitHubDefault $null
 
 ### Staged platform setup
 
-Working from your local repository, download the templates, scaffold the configuration folder from them, and fill in `global-config.jsonc` and the files in `config/platform/`:
+Working from your local repository, download the templates, scaffold the configuration folder from them, and fill in your config set:
 
 ```powershell
 Get-PlatformTemplate -IncludedFolders 'templates' -OutputFolder ./.tmp
@@ -229,7 +229,7 @@ New-PlatformConfigStructure -InputFolder ./.tmp/templates -OutputFolder ./config
 Copy-Item ./.tmp/templates/platform ./config -Recurse
 ```
 
-`Get-PlatformTemplate` downloads `global-config.jsonc` and the other templates of the Kite release you are running (its release tag, not `main`) into `.tmp`. `New-PlatformConfigStructure` seeds your repository's `config` folder with the downloaded `global-config.jsonc`, so nothing you edit later is ever overwritten by a new download. It also sets `kiteVersion` to the module version you are running, which pins your pipelines to this Kite release until you change it in a pull request (see [Pinning the Kite version](templates/github/workflows/README.md#pinning-the-kite-version)).
+`Get-PlatformTemplate` downloads the templates of the Kite release you are running (its release tag, not `main`) into `.tmp`. `New-PlatformConfigStructure` seeds your repository's `config` folder with the downloaded `global-config.jsonc`, and the `Copy-Item` adds the `platform` templates next to it. Together they are your config set, and nothing you edit later is ever overwritten by a new download. `New-PlatformConfigStructure` also sets `kiteVersion` to the module version you are running, which pins your pipelines to this Kite release until you change it in a pull request (see [Pinning the Kite version](docs/consumers/workflows/pinning-kite-version.md)).
 
 <br/>
 
@@ -255,20 +255,20 @@ Once the first run has completed, hand the recurring runs over to GitHub Actions
 New-PlatformWorkflow
 ```
 
-`New-PlatformWorkflow` reads the workflow manifest from `.tmp/templates` and copies the [workflow templates](templates/github/workflows/README.md) for your `sourceControl.branchStrategy` into `.github` of your repository. That ships a CI/CD pipeline staged across `dev`/`prd` (`github`) or `dev`/`stg`/`prd` (`release`), running the same four phases in dependency order. Existing files are left untouched unless you pass `-Force`.
+`New-PlatformWorkflow` reads the workflow manifest from `.tmp/templates` and copies the [workflow templates](docs/consumers/workflows/README.md) for your `sourceControl.branchStrategy` into `.github` of your repository. That ships a CI/CD pipeline staged across `dev`/`prd` (`github`) or `dev`/`stg`/`prd` (`release`), running the same four phases in dependency order. Existing files are left untouched unless you pass `-Force`.
 
 > [!NOTE]
-> The platform workflows are optional. Many teams run the four phases locally once and change the platform only now and then. Install the platform bundle (`New-PlatformWorkflow -WorkflowType platform`) if you want later platform changes reviewed in pull requests and reconciled by GitHub Actions, or leave it out and keep running the phases locally. See [Choosing how to run the platform phases](templates/github/workflows/README.md#choosing-how-to-run-the-platform-phases).
+> The platform workflows are optional. Many teams run the four phases locally once and change the platform only now and then. Install the platform bundle (`New-PlatformWorkflow -WorkflowType platform`) if you want later platform changes reviewed in pull requests and reconciled by GitHub Actions, or leave it out and keep running the phases locally. See [Platform flow](docs/consumers/workflows/platform-flow.md#should-you-use-it).
 
 > [!IMPORTANT]
-> Before the pipeline can run phase 4, add `PLATFORM_GITHUB_TOKEN` by hand as an **environment secret** on the `platform` GitHub environment; the built-in `GITHUB_TOKEN` cannot manage environment secrets. See the [prerequisites](templates/github/workflows/README.md#prerequisites) section of the workflow templates README for the full setup steps.
+> Before the pipeline can run phase 4, add `PLATFORM_GITHUB_TOKEN` by hand as an **environment secret** on the `platform` GitHub environment; the built-in `GITHUB_TOKEN` cannot manage environment secrets. See the [one-time setup](docs/consumers/workflows/platform-flow.md#one-time-setup) in the platform flow guide for the full steps.
 
-> [!NOTE]
-> The platform pipeline signs in as dedicated environments declared in `config/platform/environments.jsonc`, not one of your app environments. `platform-cd.yml` uses `platform`, whose identity holds subscription-level RBAC (`Contributor` and `User Access Administrator`, both scoped to `subscription`) and which only accepts runs from `main`. `platform-ci.yml` previews pull requests as `platform-plan`, a read-only twin with subscription-level `Reader`. See the [prerequisites](templates/github/workflows/README.md#prerequisites) for the one-time setup of both.
+> [!IMPORTANT]
+> The platform pipeline signs in as dedicated environments declared in `config/platform/environments.jsonc`, not one of your app environments. `platform-cd.yml` uses `platform`, whose identity holds subscription-level RBAC (`Contributor` and `User Access Administrator`, both scoped to `subscription`) and which only accepts runs from `main`. `platform-ci.yml` previews pull requests as `platform-plan`, a read-only twin with subscription-level `Reader`. See the [one-time setup](docs/consumers/workflows/platform-flow.md#one-time-setup) for both.
 
-## Upgrading
+## Upgrade path
 
-Moving to a newer release can require changes in your configuration. See [Upgrading](docs/upgrading.md).
+Moving to a newer release can require changes in your configuration. See the [upgrade path](docs/consumers/upgrade-path/README.md).
 
 ## License
 

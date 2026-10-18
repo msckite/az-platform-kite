@@ -9,7 +9,7 @@ human contributors should read [CONTRIBUTING.md](./CONTRIBUTING.md), which this 
 - `src/` - the module: cmdlets in `src/Commands`, helpers in `src/Internal`, models in `src/Models`,
   compiled help in `src/en-US`.
 - `tests/` - Pester tests.
-- `docs/` - contributor documentation and generated cmdlet help (`docs/MSCKite.Azure.Platform`).
+- `docs/` - contributor documentation (`docs/contributors`) and generated cmdlet help (`docs/MSCKite.Azure.Platform`).
 - `templates/` and `schemas/` - what consumers copy into their own repositories.
 - `config/` - git-ignored local test configuration that mirrors the sandbox repository. It is not part of the repository; never commit it or treat it as a reference configuration.
 - `build.ps1` (psake) and `platyps.ps1` (help generation) - the build entry points.
@@ -36,12 +36,12 @@ npx markdownlint-cli "**/*.md"
 
 Help is generated from Markdown with PlatyPS, not from C# doc comments. After changing a cmdlet's
 parameters or description, update the help as described in
-[docs/help-authoring.md](./docs/help-authoring.md) and commit the regenerated files.
+[docs/contributors/help-authoring.md](./docs/contributors/help-authoring.md) and commit the regenerated files.
 
 ## Conventions
 
 - File format and style follow `.vscode/settings.json`: UTF-8 without BOM, LF line endings (see
-  [docs/line-endings.md](./docs/line-endings.md)), four spaces in PowerShell and C#, two spaces in
+  [docs/contributors/line-endings.md](./docs/contributors/line-endings.md)), four spaces in PowerShell and C#, two spaces in
   JSON, JSONC and YAML. Naming rules are in [CONTRIBUTING.md](./CONTRIBUTING.md#formatting-guidelines).
 - Windows with Git Bash has no Python. Use PowerShell or your editor tooling for scripted edits.
 - Split work into logical commits. Commit and pull request titles are Conventional Commits:

@@ -5,10 +5,10 @@ Every line in a text file ends with an invisible marker: Windows traditionally u
 **CRLF** (`\r\n`), Linux and macOS use one, **LF** (`\n`). This repository uses **LF everywhere**, in
 the repository and in every working copy, on every machine. Two settings enforce it:
 
-- [`.gitattributes`](../.gitattributes): `* text=auto eol=lf` makes git store **and** check out every
+- [`.gitattributes`](../../.gitattributes): `* text=auto eol=lf` makes git store **and** check out every
   text file with LF, whatever `core.autocrlf` is set to on the machine. Binary files (`*.png`) are
   never converted.
-- [`.vscode/settings.json`](../.vscode/settings.json): `"files.eol": "\n"` makes VS Code create new
+- [`.vscode/settings.json`](../../.vscode/settings.json): `"files.eol": "\n"` makes VS Code create new
   files with LF.
 
 <!-- omit from toc -->
