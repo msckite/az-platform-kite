@@ -61,7 +61,7 @@ Closes #
 - [ ] Script analysis is clean: `Invoke-ScriptAnalyzer -Path . -Recurse -Settings ./scripts/PSScriptAnalyzerSettings.psd1`
 - [ ] Markdown lint is clean: `npx markdownlint-cli "**/*.md"`
 - [ ] Files follow `.vscode/settings.json`: UTF-8 without BOM, LF line endings (`docs/contributors/line-endings.md`), 4 spaces for PowerShell and C#, 2 spaces for JSON, JSONC, and YAML
-- [ ] Documentation is updated where behavior changed: `README.md`, `templates/github/workflows/README.md`, `docs/`
+- [ ] Documentation is updated where behavior changed: `README.md`, `docs/`
 - [ ] Workflow or template changes were tested in a consuming repository, e.g. `az-platform-kite-sandbox`
 
 ## Notes for reviewers

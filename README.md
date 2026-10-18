@@ -255,16 +255,16 @@ Once the first run has completed, hand the recurring runs over to GitHub Actions
 New-PlatformWorkflow
 ```
 
-`New-PlatformWorkflow` reads the workflow manifest from `.tmp/templates` and copies the [workflow templates](templates/github/workflows/README.md) for your `sourceControl.branchStrategy` into `.github` of your repository. That ships a CI/CD pipeline staged across `dev`/`prd` (`github`) or `dev`/`stg`/`prd` (`release`), running the same four phases in dependency order. Existing files are left untouched unless you pass `-Force`.
+`New-PlatformWorkflow` reads the workflow manifest from `.tmp/templates` and copies the [workflow templates](docs/consumers/workflows/README.md) for your `sourceControl.branchStrategy` into `.github` of your repository. That ships a CI/CD pipeline staged across `dev`/`prd` (`github`) or `dev`/`stg`/`prd` (`release`), running the same four phases in dependency order. Existing files are left untouched unless you pass `-Force`.
 
 > [!NOTE]
-> The platform workflows are optional. Many teams run the four phases locally once and change the platform only now and then. Install the platform bundle (`New-PlatformWorkflow -WorkflowType platform`) if you want later platform changes reviewed in pull requests and reconciled by GitHub Actions, or leave it out and keep running the phases locally. See [Choosing how to run the platform phases](templates/github/workflows/README.md#choosing-how-to-run-the-platform-phases).
+> The platform workflows are optional. Many teams run the four phases locally once and change the platform only now and then. Install the platform bundle (`New-PlatformWorkflow -WorkflowType platform`) if you want later platform changes reviewed in pull requests and reconciled by GitHub Actions, or leave it out and keep running the phases locally. See [Choosing how to run the platform phases](docs/consumers/workflows/platform-flow.md#should-you-use-it).
 
 > [!IMPORTANT]
-> Before the pipeline can run phase 4, add `PLATFORM_GITHUB_TOKEN` by hand as an **environment secret** on the `platform` GitHub environment; the built-in `GITHUB_TOKEN` cannot manage environment secrets. See the [prerequisites](templates/github/workflows/README.md#prerequisites) section of the workflow templates README for the full setup steps.
+> Before the pipeline can run phase 4, add `PLATFORM_GITHUB_TOKEN` by hand as an **environment secret** on the `platform` GitHub environment; the built-in `GITHUB_TOKEN` cannot manage environment secrets. See the [prerequisites](docs/consumers/workflows/platform-flow.md#one-time-setup) section of the workflow templates README for the full setup steps.
 
 > [!NOTE]
-> The platform pipeline signs in as dedicated environments declared in `config/platform/environments.jsonc`, not one of your app environments. `platform-cd.yml` uses `platform`, whose identity holds subscription-level RBAC (`Contributor` and `User Access Administrator`, both scoped to `subscription`) and which only accepts runs from `main`. `platform-ci.yml` previews pull requests as `platform-plan`, a read-only twin with subscription-level `Reader`. See the [prerequisites](templates/github/workflows/README.md#prerequisites) for the one-time setup of both.
+> The platform pipeline signs in as dedicated environments declared in `config/platform/environments.jsonc`, not one of your app environments. `platform-cd.yml` uses `platform`, whose identity holds subscription-level RBAC (`Contributor` and `User Access Administrator`, both scoped to `subscription`) and which only accepts runs from `main`. `platform-ci.yml` previews pull requests as `platform-plan`, a read-only twin with subscription-level `Reader`. See the [prerequisites](docs/consumers/workflows/platform-flow.md#one-time-setup) for the one-time setup of both.
 
 ## Upgrade path
 

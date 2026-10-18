@@ -11,7 +11,7 @@ For people who install the module and run it in their own repository.
   parameters and examples.
 - [Upgrade path](./consumers/upgrade-path/README.md): what to change in your repository when you
   move to a newer release.
-- [Workflow templates](../templates/github/workflows/README.md): the starter workflows you copy and
+- [Workflows](./consumers/workflows/README.md): the starter workflows you copy and
   own.
 
 ## Contributing to Kite

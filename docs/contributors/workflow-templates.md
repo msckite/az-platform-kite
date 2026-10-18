@@ -4,7 +4,7 @@
 This page is for people who change the workflow templates under `templates/github/`. It describes
 how the templates are laid out, how `New-PlatformWorkflow` installs them and why some of them work
 the way they do. For how to use the workflows in your own repository, read the
-[workflow templates README](../../templates/github/workflows/README.md).
+[workflows guide](../consumers/workflows/README.md).
 
 <!-- omit from toc -->
 ## Table of Contents
