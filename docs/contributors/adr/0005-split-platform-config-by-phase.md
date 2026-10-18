@@ -33,11 +33,11 @@ Replace the single file with a `config/platform/` folder of three files, one per
 - Each cmdlet's `-PlatformConfigPath` is replaced by one path parameter per file it reads, with
   defaults under `config/platform/`.
 - This is a breaking change to the configuration contract, so the templates and schemas move to
-  `2.0.0` and `docs/upgrading.md` gets a migration section.
+  `2.0.0` and `docs/consumers/upgrade-path/v1.1.x-to-v2.0.0.md` is the migration guide.
 - The loader does not read the legacy single file. A consumer splits it by moving each top-level
   array into its file; no semantic changes are needed.
 - `environments.jsonc` gets an optional top-level `defaults` object so the repeated blocks are
-  written once. It is part of the same 2.0.0 release, so a consumer upgrades once:
+  written once. It is part of the same v2.0.0 release, so a consumer upgrades once:
   - `defaults.federatedCredential` supplies `issuer`, `subjectType` and `audiences`; a credential
     then only needs its `name`.
   - `defaults.githubEnvironment` supplies `protectionRules`, `secrets` and `variables` for every
