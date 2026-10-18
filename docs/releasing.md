@@ -7,7 +7,9 @@ release tag and publishes it to the PowerShell Gallery. There is no release-plea
 
 > [!WARNING]
 > Publishing to the PowerShell Gallery cannot be undone. A version, once published, cannot be
-> replaced; you can only publish a higher one. Check the release carefully before you publish it.
+> replaced; you can only publish a higher one. You can unlist a version on the PowerShell Gallery,
+> which hides it from search and listings but keeps it installable by its exact version. Check the
+> release carefully before you publish it.
 
 <!-- omit from toc -->
 ## Table of Contents
