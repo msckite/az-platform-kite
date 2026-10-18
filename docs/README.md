@@ -23,6 +23,8 @@ For people who change the module, the templates or the documentation. Start with
   why they were made.
 - [Help authoring](./contributors/help-authoring.md): how cmdlet help is written and generated.
 - [Line endings](./contributors/line-endings.md): why every file uses LF and how that is enforced.
+- [Workflow templates](./contributors/workflow-templates.md): how the workflow templates are laid out and
+  installed.
 - [Releasing](./contributors/releasing.md): how a GitHub Release publishes the module.
 - [Release flow hardening](./contributors/release-flow-hardening-todo.md): outstanding to-dos that
   depend on repository settings.

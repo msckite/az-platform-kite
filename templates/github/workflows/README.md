@@ -29,45 +29,8 @@ infra workflows trigger on `iac/**`.
 - [Pinning the Kite version](#pinning-the-kite-version)
 - [Manual runs and concurrency](#manual-runs-and-concurrency)
 - [Prerequisites](#prerequisites)
-- [Why the environment input is a gate, not a scope](#why-the-environment-input-is-a-gate-not-a-scope)
 
 ## Layout
-
-```text
-templates/github/
-  actions/
-    setup-platform-kite/action.yml   Composite action: installs the module and signs in to Azure (OIDC)
-  scripts/
-    stg-verification.sh              Release Flow: records and verifies content deployed to stg
-  release-please/
-    config.json                      Release Flow: deliverables and tag format for release-please
-    manifest.json                    Release Flow: current version per deliverable
-  workflows/
-    manifest.jsonc                   Source/destination map used by the install command
-    shared/
-      platform-validate.yml          Reusable: template and schema version validation
-      platform-provision.yml         Reusable: the four provisioning phases, correctly chained
-      workload-validate.yml          Reusable: validation, build and tests; uploads the workload package
-      workload-provision.yml         Reusable: plans/deploys the workload package (placeholder)
-      infra-validate.yml             Reusable: Bicep lint/build placeholder
-      infra-provision.yml            Reusable: infra deployment stack plan/deployment placeholder
-    platform-flow/
-      platform-ci.yml                 Fixed platform PR validation and WhatIf plan
-      platform-cd.yml                 Fixed platform main deployment
-    github-flow/
-      workload-ci.yml                GitHub Flow workload trigger
-      workload-cd.yml                GitHub Flow workload trigger
-      infra-ci.yml                   GitHub Flow infra trigger
-      infra-cd.yml                   GitHub Flow infra trigger
-    release-flow/
-      workload-ci.yml                Release Flow workload trigger
-      workload-cd.yml                Release Flow workload trigger
-      workload-release.yml           Release Flow workload trigger
-      infra-ci.yml                   Release Flow infra trigger
-      infra-cd.yml                   Release Flow infra trigger
-      infra-release.yml              Release Flow infra trigger
-      release-please.yml             Release Flow: release pull requests per deliverable, starts prd deployments
-```
 
 The platform workflows have one fixed lifecycle: pull requests validate and run `-WhatIf`, while
 pushes to `main` deploy without `-WhatIf`. Workload and infra strategy folders contain thin trigger
@@ -75,20 +38,15 @@ workflows. The shared workload/infra workflows provide validation/testing and pr
 capabilities. The strategy workflows call them and contain no workload or infra implementation
 logic.
 
+The layout of the template folders and how the install command copies them are described in the
+[workflow templates maintainer guide](../../../docs/contributors/workflow-templates.md).
+
 ## Installing the templates
 
 `New-PlatformWorkflow` copies the platform bundle, the workload bundle, the infra bundle, or a
 combination via `-WorkflowType`: `platform`, `workload`, `infra`, `both` (platform + workload, the
 default), or `all` (platform + workload + infra). Platform installation never reads
-`sourceControl.branchStrategy`:
-
-| Source                                             | Destination                                         |
-| -------------------------------------------------- | --------------------------------------------------- |
-| `github/actions/setup-platform-kite/action.yml`    | `.github/actions/setup-platform-kite/action.yml`    |
-| `github/workflows/shared/platform-validate.yml`    | `.github/workflows/platform-validate.yml`           |
-| `github/workflows/shared/platform-provision.yml`   | `.github/workflows/platform-provision.yml`          |
-| `github/workflows/platform-flow/platform-ci.yml`   | `.github/workflows/platform-ci.yml`                 |
-| `github/workflows/platform-flow/platform-cd.yml`   | `.github/workflows/platform-cd.yml`                 |
+`sourceControl.branchStrategy`.
 
 The workload bundle copies the shared reusable workflows and the `workload-*.yml` trigger files for
 the selected branch strategy. The shared workflows use the setup action. Workload CI validates,
@@ -109,9 +67,6 @@ workflow files, these copy to their own path at the repo root rather than flatte
 `.github/workflows`, so `infra-ci.yml`/`infra-cd.yml` have something real to lint, build, and deploy
 out of the box. The empty `iac/res/sample/modules/` folder is included too, as a placeholder for
 custom Bicep modules.
-
-Reusable workflows referenced with `./.github/workflows/...` must live directly in `.github/workflows`,
-which is why the `shared` and `<strategy>-flow` folders flatten on copy.
 
 ## Provisioning phases and dependencies
 
@@ -252,20 +207,12 @@ release workflows use `.github/scripts/stg-verification.sh`:
   fingerprint for the release commit and looks on `main` for a commit with identical content and a
   successful status. Without one, `prd` is not deployed.
 
-The check compares **content**, not the position of a commit in history:
-
-- A release cut from a later commit that did not change the deliverable (for example a workload-only
-  change, or a release commit that only updates `CHANGELOG.md` or `version.txt`) still passes, since
-  its content is the one `stg` ran. Both files are left out of the fingerprint for that reason.
-- Content whose `stg` deployment failed never passes, even after a later commit deployed
-  successfully.
+The check compares what was deployed, not where a commit sits in history, so a release commit that
+only changes `CHANGELOG.md` or `version.txt` still passes. The mechanics are in the
+[workflow templates maintainer guide](../../../docs/contributors/workflow-templates.md).
 
 Changes outside the deliverable folder, such as workflow files, are not part of the fingerprint.
 Adapt the folder or the ignored files in the script when your deliverables live elsewhere.
-
-`verify` also reports which commit and run deployed that content to `stg`, as the `stg-commit` and
-`stg-run-id` step outputs, taken from the link that `mark` stores on the commit status. The workload
-release uses the run id to deploy the package `stg` ran (see below).
 
 ## Build once, deploy the same package
 
@@ -456,10 +403,3 @@ older ones.
    opening that pull request.
 6. The federated credential uses `subjectType: environment`, so every job that signs in to Azure
    declares `environment:`. Keep it that way, otherwise the OIDC subject claim no longer matches.
-
-## Why the environment input is a gate, not a scope
-
-Each `Set-Platform*` cmdlet reconciles the complete configuration file, not one environment. The
-`environment` input on `platform-provision.yml` therefore selects the existing workload GitHub
-environment whose federated credential signs in to Azure and whose protection rules apply before
-the single reconciliation starts. It is an approval and identity gate, not a configuration scope.
