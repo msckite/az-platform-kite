@@ -21,9 +21,9 @@ release tag and publishes it to the PowerShell Gallery. There is no release-plea
 
 ## How a release works
 
-1. Publishing a GitHub Release triggers [cd.yaml](../.github/workflows/cd.yaml).
-2. `cd.yaml` calls [ci.yaml](../.github/workflows/ci.yaml) with the release tag. The `UpdateManifest`
-   task in [build.ps1](../build.ps1) stamps `ModuleVersion` (and `Prerelease`, when the tag has a
+1. Publishing a GitHub Release triggers [cd.yaml](../../.github/workflows/cd.yaml).
+2. `cd.yaml` calls [ci.yaml](../../.github/workflows/ci.yaml) with the release tag. The `UpdateManifest`
+   task in [build.ps1](../../build.ps1) stamps `ModuleVersion` (and `Prerelease`, when the tag has a
    suffix) into the module manifest, so the version always comes from the tag, not from a committed
    file. A tag with a `-` suffix (for example `v1.1.0-prev1`) uses the prerelease manifest.
 3. CI builds the module and runs the tests; the tested module is uploaded as an artifact.

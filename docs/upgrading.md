@@ -24,7 +24,7 @@ release also has release notes on its GitHub Release.
 
 The configuration contract and the phase cmdlet parameters changed. Plan one pull request that makes
 all of the changes below together, and raise `kiteVersion` in it. ADR
-[0005](./adr/0005-split-platform-config-by-phase.md) explains the decision.
+[0005](./contributors/adr/0005-split-platform-config-by-phase.md) explains the decision.
 
 ### 1. Split `platform-config.jsonc` into three files
 

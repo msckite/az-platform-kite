@@ -8,7 +8,7 @@ generated from Markdown source and shipped in an `en-US` folder next to the modu
 
 That Markdown-to-MAML pipeline is provided by
 [Microsoft.PowerShell.PlatyPS](https://learn.microsoft.com/en-us/powershell/utility-modules/platyps/overview)
-and is wrapped by [`platyps.ps1`](../platyps.ps1) in this repository.
+and is wrapped by [`platyps.ps1`](../../platyps.ps1) in this repository.
 
 <!-- omit from toc -->
 ## Table of Contents
@@ -31,7 +31,7 @@ and is wrapped by [`platyps.ps1`](../platyps.ps1) in this repository.
 `New` and `Update` reflect over the *loaded* module to discover cmdlets/parameters/output types,
 so build the module first, then run `platyps.ps1` in a PowerShell session that has the built DLL
 imported. Never import it in the terminal you build in: that session keeps the DLL locked, and the
-next build fails (see [CONTRIBUTING.md](../CONTRIBUTING.md#building-and-testing-locally)). Use one of:
+next build fails (see [CONTRIBUTING.md](../../CONTRIBUTING.md#building-and-testing-locally)). Use one of:
 
 - **A separate `pwsh` process** that imports the DLL, runs the mode, and exits, which releases the
   lock straight away:
@@ -94,4 +94,4 @@ when nothing else changed. A repeat run on an up-to-date set of files therefore 
   [Edit Markdown help files](https://learn.microsoft.com/en-us/powershell/utility-modules/platyps/step-2-edit-markdown-help).
 - `src/en-US/MSCKite.Azure.Platform.dll-Help.xml`: generated MAML output of `-Mode Publish`. Copied
   into the build output by an `ItemGroup` in
-  [`MSCKite.Azure.Platform.csproj`](../src/MSCKite.Azure.Platform.csproj).
+  [`MSCKite.Azure.Platform.csproj`](../../src/MSCKite.Azure.Platform.csproj).
