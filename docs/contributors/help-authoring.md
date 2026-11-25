@@ -82,6 +82,10 @@ never rewrite or remove existing prose. New content is inserted as a `{{ Fill in
 placeholder. `-Mode Update` reports any placeholders it finds, and `-Mode Test` fails the script
 if one is still present, so nothing incomplete reaches `-Mode Publish`.
 
+`-Mode Test` also fails when a cmdlet listed in `CmdletsToExport` of `src/MSCKite.Azure.Platform.psd1`
+has no Markdown file in `docs/MSCKite.Azure.Platform/` or no entry on the module page. Run
+`-Mode New` for a new cmdlet, then add its entry to `MSCKite.Azure.Platform.md` by hand.
+
 PlatyPS itself isn't idempotent: every `Update` run repeats parameter descriptions, adds a BOM
 and CRLF line endings, and bumps `ms.date`. After PlatyPS runs, `-Mode Update` normalizes each file
 (one description copy, UTF-8 without BOM, LF) and restores the original file, `ms.date` included,
