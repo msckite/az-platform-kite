@@ -11,6 +11,8 @@ namespace MSCKite.Azure.Platform.Models
 
         public string IdentityName { get; set; }
 
+        public string ResourceGroupName { get; set; }
+
         public string PrincipalId { get; set; }
 
         public string ClientId { get; set; }

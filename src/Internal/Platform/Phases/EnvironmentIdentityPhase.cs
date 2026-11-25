@@ -89,6 +89,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform.Phases
                         EnvironmentCode = config.EnvironmentCode,
                         Purpose = purpose,
                         IdentityName = identityName,
+                        ResourceGroupName = resourceGroup.Name,
                         Action = "WouldCreate",
                         FederatedCredentialAction = "WouldCreate"
                     };
@@ -130,6 +131,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform.Phases
                 EnvironmentCode = config.EnvironmentCode,
                 Purpose = purpose,
                 IdentityName = identity.Name,
+                ResourceGroupName = resourceGroup.Name,
                 PrincipalId = identity.PrincipalId,
                 ClientId = identity.ClientId,
                 Action = identityAction

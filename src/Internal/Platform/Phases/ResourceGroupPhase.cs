@@ -51,6 +51,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform.Phases
                             Id = config.Id,
                             Name = name,
                             Location = location,
+                            ResourceId = $"/subscriptions/{globalConfig.SubscriptionId}/resourceGroups/{name}",
                             Tags = tags,
                             Action = "WouldCreate"
                         });
@@ -73,6 +74,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform.Phases
                         Id = config.Id,
                         Name = created.Name,
                         Location = created.Location,
+                        ResourceId = created.ResourceId,
                         Tags = created.Tags,
                         Action = "Created"
                     });
@@ -94,6 +96,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform.Phases
                         Id = config.Id,
                         Name = existing.Name,
                         Location = existing.Location,
+                        ResourceId = existing.ResourceId,
                         Tags = existing.Tags,
                         Action = "Unchanged"
                     });
@@ -108,6 +111,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform.Phases
                         Id = config.Id,
                         Name = existing.Name,
                         Location = existing.Location,
+                        ResourceId = existing.ResourceId,
                         Tags = tags,
                         Action = "WouldUpdate"
                     });
@@ -121,6 +125,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform.Phases
                     Id = config.Id,
                     Name = existing.Name,
                     Location = existing.Location,
+                    ResourceId = existing.ResourceId,
                     Tags = tags,
                     Action = "Updated"
                 });

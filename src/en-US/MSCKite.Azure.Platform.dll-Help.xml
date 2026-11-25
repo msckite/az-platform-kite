@@ -2253,7 +2253,7 @@ Defaults to `config/platform/resource-groups.jsonc`.</maml:para>
         </dev:type>
         <maml:description>
           <maml:para>Emitted once processing finishes (the default). Has the
-EnvironmentCode, IdentityName, PrincipalId, ClientId, and Action of the identity; the
+EnvironmentCode, IdentityName, ResourceGroupName, PrincipalId, ClientId, and Action of the identity; the
 FederatedCredentialAction; and the Role, Scope, and Action of every role assignment synced.
 Identity actions are `Created` or `Unchanged`; `-WhatIf` returns `WouldCreate`. Federated
 credential actions are `Created`, `Updated`, or `Unchanged`; `-WhatIf` returns `WouldCreate` or
@@ -2697,9 +2697,10 @@ Defaults to `config/platform/resource-groups.jsonc`.</maml:para>
           <maml:name>MSCKite.Azure.Platform.Models.PlatformResourceGroupActionResult</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para>Emitted once processing finishes (the default). Has the Id, Name, Location, Tags, and Action of
-the resource group. Actions are `Created`, `Updated`, or `Unchanged`; `-WhatIf` returns
-`WouldCreate` or `WouldUpdate` instead of applying a mutation.</maml:para>
+          <maml:para>Emitted once processing finishes (the default). Has the Id, Name, Location, ResourceId, Tags, and
+Action of the resource group. Actions are `Created`, `Updated`, or `Unchanged`; `-WhatIf` returns
+`WouldCreate` or `WouldUpdate` instead of applying a mutation. For `WouldCreate`, ResourceId is the
+id the resource group will get once it is created.</maml:para>
         </maml:description>
       </command:returnValue>
       <command:returnValue>

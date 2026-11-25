@@ -17,6 +17,7 @@
               <ListItem><PropertyName>Id</PropertyName></ListItem>
               <ListItem><PropertyName>Name</PropertyName></ListItem>
               <ListItem><PropertyName>Location</PropertyName></ListItem>
+              <ListItem><PropertyName>ResourceId</PropertyName></ListItem>
               <ListItem><PropertyName>Tags</PropertyName></ListItem>
               <ListItem><PropertyName>Action</PropertyName></ListItem>
             </ListItems>
@@ -54,6 +55,7 @@
             <ListItems>
               <ListItem><PropertyName>EnvironmentCode</PropertyName></ListItem>
               <ListItem><PropertyName>IdentityName</PropertyName></ListItem>
+              <ListItem><PropertyName>ResourceGroupName</PropertyName></ListItem>
               <ListItem><PropertyName>PrincipalId</PropertyName></ListItem>
               <ListItem><PropertyName>ClientId</PropertyName></ListItem>
               <ListItem><PropertyName>Action</PropertyName></ListItem>
