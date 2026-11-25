@@ -15,8 +15,9 @@
     - Update  Refreshes existing Markdown help files to reflect parameter/output changes made to
               already-documented cmdlets, then updates the module page. PlatyPS only ever adds
               content here (using "{{ }}" placeholders); it never rewrites existing prose.
-    - Test    Validates every Markdown file and fails if PlatyPS reports diagnostics or any
-              unresolved "{{ }}" placeholder remains. Run this before Publish.
+    - Test    Validates every Markdown file and fails if PlatyPS reports diagnostics, any
+              unresolved "{{ }}" placeholder remains, or a cmdlet exported by the module manifest
+              has no Markdown file or no entry on the module page. Run this before Publish.
     - Publish Converts the Markdown files to MAML and writes
               MSCKite.Azure.Platform.dll-Help.xml to ./en-US, which the csproj copies into the
               build output on the next build (the VS Code Build task, or
@@ -64,6 +65,7 @@ $ErrorActionPreference = 'Stop'
 $moduleName = 'MSCKite.Azure.Platform'
 $docsFolder = Join-Path $PSScriptRoot "docs\$moduleName"
 $moduleMarkdownPath = Join-Path $docsFolder "$moduleName.md"
+$manifestPath = Join-Path $PSScriptRoot "src\$moduleName.psd1"
 $placeholderPattern = '\{\{.*\}\}'
 
 # Translates a PlatyPS diagnostic Source/Identifier pair into a human-readable description
@@ -227,6 +229,21 @@ switch ($Mode) {
             $errorCount++
             $placeholderFileName = Split-Path -Path $placeholder.Path -Leaf
             Write-Host ('{0,-7}: {1}, {2}, Unresolved placeholder - {3}' -f 'ERROR', $placeholderFileName, $placeholder.LineNumber, $placeholder.Line.Trim()) -ForegroundColor Red
+        }
+
+        # Reads the exported cmdlets from the manifest instead of the module, so Test still runs without loading the DLL
+        $exportedCmdlets = (Import-PowerShellDataFile -Path $manifestPath).CmdletsToExport
+        $moduleMarkdown = Get-Content -Path $moduleMarkdownPath -Raw
+        foreach ($cmdletName in $exportedCmdlets) {
+            if (-not (Test-Path -Path (Join-Path $docsFolder "$cmdletName.md"))) {
+                $errorCount++
+                Write-Host ('{0,-7}: {1}.md, Missing help for exported cmdlet - run -Mode New' -f 'ERROR', $cmdletName) -ForegroundColor Red
+            }
+
+            if ($moduleMarkdown -notmatch "(?m)^### \[$([regex]::Escape($cmdletName))\]\($([regex]::Escape($cmdletName))\.md\)") {
+                $errorCount++
+                Write-Host ('{0,-7}: {1}, Missing entry for exported cmdlet {2}' -f 'ERROR', $moduleFileName, $cmdletName) -ForegroundColor Red
+            }
         }
 
         Write-Host ''

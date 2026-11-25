@@ -710,6 +710,215 @@ release ships a newer template version. Raise `kiteVersion` to adopt it.</maml:p
   </command:command>
   <command:command>
     <command:details>
+      <command:name>Grant-PlatformGraphPermission</command:name>
+      <maml:description>
+        <maml:para>Grants a pipeline identity the Microsoft Graph application permissions it needs to read or manage
+Entra groups.</maml:para>
+      </maml:description>
+      <command:verb>Grant</command:verb>
+      <command:noun>PlatformGraphPermission</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>A one-time setup step for the platform workflows. When `Set-PlatformSecurityGroup` runs in GitHub
+Actions, it signs in as the identity of the `platform` or `platform-plan` environment and reads
+Entra groups through Microsoft Graph. That identity needs the Microsoft Graph application permission
+`Group.Read.All`, and also `Group.ReadWrite.All` if the pipeline should create and change groups.
+This cmdlet grants those permissions to the identity's service principal.
+
+Run it by hand, after `Set-PlatformEnvironmentIdentity` (or `Set-Platform`) has created the
+identity. Granting Microsoft Graph application permissions takes the Application Administrator,
+Privileged Role Administrator, or Global Administrator directory role, and a pipeline identity
+should never hold that role. That is why the phase cmdlets never call this cmdlet.
+
+The cmdlet connects to Microsoft Graph with `Connect-MgGraph` and the scopes
+`AppRoleAssignment.ReadWrite.All` and `Application.Read.All`, which opens a sign-in for an account
+with one of the directory roles above. For each permission it looks up the app role on the
+Microsoft Graph service principal and grants it, unless the identity already has it. Running it
+again is safe.
+
+This cmdlet has a high confirmation impact, so it asks for confirmation before each grant unless
+you pass `-Confirm:$false`. Under `-WhatIf`, a permission that would be granted is shown only as a
+"What if:" message and is left out of the result.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Grant-PlatformGraphPermission</maml:name>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="0" aliases="none">
+          <maml:name>PrincipalId</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="1" aliases="none">
+          <maml:name>Permission</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string[]</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String[]</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>WhatIf</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>Confirm</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="cf">
+        <maml:name>Confirm</maml:name>
+        <maml:description>
+          <maml:para>Prompts you for confirmation before running the cmdlet.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="1" aliases="none">
+        <maml:name>Permission</maml:name>
+        <maml:description>
+          <maml:para>The Microsoft Graph application permissions to grant, by name, for example `Group.Read.All`.
+Defaults to `Group.Read.All`. Add `Group.ReadWrite.All` only when the pipeline should create and
+change groups.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String[]</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String[]</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByPropertyName)" position="0" aliases="none">
+        <maml:name>PrincipalId</maml:name>
+        <maml:description>
+          <maml:para>The object id of the identity's service principal in Entra ID: the `PrincipalId` that
+`Set-PlatformEnvironmentIdentity` and `Set-Platform` report for the identity. It is not the client
+id.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="wi">
+        <maml:name>WhatIf</maml:name>
+        <maml:description>
+          <maml:para>Runs the command in a mode that only reports what would happen without performing the actions.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>You can pipe an object with a `PrincipalId` property to this cmdlet, such as the identity results of
+`Set-PlatformEnvironmentIdentity` or `Set-Platform`.</maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>MSCKite.Azure.Platform.Models.PlatformGraphPermissionGrantResult</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>Emitted once per principal. Has the `PrincipalId` and a `Permissions` list with the `Permission`
+and `Action` of each permission: `Granted`, or `Unchanged` when the identity already had it. A
+permission that could not be resolved or granted is reported as an error and left out of the list,
+as is a permission skipped under `-WhatIf` or declined at the confirmation prompt.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>This cmdlet requires the `Microsoft.Graph.Applications` module and an account with the
+Application Administrator, Privileged Role Administrator, or Global Administrator directory role.
+It does not use your Azure (`Connect-AzAccount`) sign-in.
+
+See the one-time setup in
+[Platform flow](https://github.com/msckite/az-platform-kite/blob/main/docs/consumers/workflows/platform-flow.md#one-time-setup)
+for where this step fits.</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>--------- Example 1 - Let the platform identity read Entra groups ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Grant-PlatformGraphPermission -PrincipalId '00000000-0000-0000-0000-000000000000'
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Grants the default permission, `Group.Read.All`, to the service principal with that object id. Use
+the `PrincipalId` that `Set-PlatformEnvironmentIdentity` reports for the `platform` environment.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 2 - Let the platform identity also create and change groups ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Grant-PlatformGraphPermission -PrincipalId '00000000-0000-0000-0000-000000000000' -Permission 'Group.Read.All', 'Group.ReadWrite.All'
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Add `Group.ReadWrite.All` only when the pipeline should create and change groups. Give the
+`platform-plan` identity `Group.Read.All` only.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 3 - Grant the permission to the identities straight from Set-Platform ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+(Set-Platform -WhatIf).EnvironmentIdentities |
+    Where-Object EnvironmentCode -EQ 'platform' |
+    Grant-PlatformGraphPermission
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>`Set-Platform -WhatIf` changes nothing and reports every existing identity with its `PrincipalId`,
+which is piped to this cmdlet by property name. Both identities of the `platform` environment, for
+`platform` and `platform-plan`, get `Group.Read.All`.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version</maml:linkText>
+        <maml:uri />
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Set-PlatformEnvironmentIdentity</maml:linkText>
+        <maml:uri>https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Set-PlatformEnvironmentIdentity.md</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Set-PlatformSecurityGroup</maml:linkText>
+        <maml:uri>https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Set-PlatformSecurityGroup.md</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Set-Platform</maml:linkText>
+        <maml:uri>https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Set-Platform.md</maml:uri>
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command>
+    <command:details>
       <command:name>New-PlatformConfigStructure</command:name>
       <maml:description>
         <maml:para>Scaffolds the platform configuration folder, creating a `global-config.jsonc` file either from a default template or copied from an existing input folder.</maml:para>
