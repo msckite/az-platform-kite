@@ -2,12 +2,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Management.Automation;
 using System.Text.Json;
 using MSCKite.Azure.Platform.Internal.Azure;
 using MSCKite.Azure.Platform.Internal.Common;
 using MSCKite.Azure.Platform.Internal.Platform;
+using MSCKite.Azure.Platform.Internal.Platform.Phases;
 using MSCKite.Azure.Platform.Models;
 
 namespace MSCKite.Azure.Platform.Commands.Platform
@@ -72,123 +72,8 @@ namespace MSCKite.Azure.Platform.Commands.Platform
                 return;
             }
 
-            var placeholders = globalConfig.ToPlaceholderMap();
-            var items = new List<PlatformResourceGroupActionResult>();
+            var items = ResourceGroupPhase.Run(this, globalConfig, resourceGroups);
 
-            // Buffers each result instead of streaming it, so ShouldProcess's "What if:" host messages don't interleave with pipeline output
-            void Emit(PlatformResourceGroupActionResult item)
-            {
-                items.Add(item);
-            }
-
-            foreach (var config in resourceGroups)
-            {
-                string name;
-                string location;
-                Dictionary<string, string> tags;
-                try
-                {
-                    name = PlatformConfigLoader.ResolvePlaceholders(config.Name, placeholders);
-                    location = PlatformConfigLoader.ResolvePlaceholders(config.Location, placeholders);
-                    tags = config.Tags.ToDictionary(
-                        tag => tag.Key,
-                        tag => PlatformConfigLoader.ResolvePlaceholders(tag.Value, placeholders));
-                }
-                catch (InvalidOperationException ex)
-                {
-                    WriteError(new ErrorRecord(ex, "PlatformResourceGroupUnresolvedPlaceholder", ErrorCategory.InvalidData, config.Id));
-                    continue;
-                }
-
-                WriteVerbose($"Resource group '{config.Id}': checking for '{name}'.");
-                var existing = AzureResourceGroupHelper.Get(this, name);
-
-                if (existing == null)
-                {
-                    WriteVerbose($"Resource group '{name}' does not exist yet.");
-                    if (!ShouldProcess(name, "Create resource group"))
-                    {
-                        Emit(new PlatformResourceGroupActionResult
-                        {
-                            Id = config.Id,
-                            Name = name,
-                            Location = location,
-                            Tags = tags,
-                            Action = "WouldCreate"
-                        });
-                        continue;
-                    }
-
-                    WriteVerbose($"Creating resource group '{name}' in '{location}'.");
-                    var created = AzureResourceGroupHelper.Create(this, name, location, tags);
-                    if (created == null)
-                    {
-                        WriteError(new ErrorRecord(
-                            new InvalidOperationException($"Resource group '{name}' was created but is not yet readable. It may still be propagating; re-run this command to verify."),
-                            "PlatformResourceGroupNotReadable", ErrorCategory.ReadError, name));
-                        continue;
-                    }
-
-                    WriteVerbose($"Resource group '{name}' created and confirmed readable.");
-                    Emit(new PlatformResourceGroupActionResult
-                    {
-                        Id = config.Id,
-                        Name = created.Name,
-                        Location = created.Location,
-                        Tags = created.Tags,
-                        Action = "Created"
-                    });
-                    continue;
-                }
-
-                WriteVerbose($"Resource group '{name}' already exists in '{existing.Location}'.");
-
-                if (!string.Equals(existing.Location, location, StringComparison.OrdinalIgnoreCase))
-                {
-                    WriteWarning($"Resource group '{name}' already exists in location '{existing.Location}'; the configured location '{location}' is ignored because location cannot be changed after creation.");
-                }
-
-                if (TagsEqual(existing.Tags, tags))
-                {
-                    WriteVerbose($"Resource group '{name}' tags already match the configured values; nothing to do.");
-                    Emit(new PlatformResourceGroupActionResult
-                    {
-                        Id = config.Id,
-                        Name = existing.Name,
-                        Location = existing.Location,
-                        Tags = existing.Tags,
-                        Action = "Unchanged"
-                    });
-                    continue;
-                }
-
-                WriteVerbose($"Resource group '{name}' tags have drifted from the configured values.");
-                if (!ShouldProcess(name, "Update resource group tags"))
-                {
-                    Emit(new PlatformResourceGroupActionResult
-                    {
-                        Id = config.Id,
-                        Name = existing.Name,
-                        Location = existing.Location,
-                        Tags = tags,
-                        Action = "WouldUpdate"
-                    });
-                    continue;
-                }
-
-                WriteVerbose($"Updating tags on resource group '{name}'.");
-                AzureResourceGroupHelper.UpdateTags(this, name, tags);
-                Emit(new PlatformResourceGroupActionResult
-                {
-                    Id = config.Id,
-                    Name = existing.Name,
-                    Location = existing.Location,
-                    Tags = tags,
-                    Action = "Updated"
-                });
-            }
-
-            WriteVerbose($"Done. Processed {items.Count} of {resourceGroups.Count} resource group(s).");
             if (AsHashtable.IsPresent)
             {
                 WriteObject(new Hashtable
@@ -205,24 +90,6 @@ namespace MSCKite.Azure.Platform.Commands.Platform
                     WriteObject(item);
                 }
             }
-        }
-
-        private static bool TagsEqual(Dictionary<string, string> current, Dictionary<string, string> desired)
-        {
-            if (current.Count != desired.Count)
-            {
-                return false;
-            }
-
-            foreach (var tag in desired)
-            {
-                if (!current.TryGetValue(tag.Key, out var value) || !string.Equals(value, tag.Value, StringComparison.Ordinal))
-                {
-                    return false;
-                }
-            }
-
-            return true;
         }
     }
 }
