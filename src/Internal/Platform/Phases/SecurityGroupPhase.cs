@@ -31,7 +31,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform.Phases
                 }
                 catch (InvalidOperationException ex)
                 {
-                    cmdlet.WriteError(new ErrorRecord(ex, "PlatformSecurityGroupUnresolvedPlaceholder", ErrorCategory.InvalidData, config.DisplayName));
+                    cmdlet.WritePhaseError(new ErrorRecord(ex, "PlatformSecurityGroupUnresolvedPlaceholder", ErrorCategory.InvalidData, config.DisplayName));
                     continue;
                 }
 
@@ -76,7 +76,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform.Phases
                 }
                 catch (Exception ex)
                 {
-                    cmdlet.WriteError(new ErrorRecord(
+                    cmdlet.WritePhaseError(new ErrorRecord(
                         new InvalidOperationException($"Failed to create security group '{mailNickname}': {ex.Message}", ex),
                         "PlatformSecurityGroupCreateFailed", ErrorCategory.WriteError, mailNickname));
                     return null;
@@ -84,7 +84,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform.Phases
 
                 if (created == null)
                 {
-                    cmdlet.WriteError(new ErrorRecord(
+                    cmdlet.WritePhaseError(new ErrorRecord(
                         new InvalidOperationException($"Security group '{mailNickname}' was created but is not yet readable. It may still be propagating; re-run this command to verify."),
                         "PlatformSecurityGroupNotReadable", ErrorCategory.ReadError, mailNickname));
                     return null;
@@ -165,7 +165,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform.Phases
                 }
                 catch (InvalidOperationException ex)
                 {
-                    cmdlet.WriteError(new ErrorRecord(ex, "PlatformSecurityGroupUnresolvedPlaceholder", ErrorCategory.InvalidData, config.DisplayName));
+                    cmdlet.WritePhaseError(new ErrorRecord(ex, "PlatformSecurityGroupUnresolvedPlaceholder", ErrorCategory.InvalidData, config.DisplayName));
                     continue;
                 }
 
@@ -196,7 +196,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform.Phases
                 }
                 catch (InvalidOperationException ex)
                 {
-                    cmdlet.WriteError(new ErrorRecord(ex, "PlatformSecurityGroupRoleAssignmentFailed", ErrorCategory.WriteError, config.DisplayName));
+                    cmdlet.WritePhaseError(new ErrorRecord(ex, "PlatformSecurityGroupRoleAssignmentFailed", ErrorCategory.WriteError, config.DisplayName));
                 }
             }
         }

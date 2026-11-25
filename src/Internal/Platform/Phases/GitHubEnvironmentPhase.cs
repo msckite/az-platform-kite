@@ -10,11 +10,21 @@ namespace MSCKite.Azure.Platform.Internal.Platform.Phases
     // Phase 4: creates or updates each environment's GitHub deployment environment declared in the platform config files (protection rules, secrets, and variables)
     internal static class GitHubEnvironmentPhase
     {
+        // Stands in for the client id of an identity that -WhatIf did not create, so the preview can still show every secret and variable
+        internal const string UnknownClientId = "(known after apply)";
+
+        internal static string IdentityKey(string resourceGroupName, string identityName)
+        {
+            return $"{resourceGroupName}/{identityName}";
+        }
+
+        // clientIdsByIdentity holds the identities from phase 3, keyed by IdentityKey; when null, each identity is read from Azure instead
         internal static List<PlatformGitHubEnvironmentActionResult> Run(
             PSCmdlet cmdlet,
             GlobalConfig globalConfig,
             List<PlatformEnvironmentConfig> environmentConfigs,
-            Dictionary<string, AzureResourceGroupInfo> resourceGroupsById)
+            Dictionary<string, AzureResourceGroupInfo> resourceGroupsById,
+            Dictionary<string, string> clientIdsByIdentity = null)
         {
             var owner = globalConfig.SourceControl.Owner;
             var repository = globalConfig.SourceControl.Repository;
@@ -39,7 +49,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform.Phases
                     // Each identity resolves its own "${clientId}", so copy the placeholders per pipeline instead of sharing one map
                     var placeholders = new Dictionary<string, string>(basePlaceholders, StringComparer.Ordinal);
 
-                    if (!TryResolveClientId(cmdlet, config, pipeline.UserAssignedIdentity, resourceGroup, placeholders))
+                    if (!TryResolveClientId(cmdlet, config, pipeline.UserAssignedIdentity, resourceGroup, placeholders, clientIdsByIdentity))
                     {
                         continue;
                     }
@@ -62,7 +72,13 @@ namespace MSCKite.Azure.Platform.Internal.Platform.Phases
         }
 
         // Adds "${clientId}" to the placeholder map by reading the identity created in phase 3; reports a clear error if that phase hasn't run yet
-        private static bool TryResolveClientId(PSCmdlet cmdlet, PlatformEnvironmentConfig config, PlatformUserAssignedIdentityConfig identityConfig, AzureResourceGroupInfo resourceGroup, Dictionary<string, string> placeholders)
+        private static bool TryResolveClientId(
+            PSCmdlet cmdlet,
+            PlatformEnvironmentConfig config,
+            PlatformUserAssignedIdentityConfig identityConfig,
+            AzureResourceGroupInfo resourceGroup,
+            Dictionary<string, string> placeholders,
+            Dictionary<string, string> clientIdsByIdentity)
         {
             string identityName;
             try
@@ -71,15 +87,30 @@ namespace MSCKite.Azure.Platform.Internal.Platform.Phases
             }
             catch (InvalidOperationException ex)
             {
-                cmdlet.WriteError(new ErrorRecord(ex, "PlatformGitHubEnvironmentUnresolvedPlaceholder", ErrorCategory.InvalidData, config.EnvironmentCode));
+                cmdlet.WritePhaseError(new ErrorRecord(ex, "PlatformGitHubEnvironmentUnresolvedPlaceholder", ErrorCategory.InvalidData, config.EnvironmentCode));
                 return false;
+            }
+
+            if (clientIdsByIdentity != null)
+            {
+                cmdlet.WriteVerbose($"Environment '{config.EnvironmentCode}': resolving '${{clientId}}' from phase 3 identity '{identityName}'.");
+                if (!clientIdsByIdentity.TryGetValue(IdentityKey(resourceGroup.Name, identityName), out var clientId) || string.IsNullOrEmpty(clientId))
+                {
+                    cmdlet.WritePhaseError(new ErrorRecord(
+                        new InvalidOperationException($"Identity '{identityName}' was not created or updated in phase 3, so its GitHub environment is skipped."),
+                        "PlatformGitHubEnvironmentIdentityMissing", ErrorCategory.ObjectNotFound, config.EnvironmentCode));
+                    return false;
+                }
+
+                placeholders["clientId"] = clientId;
+                return true;
             }
 
             cmdlet.WriteVerbose($"Environment '{config.EnvironmentCode}': resolving '${{clientId}}' from identity '{identityName}'.");
             var identity = AzureUserAssignedIdentityHelper.Get(cmdlet, resourceGroup.Name, identityName);
             if (identity == null)
             {
-                cmdlet.WriteError(new ErrorRecord(
+                cmdlet.WritePhaseError(new ErrorRecord(
                     new InvalidOperationException($"Identity '{identityName}' does not exist (or its principal isn't readable yet). Run Set-PlatformEnvironmentIdentity first."),
                     "PlatformGitHubEnvironmentIdentityMissing", ErrorCategory.ObjectNotFound, config.EnvironmentCode));
                 return false;
@@ -100,7 +131,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform.Phases
             }
             catch (InvalidOperationException ex)
             {
-                cmdlet.WriteError(new ErrorRecord(ex, "PlatformGitHubEnvironmentUnresolvedPlaceholder", ErrorCategory.InvalidData, config.EnvironmentCode));
+                cmdlet.WritePhaseError(new ErrorRecord(ex, "PlatformGitHubEnvironmentUnresolvedPlaceholder", ErrorCategory.InvalidData, config.EnvironmentCode));
                 return null;
             }
 
@@ -116,7 +147,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform.Phases
             {
                 if (!GitHubReviewerResolver.TryResolve(owner, reviewer, out var type, out var id, out var resolveError))
                 {
-                    cmdlet.WriteError(new ErrorRecord(
+                    cmdlet.WritePhaseError(new ErrorRecord(
                         new InvalidOperationException(resolveError), "PlatformGitHubEnvironmentReviewerUnresolved", ErrorCategory.ObjectNotFound, reviewer));
                     continue;
                 }
@@ -140,7 +171,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform.Phases
                 (branchPolicy == null ? "branch policy unmanaged)." : $"{branchPolicy.Branches.Count} branch and {branchPolicy.Tags.Count} tag pattern(s))."));
             if (!GitHubEnvironmentHelper.CreateOrUpdate(owner, repository, name, githubConfig.WaitTimerMinutes, reviewers, branchPolicy != null, out var applyError))
             {
-                cmdlet.WriteError(new ErrorRecord(
+                cmdlet.WritePhaseError(new ErrorRecord(
                     new InvalidOperationException($"Failed to configure GitHub environment '{name}': {applyError}"),
                     "PlatformGitHubEnvironmentConfigureFailed", ErrorCategory.WriteError, name));
                 return null;
@@ -179,7 +210,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform.Phases
 
                 if (existing == null)
                 {
-                    cmdlet.WriteError(new ErrorRecord(
+                    cmdlet.WritePhaseError(new ErrorRecord(
                         new InvalidOperationException($"Could not list deployment branch policies for '{actionResult.Name}': {listError}"),
                         "PlatformGitHubEnvironmentBranchPolicyListFailed", ErrorCategory.ReadError, actionResult.Name));
                     return;
@@ -208,7 +239,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform.Phases
                 cmdlet.WriteVerbose($"Allowing deployments from {policy.Item1} pattern '{policy.Item2}' on GitHub environment '{actionResult.Name}'.");
                 if (!GitHubDeploymentBranchPolicyHelper.Create(owner, repository, actionResult.Name, policy.Item2, policy.Item1, out var createError))
                 {
-                    cmdlet.WriteError(new ErrorRecord(
+                    cmdlet.WritePhaseError(new ErrorRecord(
                         new InvalidOperationException($"Failed to add deployment {policy.Item1} policy '{policy.Item2}': {createError}"),
                         "PlatformGitHubEnvironmentBranchPolicyFailed", ErrorCategory.WriteError, label));
                     continue;
@@ -234,7 +265,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform.Phases
                 cmdlet.WriteVerbose($"Removing {policy.Type} pattern '{policy.Name}' from GitHub environment '{actionResult.Name}', since the config no longer lists it.");
                 if (!GitHubDeploymentBranchPolicyHelper.Delete(owner, repository, actionResult.Name, policy.Id, out var deleteError))
                 {
-                    cmdlet.WriteError(new ErrorRecord(
+                    cmdlet.WritePhaseError(new ErrorRecord(
                         new InvalidOperationException($"Failed to remove deployment {policy.Type} policy '{policy.Name}': {deleteError}"),
                         "PlatformGitHubEnvironmentBranchPolicyFailed", ErrorCategory.WriteError, label));
                     continue;
@@ -265,7 +296,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform.Phases
                 }
                 catch (InvalidOperationException ex)
                 {
-                    cmdlet.WriteError(new ErrorRecord(ex, "PlatformGitHubEnvironmentUnresolvedPlaceholder", ErrorCategory.InvalidData, actionResult.EnvironmentCode));
+                    cmdlet.WritePhaseError(new ErrorRecord(ex, "PlatformGitHubEnvironmentUnresolvedPlaceholder", ErrorCategory.InvalidData, actionResult.EnvironmentCode));
                     continue;
                 }
 
@@ -278,7 +309,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform.Phases
                 cmdlet.WriteVerbose($"Setting secret '{name}' on GitHub environment '{actionResult.Name}'.");
                 if (!GitHubSecretHelper.Set(owner, repository, actionResult.Name, name, value, out var setError))
                 {
-                    cmdlet.WriteError(new ErrorRecord(
+                    cmdlet.WritePhaseError(new ErrorRecord(
                         new InvalidOperationException($"Failed to set secret '{name}': {setError}"),
                         "PlatformGitHubEnvironmentSecretFailed", ErrorCategory.WriteError, name));
                     continue;
@@ -309,7 +340,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform.Phases
                 }
                 catch (InvalidOperationException ex)
                 {
-                    cmdlet.WriteError(new ErrorRecord(ex, "PlatformGitHubEnvironmentUnresolvedPlaceholder", ErrorCategory.InvalidData, actionResult.EnvironmentCode));
+                    cmdlet.WritePhaseError(new ErrorRecord(ex, "PlatformGitHubEnvironmentUnresolvedPlaceholder", ErrorCategory.InvalidData, actionResult.EnvironmentCode));
                     continue;
                 }
 
@@ -329,7 +360,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform.Phases
                 cmdlet.WriteVerbose($"Setting variable '{name}' on GitHub environment '{actionResult.Name}'.");
                 if (!GitHubVariableHelper.Set(owner, repository, actionResult.Name, name, value, out var setError))
                 {
-                    cmdlet.WriteError(new ErrorRecord(
+                    cmdlet.WritePhaseError(new ErrorRecord(
                         new InvalidOperationException($"Failed to set variable '{name}': {setError}"),
                         "PlatformGitHubEnvironmentVariableFailed", ErrorCategory.WriteError, name));
                     continue;

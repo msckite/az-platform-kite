@@ -34,7 +34,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform.Phases
                 }
                 catch (InvalidOperationException ex)
                 {
-                    cmdlet.WriteError(new ErrorRecord(ex, "PlatformResourceGroupUnresolvedPlaceholder", ErrorCategory.InvalidData, config.Id));
+                    cmdlet.WritePhaseError(new ErrorRecord(ex, "PlatformResourceGroupUnresolvedPlaceholder", ErrorCategory.InvalidData, config.Id));
                     continue;
                 }
 
@@ -62,7 +62,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform.Phases
                     var created = AzureResourceGroupHelper.Create(cmdlet, name, location, tags);
                     if (created == null)
                     {
-                        cmdlet.WriteError(new ErrorRecord(
+                        cmdlet.WritePhaseError(new ErrorRecord(
                             new InvalidOperationException($"Resource group '{name}' was created but is not yet readable. It may still be propagating; re-run this command to verify."),
                             "PlatformResourceGroupNotReadable", ErrorCategory.ReadError, name));
                         continue;

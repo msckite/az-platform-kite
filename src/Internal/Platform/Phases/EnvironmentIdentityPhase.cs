@@ -70,7 +70,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform.Phases
             }
             catch (InvalidOperationException ex)
             {
-                cmdlet.WriteError(new ErrorRecord(ex, "PlatformEnvironmentIdentityUnresolvedPlaceholder", ErrorCategory.InvalidData, config.EnvironmentCode));
+                cmdlet.WritePhaseError(new ErrorRecord(ex, "PlatformEnvironmentIdentityUnresolvedPlaceholder", ErrorCategory.InvalidData, config.EnvironmentCode));
                 return null;
             }
 
@@ -102,7 +102,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform.Phases
                 }
                 catch (Exception ex)
                 {
-                    cmdlet.WriteError(new ErrorRecord(
+                    cmdlet.WritePhaseError(new ErrorRecord(
                         new InvalidOperationException($"Failed to create identity '{identityName}': {ex.Message}", ex),
                         "PlatformEnvironmentIdentityCreateFailed", ErrorCategory.WriteError, identityName));
                     return null;
@@ -110,7 +110,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform.Phases
 
                 if (identity == null)
                 {
-                    cmdlet.WriteError(new ErrorRecord(
+                    cmdlet.WritePhaseError(new ErrorRecord(
                         new InvalidOperationException($"Identity '{identityName}' was created but its principal is not yet readable. It may still be propagating; re-run this command to verify."),
                         "PlatformEnvironmentIdentityNotReadable", ErrorCategory.ReadError, identityName));
                     return null;
@@ -167,7 +167,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform.Phases
             }
             catch (InvalidOperationException ex)
             {
-                cmdlet.WriteError(new ErrorRecord(ex, "PlatformEnvironmentIdentityUnresolvedPlaceholder", ErrorCategory.InvalidData, config.EnvironmentCode));
+                cmdlet.WritePhaseError(new ErrorRecord(ex, "PlatformEnvironmentIdentityUnresolvedPlaceholder", ErrorCategory.InvalidData, config.EnvironmentCode));
                 return null;
             }
 
@@ -178,7 +178,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform.Phases
             }
             catch (Exception ex) when (ex is InvalidOperationException || ex is NotSupportedException)
             {
-                cmdlet.WriteError(new ErrorRecord(ex, "PlatformEnvironmentIdentitySubjectUnresolved", ErrorCategory.InvalidData, config.EnvironmentCode));
+                cmdlet.WritePhaseError(new ErrorRecord(ex, "PlatformEnvironmentIdentitySubjectUnresolved", ErrorCategory.InvalidData, config.EnvironmentCode));
                 return null;
             }
 
@@ -200,7 +200,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform.Phases
                 }
                 catch (Exception ex)
                 {
-                    cmdlet.WriteError(new ErrorRecord(
+                    cmdlet.WritePhaseError(new ErrorRecord(
                         new InvalidOperationException($"Failed to create federated credential '{credentialName}': {ex.Message}", ex),
                         "PlatformEnvironmentIdentityCredentialCreateFailed", ErrorCategory.WriteError, credentialName));
                     return null;
@@ -233,7 +233,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform.Phases
             }
             catch (Exception ex)
             {
-                cmdlet.WriteError(new ErrorRecord(
+                cmdlet.WritePhaseError(new ErrorRecord(
                     new InvalidOperationException($"Failed to update federated credential '{credentialName}': {ex.Message}", ex),
                     "PlatformEnvironmentIdentityCredentialUpdateFailed", ErrorCategory.WriteError, credentialName));
                 return null;
@@ -266,7 +266,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform.Phases
                 }
                 catch (InvalidOperationException ex)
                 {
-                    cmdlet.WriteError(new ErrorRecord(ex, "PlatformEnvironmentIdentityUnresolvedPlaceholder", ErrorCategory.InvalidData, actionResult.EnvironmentCode));
+                    cmdlet.WritePhaseError(new ErrorRecord(ex, "PlatformEnvironmentIdentityUnresolvedPlaceholder", ErrorCategory.InvalidData, actionResult.EnvironmentCode));
                     continue;
                 }
 
@@ -297,7 +297,7 @@ namespace MSCKite.Azure.Platform.Internal.Platform.Phases
                 }
                 catch (InvalidOperationException ex)
                 {
-                    cmdlet.WriteError(new ErrorRecord(ex, "PlatformEnvironmentIdentityRoleAssignmentFailed", ErrorCategory.WriteError, actionResult.EnvironmentCode));
+                    cmdlet.WritePhaseError(new ErrorRecord(ex, "PlatformEnvironmentIdentityRoleAssignmentFailed", ErrorCategory.WriteError, actionResult.EnvironmentCode));
                 }
             }
         }
