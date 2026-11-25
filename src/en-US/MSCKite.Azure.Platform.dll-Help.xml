@@ -2079,6 +2079,220 @@ listed in the file untouched instead of removing them.</maml:para>
   </command:command>
   <command:command>
     <command:details>
+      <command:name>Set-Platform</command:name>
+      <maml:description>
+        <maml:para>Runs the four platform phases in order with one command, handing each phase's results to the next.</maml:para>
+      </maml:description>
+      <command:verb>Set</command:verb>
+      <command:noun>Platform</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>Runs `Set-PlatformResourceGroup`, `Set-PlatformSecurityGroup`, `Set-PlatformEnvironmentIdentity`
+and `Set-PlatformGitHubEnvironment` in that order, from the config set in global-config.jsonc and
+the `resource-groups.jsonc`, `security-groups.jsonc` and `environments.jsonc` files in
+`-PlatformConfigFolder`. Each phase does exactly what its own cmdlet does.
+
+Run on their own, the later phases read back from Azure what the earlier phases created. This
+cmdlet hands the results over in memory instead: the resource groups from phase 1 to phases 2 to 4,
+and the client id of each identity from phase 3 to phase 4. That makes `-WhatIf` work on a fresh
+subscription, where nothing exists yet: a resource group that would be created gets the id it will
+have, and `${clientId}` of an identity that would be created resolves to `(known after apply)`.
+
+Before any phase runs, the cmdlet loads all four config files, checks that the active Az context
+matches the `tenantId` and `subscriptionId` in global-config.jsonc, and reads the repository named
+by `sourceControl` from GitHub. A missing file, a wrong Azure context or a missing GitHub sign-in
+therefore stops the run before anything is changed.
+
+When a phase reports errors, the phases that depend on it don't run: errors in phase 1 (resource
+groups) or phase 3 (environment identities) stop the run with a warning. Phases 3 and 4 don't need
+the security groups, so errors in phase 2 are reported and the run continues. Errors in phase 4 are
+reported at the end.
+
+This cmdlet supports `-WhatIf`/`-Confirm` and needs the permissions of all four phase cmdlets: the
+`Az.Resources` and `Az.ManagedServiceIdentity` modules, an Azure sign-in (`Connect-AzAccount`) that
+can create resource groups, Entra groups, identities and role assignments, and a GitHub CLI
+sign-in (`gh auth login`) that can manage environments, secrets and variables on the repository.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Set-Platform</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="0" aliases="none">
+          <maml:name>GlobalConfigPath</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="1" aliases="none">
+          <maml:name>PlatformConfigFolder</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>WhatIf</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>Confirm</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="cf">
+        <maml:name>Confirm</maml:name>
+        <maml:description>
+          <maml:para>Prompts you for confirmation before running the cmdlet.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="true (ByPropertyName)" position="0" aliases="none">
+        <maml:name>GlobalConfigPath</maml:name>
+        <maml:description>
+          <maml:para>Path to the global-config.jsonc file whose values resolve `${placeholder}` tokens in
+the platform config files.
+Defaults to `config/global-config.jsonc`.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="true (ByPropertyName)" position="1" aliases="none">
+        <maml:name>PlatformConfigFolder</maml:name>
+        <maml:description>
+          <maml:para>Folder holding `resource-groups.jsonc`, `security-groups.jsonc` and `environments.jsonc`.
+Defaults to `config/platform`.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="wi">
+        <maml:name>WhatIf</maml:name>
+        <maml:description>
+          <maml:para>Runs the command in a mode that only reports what would happen without performing the actions.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>You can pipe the global config path or platform config folder to this cmdlet by property name.</maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>MSCKite.Azure.Platform.Models.PlatformDeploymentResult</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>Emitted once, when the run finishes or stops. Has `IsWhatIf`; `StoppedAtPhase`, the phase whose
+errors stopped the run (`ResourceGroups` or `EnvironmentIdentities`), empty when every phase ran;
+`PhasesWithErrors`, every phase that reported errors; and the results of each phase in
+`ResourceGroups`, `SecurityGroups`, `EnvironmentIdentities` and `GitHubEnvironments`, as the phase
+cmdlets return them. A phase that didn't run has an empty list.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>The platform workflow templates keep running the four phase cmdlets as separate jobs, so phases 2
+and 3 run side by side and each job is its own deployment gate. Use `Set-Platform` to run the
+phases from your own computer.
+
+Granting Microsoft Graph permissions (`Grant-PlatformGraphPermission`) and adding
+`PLATFORM_GITHUB_TOKEN` to the platform environments stay manual steps.</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>--------- Example 1 - Deploy the platform using the default config paths ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Set-Platform
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Runs all four phases from `config/global-config.jsonc` and the files in `config/platform/`.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 2 - Preview the whole deployment ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Set-Platform -WhatIf -Verbose
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Shows what each phase would change without changing anything, including on a subscription where
+nothing has been deployed yet. `-Verbose` adds a `Phase n of 4` line per phase and every check the
+phases make.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 3 - Check whether a run stopped early ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+$result = Set-Platform -GlobalConfigPath ./config/global-config.jsonc -PlatformConfigFolder ./config/platform
+$result.StoppedAtPhase
+$result.PhasesWithErrors
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>`StoppedAtPhase` is empty when every phase ran. `PhasesWithErrors` lists each phase that reported
+errors, including phases after which the run continued.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version</maml:linkText>
+        <maml:uri />
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Set-PlatformResourceGroup</maml:linkText>
+        <maml:uri>https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Set-PlatformResourceGroup.md</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Set-PlatformSecurityGroup</maml:linkText>
+        <maml:uri>https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Set-PlatformSecurityGroup.md</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Set-PlatformEnvironmentIdentity</maml:linkText>
+        <maml:uri>https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Set-PlatformEnvironmentIdentity.md</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Set-PlatformGitHubEnvironment</maml:linkText>
+        <maml:uri>https://github.com/msckite/az-platform-kite/blob/main/docs/MSCKite.Azure.Platform/Set-PlatformGitHubEnvironment.md</maml:uri>
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command>
+    <command:details>
       <command:name>Set-PlatformEnvironmentIdentity</command:name>
       <maml:description>
         <maml:para>Creates the federated user-assigned managed identity for each environment declared in

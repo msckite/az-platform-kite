@@ -238,7 +238,16 @@ Copy-Item ./.tmp/templates/platform ./config -Recurse
 
 <br/>
 
-Then run the four provisioning phases in order:
+Then deploy the platform with one command:
+
+```powershell
+Set-Platform -WhatIf # Preview every phase first
+Set-Platform         # Then apply them
+```
+
+`Set-Platform` checks your config set and your Azure and GitHub sign-ins before it changes anything, then runs the four provisioning phases in order and hands each phase's results to the next. It stops when a phase that later phases depend on reports errors. Add `-Verbose` to see detailed progress.
+
+You can also run the phases one at a time, in this order:
 
 ```powershell
 Set-PlatformResourceGroup       # Phase 1: Azure resource groups
@@ -247,7 +256,7 @@ Set-PlatformEnvironmentIdentity # Phase 3: Federated user-assigned identities an
 Set-PlatformGitHubEnvironment   # Phase 4: GitHub environments, secrets and variables
 ```
 
-Every phase is idempotent, so you can safely rerun the whole sequence after changing the configuration. Add `-WhatIf` to preview the changes first, or `-Verbose` to see detailed progress.
+Run on their own, the later phases read what the earlier phases created back from Azure, so `-WhatIf` only previews phase 2 onwards once phase 1 has really run. Every phase is idempotent, so you can safely rerun `Set-Platform` or the whole sequence after changing the configuration.
 
 Once the first run has completed, hand the recurring runs over to GitHub Actions:
 

@@ -75,6 +75,10 @@ Sets the default GitHub owner and repository used by other GitHub commands.
 
 Creates, updates, and removes GitHub repository labels to match a labels definition file.
 
+### [Set-Platform](Set-Platform.md)
+
+Runs the four platform phases in order with one command, handing each phase's results to the next.
+
 ### [Set-PlatformEnvironmentIdentity](Set-PlatformEnvironmentIdentity.md)
 
 Creates the federated user-assigned managed identity for each environment declared in

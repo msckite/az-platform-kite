@@ -58,7 +58,8 @@ environment, but GitHub will not give the `platform` environment's token or secr
 
 ## One-time setup
 
-Do these once, after you ran the four phases from your computer for the first time.
+Do these once, after you ran the four phases from your computer for the first time, with
+`Set-Platform` or one phase cmdlet at a time.
 
 1. **Allow the platform identity to read Entra groups.** The security group phase reads groups, so
    the `platform` identity needs the Microsoft Graph permission `Group.Read.All`. Add
