@@ -191,9 +191,10 @@ You can pipe the global config path or platform config path to this cmdlet by pr
 
 ### MSCKite.Azure.Platform.Models.PlatformResourceGroupActionResult
 
-Emitted once processing finishes (the default). Has the Id, Name, Location, Tags, and Action of
-the resource group. Actions are `Created`, `Updated`, or `Unchanged`; `-WhatIf` returns
-`WouldCreate` or `WouldUpdate` instead of applying a mutation.
+Emitted once processing finishes (the default). Has the Id, Name, Location, ResourceId, Tags, and
+Action of the resource group. Actions are `Created`, `Updated`, or `Unchanged`; `-WhatIf` returns
+`WouldCreate` or `WouldUpdate` instead of applying a mutation. For `WouldCreate`, ResourceId is the
+id the resource group will get once it is created.
 
 ### System.Collections.Hashtable
 

@@ -234,7 +234,7 @@ You can pipe the global config path or platform config path to this cmdlet by pr
 ### MSCKite.Azure.Platform.Models.PlatformEnvironmentIdentityActionResult
 
 Emitted once processing finishes (the default). Has the
-EnvironmentCode, IdentityName, PrincipalId, ClientId, and Action of the identity; the
+EnvironmentCode, IdentityName, ResourceGroupName, PrincipalId, ClientId, and Action of the identity; the
 FederatedCredentialAction; and the Role, Scope, and Action of every role assignment synced.
 Identity actions are `Created` or `Unchanged`; `-WhatIf` returns `WouldCreate`. Federated
 credential actions are `Created`, `Updated`, or `Unchanged`; `-WhatIf` returns `WouldCreate` or
