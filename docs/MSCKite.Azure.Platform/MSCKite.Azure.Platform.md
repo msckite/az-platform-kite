@@ -46,6 +46,11 @@ Gets the combined sign-in status for Azure, Azure DevOps, and GitHub as a single
 
 Downloads one or more folders (with their subfolders and files) from the Azure Platform Kite repository into a local folder.
 
+### [Grant-PlatformGraphPermission](Grant-PlatformGraphPermission.md)
+
+Grants a pipeline identity the Microsoft Graph application permissions it needs to read or manage
+Entra groups.
+
 ### [New-PlatformConfigStructure](New-PlatformConfigStructure.md)
 
 Scaffolds the platform configuration folder, creating a `global-config.jsonc` file either from a default template or copied from an existing input folder.
