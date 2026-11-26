@@ -59,7 +59,7 @@ New-PlatformWorkflow -WorkflowType all
 | `platform` | Platform |
 | `workload` | Workload |
 | `infra` | Infra, plus a starter Bicep sample in `iac/res/sample/` |
-| `both` (default) | Platform and workload |
+| `both` (default) | Infra and workload |
 | `all` | Platform, workload and infra |
 
 The command reads your branch strategy from `config/global-config.jsonc`, or you can pass

@@ -1285,8 +1285,11 @@ Defaults to the current folder.</maml:para>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="true (ByPropertyName)" position="Named" aliases="none">
         <maml:name>WorkflowType</maml:name>
         <maml:description>
-          <maml:para>Selects the workflow bundle to install: `platform`, `workload`, `infra`, `both` (platform +
-workload), or `all` (platform + workload + infra). Defaults to `both`.</maml:para>
+          <maml:para>Selects the workflow bundle to install: `platform`, `workload`, `infra`, `both` (infra +
+workload), or `all` (platform + workload + infra). Defaults to `both`.
+Selects the workflow bundle to install: `platform`, `workload`, `infra`, `both` (platform +
+workload), or `all` (platform + workload + infra).
+Defaults to `both`.</maml:para>
         </maml:description>
         <command:parameterValueGroup>
           <command:parameterValue required="false" variableLength="false">platform</command:parameterValue>
