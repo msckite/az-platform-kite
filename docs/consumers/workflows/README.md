@@ -49,7 +49,7 @@ Download the templates, then copy the bundles you need:
 
 ```powershell
 Get-PlatformTemplate -IncludedFolders 'templates' -OutputFolder ./.tmp
-New-PlatformWorkflow -WorkflowType all
+New-PlatformWorkflow -WorkflowType both
 ```
 
 `-WorkflowType` selects the bundles:
@@ -72,10 +72,11 @@ The workflows sign in to Azure with a short-lived token instead of a stored pass
 
 ## Before the workflows can run
 
-Run the four platform phases once from your own computer: `Set-PlatformResourceGroup`,
-`Set-PlatformSecurityGroup`, `Set-PlatformEnvironmentIdentity` and `Set-PlatformGitHubEnvironment`.
-The workflows sign in with identities and GitHub environments that these phases create, so the very
-first run cannot happen in a pipeline.
+Run `Set-Platform` once from your own computer. It runs all four platform phases in order:
+`Set-PlatformResourceGroup`, `Set-PlatformSecurityGroup`, `Set-PlatformEnvironmentIdentity` and
+`Set-PlatformGitHubEnvironment`. If you prefer to go one step at a time, run those phase cmdlets
+individually instead. The workflows sign in with identities and GitHub environments that these phases
+create, so the very first run cannot happen in a pipeline.
 
 After that, check that every environment in `config/platform/environments.jsonc` has a matching
 GitHub environment holding `AZURE_CLIENT_ID`, `AZURE_TENANT_ID` and `AZURE_SUBSCRIPTION_ID`. The
