@@ -250,9 +250,6 @@ HelpMessage: ''
 
 Selects the workflow bundle to install: `platform`, `workload`, `infra`, `both` (infra +
 workload), or `all` (platform + workload + infra). Defaults to `both`.
-Selects the workflow bundle to install: `platform`, `workload`, `infra`, `both` (platform +
-workload), or `all` (platform + workload + infra).
-Defaults to `both`.
 
 ```yaml
 Type: System.String

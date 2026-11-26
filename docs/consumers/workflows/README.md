@@ -49,7 +49,7 @@ Download the templates, then copy the bundles you need:
 
 ```powershell
 Get-PlatformTemplate -IncludedFolders 'templates' -OutputFolder ./.tmp
-New-PlatformWorkflow -WorkflowType all
+New-PlatformWorkflow -WorkflowType both
 ```
 
 `-WorkflowType` selects the bundles:
