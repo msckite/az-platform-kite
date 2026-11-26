@@ -4,7 +4,7 @@ namespace MSCKite.Azure.Platform.Models
     {
         public string Permission { get; set; }
 
-        // "Granted" or "Unchanged"
+        // "Granted", "Unchanged", or "WouldGrant"
         public string Action { get; set; }
     }
 }
