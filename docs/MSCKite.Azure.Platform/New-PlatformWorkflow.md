@@ -4,7 +4,7 @@ external help file: MSCKite.Azure.Platform.dll-Help.xml
 HelpUri: ''
 Locale: en-NL
 Module Name: MSCKite.Azure.Platform
-ms.date: 10/11/2026
+ms.date: 11/26/2026
 PlatyPS schema version: 2024-05-01
 title: New-PlatformWorkflow
 ---
@@ -248,8 +248,11 @@ HelpMessage: ''
 
 ### -WorkflowType
 
-Selects the workflow bundle to install: `platform`, `workload`, `infra`, `both` (platform +
+Selects the workflow bundle to install: `platform`, `workload`, `infra`, `both` (infra +
 workload), or `all` (platform + workload + infra). Defaults to `both`.
+Selects the workflow bundle to install: `platform`, `workload`, `infra`, `both` (platform +
+workload), or `all` (platform + workload + infra).
+Defaults to `both`.
 
 ```yaml
 Type: System.String

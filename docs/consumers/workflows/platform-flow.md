@@ -18,7 +18,7 @@ own computer, and many teams do.
 | Option | When it fits | Install with |
 | --- | --- | --- |
 | Run from your computer | The platform rarely changes, or one person or team looks after it. | Skip the platform bundle: `-WorkflowType workload`, `infra` or both of those. |
-| Run through GitHub Actions | You want platform changes reviewed in pull requests and applied by a pipeline. | `-WorkflowType both` (the default), `all` or `platform`. |
+| Run through GitHub Actions | You want platform changes reviewed in pull requests and applied by a pipeline. | `-WorkflowType platform` or `all`. |
 
 Either way the phases work on the one repository named by `sourceControl.owner` and
 `sourceControl.repository` in `global-config.jsonc`. The platform workflows therefore run in that

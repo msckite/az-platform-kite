@@ -55,7 +55,7 @@ templates/github/
 ## How the install command copies files
 
 `manifest.jsonc` maps every template to its destination. `-WorkflowType` selects a bundle:
-`platform`, `workload`, `infra`, `both` (platform + workload, the default) or `all`. The platform
+`platform`, `workload`, `infra`, `both` (infra + workload, the default) or `all`. The platform
 bundle copies these files and never reads `sourceControl.branchStrategy`:
 
 | Source                                             | Destination                                         |

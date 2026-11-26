@@ -8,6 +8,7 @@ through the guides from the oldest to the newest. The newest guide is listed fir
 
 | From | To | Guide |
 | --- | --- | --- |
+| v2.0.x | v3.0.0 | [Upgrade path from v2.0.x to v3.0.0](./v2.0.x-to-v3.0.0.md) |
 | v1.1.x | v2.0.0 | [Upgrade path from v1.1.x to v2.0.0](./v1.1.x-to-v2.0.0.md) |
 | v1.0.x | v1.1.0 | [Upgrade path from v1.0.x to v1.1.0](./v1.0.x-to-v1.1.0.md) |
 

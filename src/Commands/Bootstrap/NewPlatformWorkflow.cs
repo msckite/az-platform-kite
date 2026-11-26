@@ -64,7 +64,7 @@ namespace MSCKite.Azure.Platform.Commands.Bootstrap
             }
 
             var workflowTypes = WorkflowType.ToLowerInvariant() == "both"
-                ? new[] { "platform", "workload" }
+                ? new[] { "infra", "workload" }
                 : WorkflowType.ToLowerInvariant() == "all"
                     ? new[] { "platform", "workload", "infra" }
                     : new[] { WorkflowType.ToLowerInvariant() };

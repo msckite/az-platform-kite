@@ -211,6 +211,15 @@ Describe 'New-PlatformWorkflow' {
         Test-Path (Join-Path $script:repoRoot 'iac/res/sample/main.bicep') | Should -BeTrue
     }
 
+    It 'copies infra and workload bundles and no platform files for -WorkflowType both' {
+        $result = New-PlatformWorkflow -InputFolder $script:templateRoot -OutputFolder $script:repoRoot -BranchStrategy 'github' -WorkflowType both
+
+        $result.WorkflowType | Should -Be 'both'
+        Test-Path (Join-Path $script:repoRoot '.github/workflows/infra-validate.yml') | Should -BeTrue
+        Test-Path (Join-Path $script:repoRoot '.github/workflows/workload-validate.yml') | Should -BeTrue
+        Test-Path (Join-Path $script:repoRoot '.github/workflows/platform-ci.yml') | Should -BeFalse
+        Test-Path (Join-Path $script:repoRoot '.github/workflows/platform-provision.yml') | Should -BeFalse
+    }
     It 'copies platform, workload, and infra bundles for -WorkflowType all' {
         $result = New-PlatformWorkflow -InputFolder $script:templateRoot -OutputFolder $script:repoRoot -BranchStrategy 'release' -WorkflowType all -WarningVariable warnings -WarningAction SilentlyContinue
 
