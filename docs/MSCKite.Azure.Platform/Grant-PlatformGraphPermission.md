@@ -47,8 +47,8 @@ Microsoft Graph service principal and grants it, unless the identity already has
 again is safe.
 
 This cmdlet has a high confirmation impact, so it asks for confirmation before each grant unless
-you pass `-Confirm:$false`. Under `-WhatIf`, a permission that would be granted is shown only as a
-"What if:" message and is left out of the result.
+you pass `-Confirm:$false`. Under `-WhatIf`, or when you decline the prompt, a permission that would
+be granted is reported as `WouldGrant` and nothing is changed.
 
 ## EXAMPLES
 
@@ -193,9 +193,9 @@ You can pipe an object with a `PrincipalId` property to this cmdlet, such as the
 ### MSCKite.Azure.Platform.Models.PlatformGraphPermissionGrantResult
 
 Emitted once per principal. Has the `PrincipalId` and a `Permissions` list with the `Permission`
-and `Action` of each permission: `Granted`, or `Unchanged` when the identity already had it. A
-permission that could not be resolved or granted is reported as an error and left out of the list,
-as is a permission skipped under `-WhatIf` or declined at the confirmation prompt.
+and `Action` of each permission: `Granted`; `Unchanged` when the identity already had it; or
+`WouldGrant` under `-WhatIf` or when you declined the confirmation prompt. A permission that could
+not be resolved or granted is reported as an error and left out of the list.
 
 ## NOTES
 

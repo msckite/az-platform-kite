@@ -101,7 +101,7 @@ namespace MSCKite.Azure.Platform.Commands.Bootstrap
 
             if (!ShouldProcess(PrincipalId, $"Grant Microsoft Graph application permission '{permission}'"))
             {
-                return null;
+                return new PlatformGraphPermissionActionResult { Permission = permission, Action = "WouldGrant" };
             }
 
             try
