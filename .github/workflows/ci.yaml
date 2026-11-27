@@ -12,6 +12,11 @@ on:
       - 'platyps.ps1'
       - '.github/workflows/ci.yaml'
       - '.github/workflows/cd.yaml'
+      # Copies that tests/GitHubIssueStatusLabels.Tests.ps1 keeps in sync
+      - 'templates/skills/**'
+      - '.claude/skills/**'
+      - '.github/workflows/issue-status-labels.yml'
+      - '.github/github-labels.jsonc'
   workflow_call:
     inputs:
       configuration:

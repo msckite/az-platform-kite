@@ -11,6 +11,10 @@ human contributors should read [CONTRIBUTING.md](./CONTRIBUTING.md), which this 
 - `tests/` - Pester tests.
 - `docs/` - contributor documentation (`docs/contributors`) and generated cmdlet help (`docs/MSCKite.Azure.Platform`).
 - `templates/` and `schemas/` - what consumers copy into their own repositories.
+- `.claude/skills/github-issue-status-labels/`, `.github/workflows/issue-status-labels.yml` and
+  `.github/github-labels.jsonc` - this repository's copies of `templates/skills/github-issue-status-labels/`.
+  Change the template and the copies together; a Pester test fails when they differ. In
+  `github-labels.jsonc` only the `status:` labels must match.
 - `config/` - git-ignored local test configuration that mirrors the sandbox repository. It is not part of the repository; never commit it or treat it as a reference configuration.
 - `build.ps1` (psake) and `platyps.ps1` (help generation) - the build entry points.
 
@@ -19,7 +23,7 @@ human contributors should read [CONTRIBUTING.md](./CONTRIBUTING.md), which this 
 Run these before opening a pull request:
 
 ```powershell
-Invoke-psake ./build.ps1 -taskList Test        # expect 128 passed, 3 skipped
+Invoke-psake ./build.ps1 -taskList Test        # expect 135 passed, 3 skipped
 ./platyps.ps1 -Mode Test
 Invoke-ScriptAnalyzer -Path . -Recurse -Settings ./scripts/PSScriptAnalyzerSettings.psd1
 npx markdownlint-cli "**/*.md"
