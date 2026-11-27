@@ -41,8 +41,9 @@ The files keep their names, so that a repository is easy to compare with the ski
 
 Changing labels and statuses affects every issue and everyone who watches the repository, and a
 deleted label disappears from all its issues without an undo. So first inspect, then show the user a
-plan with the exact labels to rename, create and delete, and get approval before changing anything on
-GitHub. Ask again before deleting. Follow the steps in order: each protects the next.
+plan with the exact labels to rename, create and delete and the issue statuses to set, and get
+approval before changing anything on GitHub. Ask again before deleting. Follow the steps in order:
+each protects the next.
 
 ### 1. Check and take inventory
 
@@ -118,8 +119,14 @@ for each label in the file. Neither route deletes labels.
 ### 6. Give every issue a status, then sync
 
 The workflow leaves issues without a status alone, which includes most issues created before statuses
-existed. Set a status for those only, never overwrite one that exists. Take the first row that
-matches:
+existed. An open issue can also show Backlog although an old label says it is further along, and
+step 7 deletes that label. So set a status for these issues only:
+
+- issues without a status
+- open issues in Backlog that match the In review, In progress or Todo row below
+
+Never change any other status. An old label can be out of date, so list each change in the plan. Take
+the first row that matches:
 
 | Issue | Status |
 | --- | --- |
