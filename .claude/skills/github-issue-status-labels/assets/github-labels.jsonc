@@ -1,0 +1,86 @@
+// Label set for Set-GitHubLabels. Copy and customize, then run:
+// Set-GitHubLabels -LabelFilePath ./github-labels.jsonc -Owner <owner> -Repository <repo> -KeepExistingLabels
+// Without -KeepExistingLabels every label that is not listed is deleted, also from the issues that use it.
+// The "status: " labels mirror the issue status. The issue-status-labels.yml workflow of the
+// github-issue-status-labels skill keeps them in sync, so keep their names unchanged.
+{
+  "$schema": "https://raw.githubusercontent.com/msckite/az-platform-kite/refs/heads/main/schemas/github-labels.schema.json",
+  "templateVersion": "2.0.0",
+  "labels": [
+    {
+      "name": "status: backlog",
+      "color": "#1a7f37",
+      "description": "Not yet planned"
+    },
+    {
+      "name": "status: todo",
+      "color": "#1a7f37",
+      "description": "Planned, not yet started"
+    },
+    {
+      "name": "status: in progress",
+      "color": "#1a7f37",
+      "description": "Being worked on"
+    },
+    {
+      "name": "status: in review",
+      "color": "#1a7f37",
+      "description": "A pull request is ready for review"
+    },
+    {
+      "name": "status: done",
+      "color": "#8250df",
+      "description": "Closed as completed"
+    },
+    {
+      "name": "status: not planned",
+      "color": "#6e7781",
+      "description": "Closed as not planned"
+    },
+    {
+      "name": "status: duplicate",
+      "color": "#6e7781",
+      "description": "Closed as a duplicate"
+    },
+    {
+      "name": "bug",
+      "color": "#d73a4a",
+      "description": "Something isn't working"
+    },
+    {
+      "name": "chore",
+      "color": "#6e9c94",
+      "description": "Routine tasks and maintenance"
+    },
+    {
+      "name": "documentation",
+      "color": "#0075ca",
+      "description": "Improvements or additions to documentation"
+    },
+    {
+      "name": "enhancement",
+      "color": "#99c58f",
+      "description": "New feature or request"
+    },
+    {
+      "name": "good first issue",
+      "color": "#7057ff",
+      "description": "Good for newcomers"
+    },
+    {
+      "name": "help wanted",
+      "color": "#008672",
+      "description": "Extra attention is needed"
+    },
+    {
+      "name": "on hold",
+      "color": "#e8e8e8",
+      "description": "This is on hold until further notice"
+    },
+    {
+      "name": "question",
+      "color": "#fbca04",
+      "description": "Further information is requested"
+    }
+  ]
+}
