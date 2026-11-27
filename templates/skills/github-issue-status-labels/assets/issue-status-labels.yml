@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - name: Sync status label
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const { owner, repo } = context.repo;
