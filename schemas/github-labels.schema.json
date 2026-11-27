@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://raw.githubusercontent.com/msckite/az-platform-kite/refs/heads/main/schemas/github-labels.schema.json",
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "2.0.0",
   "title": "GitHub labels definitions for Set-GitHubLabels",
   "type": "object",
   "additionalProperties": false,
@@ -11,7 +11,7 @@
     },
     "templateVersion": {
       "description": "Version of the template contract.",
-      "const": "1.0.0"
+      "const": "2.0.0"
     },
     "labels": {
       "type": "array",

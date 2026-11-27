@@ -2169,10 +2169,6 @@ repository.</maml:para>
         <maml:description>
           <maml:para>Path to a versioned jsonc file containing a `templateVersion` and the desired `labels` array.
 Each label requires a `name` and a `color` (6-digit hex,
-with or without a leading `#`), and may include a `description`.
-Path to a jsonc file containing the desired labels: either a top-level array of label objects, or
-an object with a `labels` array property.
-Each label requires a `name` and a `color` (6-digit hex,
 with or without a leading `#`), and may include a `description`.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
@@ -2245,7 +2241,7 @@ via `Set-GitHubDefault` when not specified.</maml:para>
         <maml:title>--------- Example 1 - Sync labels using the stored default owner/repository ---------</maml:title>
         <maml:introduction>
           <maml:para>```powershell
-Set-GitHubLabels -LabelFilePath ./templates/github-labels.jsonc
+Set-GitHubLabels -LabelFilePath ./.github/github-labels.jsonc
 ```</maml:para>
         </maml:introduction>
         <dev:code />
@@ -2255,7 +2251,7 @@ Set-GitHubLabels -LabelFilePath ./templates/github-labels.jsonc
         <maml:title>--------- Example 2 - Preview changes without applying them ---------</maml:title>
         <maml:introduction>
           <maml:para>```powershell
-Set-GitHubLabels -LabelFilePath ./templates/github-labels.jsonc -Owner "myorg" -Repository "myrepo" -WhatIf
+Set-GitHubLabels -LabelFilePath ./.github/github-labels.jsonc -Owner "myorg" -Repository "myrepo" -WhatIf
 ```</maml:para>
         </maml:introduction>
         <dev:code />
@@ -2265,7 +2261,7 @@ Set-GitHubLabels -LabelFilePath ./templates/github-labels.jsonc -Owner "myorg" -
         <maml:title>--------- Example 3 - Sync labels without removing extras ---------</maml:title>
         <maml:introduction>
           <maml:para>```powershell
-Set-GitHubLabels -LabelFilePath ./templates/github-labels.jsonc -Owner "myorg" -Repository "myrepo" -KeepExistingLabels
+Set-GitHubLabels -LabelFilePath ./.github/github-labels.jsonc -Owner "myorg" -Repository "myrepo" -KeepExistingLabels
 ```</maml:para>
           <maml:para>&#x80;</maml:para>
           <maml:para>Creates missing labels and updates changed ones, but leaves any repository labels that aren't

@@ -35,9 +35,10 @@ Text in this template, including these comments, does not end up in the commit.
 ## Related issues
 
 <!--
-"Closes #123" links the issue: issues.yaml marks it "in progress" when this pull request opens and
-"completed" when it is merged. Use "Refs #123" to link an issue without closing it. Remove this
-section when there is no related issue.
+"Closes #123" links the issue: GitHub sets its status to "In progress" for a draft pull request,
+"In review" once it is ready for review, and "Done" when it is merged, and
+issue-status-labels.yml mirrors that in a "status:" label. Use "Refs #123" to link an issue without
+closing it. Remove this section when there is no related issue.
 -->
 
 Closes #

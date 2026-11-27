@@ -2,7 +2,7 @@
 name: "Ask a question \U00002753"
 description: 'Ask a question about this project'
 title: '[Question] '
-labels: ['question :question:']
+labels: ['question']
 body:
   - type: markdown
     attributes:
