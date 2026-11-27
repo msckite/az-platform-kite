@@ -7,6 +7,30 @@
 in phase order, one set per `sourceControl.branchStrategy` value. See
 [docs/consumers/workflows](../docs/consumers/workflows/README.md).
 
+## Issue status labels
+
+`skills/github-issue-status-labels` is an agent skill that sets up or migrates a repository so that
+`status:` labels mirror the GitHub issue status. It holds the workflow, the label set and the
+instructions. Issue statuses are a GitHub public preview and may not be available in your repository
+yet.
+
+To use it, download the templates and copy the skill folder into your repository, to
+`.claude/skills/` for Claude Code, or `.github/skills/` for GitHub Copilot:
+
+```powershell
+Get-PlatformTemplate
+New-Item -ItemType Directory .claude/skills -Force
+Copy-Item .tmp/templates/skills/github-issue-status-labels .claude/skills -Recurse
+```
+
+Then ask your agent to set up issue status labels. Without an agent, follow the steps in its
+`SKILL.md` yourself.
+
+The label set,
+[`github-labels.jsonc`](./skills/github-issue-status-labels/assets/github-labels.jsonc), also works
+on its own with `Set-GitHubLabels`. Add `-KeepExistingLabels` to keep the labels that it does not
+list.
+
 ## Template versioning
 
 Every shipped JSON template has a required `templateVersion` and every matching JSON Schema has a `schemaVersion`. Both use `Major.Minor.Patch` SemVer and the versions must match exactly for a template/schema pair to be compatible. The schemas also require the matching template version, so standard JSON Schema validators reject an incompatible template.

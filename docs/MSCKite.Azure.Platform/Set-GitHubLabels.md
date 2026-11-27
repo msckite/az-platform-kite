@@ -51,19 +51,19 @@ repository.
 ### Example 1 - Sync labels using the stored default owner/repository
 
 ```powershell
-Set-GitHubLabels -LabelFilePath ./templates/github-labels.jsonc
+Set-GitHubLabels -LabelFilePath ./.github/github-labels.jsonc
 ```
 
 ### Example 2 - Preview changes without applying them
 
 ```powershell
-Set-GitHubLabels -LabelFilePath ./templates/github-labels.jsonc -Owner "myorg" -Repository "myrepo" -WhatIf
+Set-GitHubLabels -LabelFilePath ./.github/github-labels.jsonc -Owner "myorg" -Repository "myrepo" -WhatIf
 ```
 
 ### Example 3 - Sync labels without removing extras
 
 ```powershell
-Set-GitHubLabels -LabelFilePath ./templates/github-labels.jsonc -Owner "myorg" -Repository "myrepo" -KeepExistingLabels
+Set-GitHubLabels -LabelFilePath ./.github/github-labels.jsonc -Owner "myorg" -Repository "myrepo" -KeepExistingLabels
 ```
 
 Creates missing labels and updates changed ones, but leaves any repository labels that aren't
@@ -117,10 +117,6 @@ HelpMessage: ''
 ### -LabelFilePath
 
 Path to a versioned jsonc file containing a `templateVersion` and the desired `labels` array.
-Each label requires a `name` and a `color` (6-digit hex,
-with or without a leading `#`), and may include a `description`.
-Path to a jsonc file containing the desired labels: either a top-level array of label objects, or
-an object with a `labels` array property.
 Each label requires a `name` and a `color` (6-digit hex,
 with or without a leading `#`), and may include a `description`.
 

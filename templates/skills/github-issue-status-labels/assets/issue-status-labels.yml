@@ -1,0 +1,117 @@
+name: Sync Issue Status Labels
+
+# Issue status is the source of truth; this workflow mirrors it in one "status: <name>" label.
+# GitHub moves the status itself for new, assigned, linked and closed issues. Creating a branch is
+# the only transition added here. Issue statuses are in public preview and may change.
+
+on:
+  issues:
+    types:
+      - status_changed
+
+  create:
+
+  # Syncs every issue, for backfilling and for deliveries GitHub missed.
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+concurrency:
+  group: issue-status-${{ github.event.issue.number || github.event.ref || 'all' }}
+
+jobs:
+  sync-status-label:
+    if: github.event_name != 'create' || github.event.ref_type == 'branch'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Sync status label
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const prefix = 'status: ';
+
+            // The event payload can be stale, so always read the issue again.
+            async function getIssue(number) {
+              const { data } = await github.rest.issues.get({ owner, repo, issue_number: number });
+              return data;
+            }
+
+            async function syncLabel(issue) {
+              if (!issue.status) {
+                core.info(`Issue #${issue.number} has no status; labels left unchanged.`);
+                return;
+              }
+
+              const wanted = prefix + issue.status.name.toLowerCase();
+              const current = issue.labels.map(label => label.name);
+
+              for (const name of current) {
+                if (!name.startsWith(prefix) || name === wanted) continue;
+
+                try {
+                  await github.rest.issues.removeLabel({ owner, repo, issue_number: issue.number, name });
+                } catch (error) {
+                  if (error.status !== 404) throw error;
+                }
+              }
+
+              if (!current.includes(wanted)) {
+                await github.rest.issues.addLabels({ owner, repo, issue_number: issue.number, labels: [wanted] });
+              }
+
+              core.info(`Issue #${issue.number} -> ${wanted}`);
+            }
+
+            if (context.eventName === 'workflow_dispatch') {
+              const issues = await github.paginate(github.rest.issues.listForRepo, {
+                owner,
+                repo,
+                state: 'all',
+                per_page: 100
+              });
+
+              for (const issue of issues.filter(issue => !issue.pull_request)) {
+                await syncLabel(issue);
+              }
+              return;
+            }
+
+            if (context.eventName === 'issues') {
+              await syncLabel(await getIssue(context.payload.issue.number));
+              return;
+            }
+
+            // Branch names such as "56-scope-rbac" or "feat/56-scope-rbac".
+            const branch = context.payload.ref;
+            const match = branch.match(/^(?:[\w-]+\/)?#?(\d+)(?:[-_]|$)/);
+
+            if (!match) {
+              core.info(`No issue number found in branch '${branch}'.`);
+              return;
+            }
+
+            let issue;
+            try {
+              issue = await getIssue(Number(match[1]));
+            } catch (error) {
+              if (error.status !== 404) throw error;
+              core.info(`Issue #${match[1]} does not exist.`);
+              return;
+            }
+
+            if (issue.pull_request || issue.state !== 'open') {
+              core.info(`#${issue.number} is not an open issue.`);
+              return;
+            }
+
+            // Only move forward: an issue already in progress or in review keeps its status.
+            if (!issue.status || ['backlog', 'planned'].includes(issue.status.category)) {
+              await github.rest.issues.update({ owner, repo, issue_number: issue.number, status: 'In progress' });
+              issue = await getIssue(issue.number);
+            }
+
+            // Changes made with GITHUB_TOKEN start no new run, so sync the label here.
+            await syncLabel(issue);
