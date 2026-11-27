@@ -26,6 +26,7 @@ _Lighter Work. Higher Impact._
 - [Who can do what](#who-can-do-what)
 - [What do you get?](#what-do-you-get)
 - [Why use Kite?](#why-use-kite)
+- [Before you start](#before-you-start)
 - [How to use it?](#how-to-use-it)
 - [Upgrade path](#upgrade-path)
 - [License](#license)
@@ -69,6 +70,10 @@ You describe your platform once, in a set of configuration files that this READM
 | 3. Pipeline identities | One identity per environment that GitHub can use to sign in to Azure | No passwords or keys stored in GitHub; access exists only while a pipeline runs |
 | 4. GitHub environments | `dev`, `stg` and `prd` environments with the values pipelines need | Approvals and branch rules can be enforced before a deployment starts (off by default; see the config) |
 
+> [!IMPORTANT]
+> A private repository needs a paid GitHub plan for step 4 and the workflows. See
+> [Before you start](#before-you-start).
+
 From there, ready-made GitHub Actions workflows move changes through the stages. You choose a branching
 model: a simple one that promotes through `dev` to `prd`, or a release-based one that adds a `stg` stage
 for verification before production.
@@ -95,7 +100,7 @@ What this gives you:
   cannot change infrastructure; only the infrastructure pipeline can. Application changes cannot quietly alter
   your cloud setup.
 - **Each environment has its own identity.** An identity for `dev` cannot touch `prd`, and a pipeline run is
-  tied to a specific GitHub environment, so GitHub protection rules (such as required approvals, which you can switch on per environment) apply before it can sign in to Azure.
+  tied to a specific GitHub environment, so GitHub protection rules (such as required approvals, which you can switch on per environment where [your plan allows it](#before-you-start)) apply before it can sign in to Azure.
 - **The platform itself is governed too.** Changes to the platform configuration are previewed in a pull request
   (read-only) and applied only from `main`, by a separate, more privileged identity.
 - **No stored secrets for Azure access.** Pipelines sign in with short-lived tokens (OIDC federation) instead of passwords.
@@ -133,6 +138,32 @@ Azure Platform Kite is built and maintained with AI assistance, but designed to 
 AI is an excellent co-pilot, but repetitive operational work should not require a conversation every time.
 
 Azure Platform Kite transforms knowledge, experience, and AI-assisted engineering into reusable automation that can be executed on demand. The goal is simple: use AI to create better tools, then use those tools to work faster, more consistently, and with less friction. -->
+
+## Before you start
+
+Kite relies on GitHub features that depend on the GitHub plan of the account that owns your
+repository. Check this first.
+
+| GitHub feature | Kite uses it for | Public repository | Private repository |
+| -------------- | ---------------- | ----------------- | ------------------ |
+| [Environments](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments), with their secrets and variables | Step 4, and every workflow that signs in to Azure | Any plan | Pro, Team or Enterprise |
+| Deployment branch and tag policies | Limiting the `platform` environment to `main` | Any plan | Pro, Team or Enterprise |
+| Branch protection and rulesets | Requiring checks on pull requests to `main` | Any plan | Pro, Team or Enterprise |
+| Required reviewers and wait timers | Optional approval before a deployment, off by default | Any plan | Enterprise |
+
+Pro is a plan for personal accounts, Team a plan for organizations.
+
+> [!IMPORTANT]
+> A private repository on GitHub Free cannot use Kite's GitHub environments or workflows. Upgrade the
+> account that owns the repository, or make the repository public. A paid plan on your personal account,
+> or on another organization, does not count.
+
+Kite does not check the plan for you, so verify it before your first run. An organization owner can
+look it up with the GitHub CLI:
+
+```powershell
+gh api orgs/<organization> --jq .plan.name
+```
 
 ## How to use it?
 
