@@ -2,7 +2,7 @@
 name: "Bug report \U0001F41B"
 description: Report errors or unexpected behavior
 title: '[Bug]: '
-labels: ['needs triage :wave:']
+labels: ['bug']
 body:
   - type: checkboxes
     attributes:

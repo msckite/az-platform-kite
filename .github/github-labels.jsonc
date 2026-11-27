@@ -1,0 +1,84 @@
+// Labels of this repository. Apply with:
+// Set-GitHubLabels -LabelFilePath ./.github/github-labels.jsonc -Owner msckite -Repository az-platform-kite
+// The "status: " labels mirror the issue status and are set by .github/workflows/issue-status-labels.yml.
+{
+  "$schema": "https://raw.githubusercontent.com/msckite/az-platform-kite/refs/heads/main/schemas/github-labels.schema.json",
+  "templateVersion": "2.0.0",
+  "labels": [
+    {
+      "name": "status: backlog",
+      "color": "#1a7f37",
+      "description": "Not yet planned"
+    },
+    {
+      "name": "status: todo",
+      "color": "#1a7f37",
+      "description": "Planned, not yet started"
+    },
+    {
+      "name": "status: in progress",
+      "color": "#1a7f37",
+      "description": "Being worked on"
+    },
+    {
+      "name": "status: in review",
+      "color": "#1a7f37",
+      "description": "A pull request is ready for review"
+    },
+    {
+      "name": "status: done",
+      "color": "#8250df",
+      "description": "Closed as completed"
+    },
+    {
+      "name": "status: not planned",
+      "color": "#6e7781",
+      "description": "Closed as not planned"
+    },
+    {
+      "name": "status: duplicate",
+      "color": "#6e7781",
+      "description": "Closed as a duplicate"
+    },
+    {
+      "name": "bug",
+      "color": "#d73a4a",
+      "description": "Something isn't working"
+    },
+    {
+      "name": "chore",
+      "color": "#6e9c94",
+      "description": "Routine tasks and maintenance"
+    },
+    {
+      "name": "documentation",
+      "color": "#0075ca",
+      "description": "Improvements or additions to documentation"
+    },
+    {
+      "name": "enhancement",
+      "color": "#99c58f",
+      "description": "New feature or request"
+    },
+    {
+      "name": "good first issue",
+      "color": "#7057ff",
+      "description": "Good for newcomers"
+    },
+    {
+      "name": "help wanted",
+      "color": "#008672",
+      "description": "Extra attention is needed"
+    },
+    {
+      "name": "on hold",
+      "color": "#e8e8e8",
+      "description": "This is on hold until further notice"
+    },
+    {
+      "name": "question",
+      "color": "#fbca04",
+      "description": "Further information is requested"
+    }
+  ]
+}
