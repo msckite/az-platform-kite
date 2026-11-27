@@ -1,9 +1,12 @@
 using none
 
+// Values shared with the platform configuration
+var globalConfig = loadJsonContent('../../../../config/global-config.jsonc')
+
 // BASE PARAMETERS //
-param uniqueId = '3jsG1hU'
-param serviceShort = 'prekite'
-param location = 'westeurope'
+param uniqueId = globalConfig.uniqueId
+param serviceShort = globalConfig.serviceShort
+param location = globalConfig.location
 param tags = {
   service: serviceShort
   region: location

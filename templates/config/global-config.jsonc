@@ -1,0 +1,7 @@
+// Placeholder so editors in the Kite repository can resolve the sample's parameter files.
+// New-PlatformWorkflow does not copy it; your own configuration is config/global-config.jsonc in your repository.
+{
+  "uniqueId": "local",
+  "serviceShort": "kite",
+  "location": "westeurope"
+}
