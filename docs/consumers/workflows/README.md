@@ -6,6 +6,10 @@ with one command, and from then on they are yours: change them as you like. They
 point, so the build, test and deploy steps for your application and infrastructure are placeholders
 for you to fill in.
 
+> [!IMPORTANT]
+> The workflows need GitHub environments. A private repository has them only on a paid GitHub plan, so
+> check [Before you start](../../../README.md#before-you-start) first.
+
 <!-- omit from toc -->
 ## Table of Contents
 
