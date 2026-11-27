@@ -20,7 +20,7 @@ param (
     [string]$DeploymentStackName = "$($env:DEPLOYMENT_STACK_NAME)",
 
     [Parameter(
-        HelpMessage = "Optional. Action to take on unmanaged resources. Default is 'DeleteAll'.")]
+        HelpMessage = "Optional. Action to take on unmanaged resources. Default is 'DetachAll'.")]
     [ValidateSet('DetachAll', 'DeleteResources', 'DeleteAll')]
     [string]$ActionOnUnmanage = 'DetachAll',
 
@@ -34,7 +34,7 @@ param (
     [string]$TemplateFile = 'iac/res/sample/main.bicep',
 
     [Parameter(
-        HelpMessage = "Optional. Path to the Bicep parameter file. Environment value is taken from environment variable. For example, if 'EnvCode' is 'dev', the default parameter file will be 'iac/ptn/sample/params/dev.bicepparam'.")]
+        HelpMessage = "Optional. Path to the Bicep parameter file. Environment value is taken from environment variable. For example, if 'EnvCode' is 'dev', the default parameter file will be 'iac/res/sample/params/dev.bicepparam'.")]
     [string]$TemplateParameterFile = "iac/res/sample/params/$($EnvCode).bicepparam"
 )
 

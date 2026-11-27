@@ -439,4 +439,6 @@ maml/
 maml/**
 config/
 config/**
+# Placeholder the sample's Bicep parameter files resolve to inside this repository
+!templates/config/
 testResults.xml

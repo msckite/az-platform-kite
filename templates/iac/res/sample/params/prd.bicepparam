@@ -14,7 +14,7 @@ param tags = {
 }
 param lock = {
   kind: 'None'
-  notes: 'This resource group is critical for the Be-Inc AI Services and should not be deleted.'
+  notes: 'Set kind to CanNotDelete to protect these resources.'
 }
 
 // PARAMETERS //

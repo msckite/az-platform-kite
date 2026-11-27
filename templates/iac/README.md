@@ -21,6 +21,11 @@
 
 This directory contains the Infrastructure as Code (IaC) definitions for deploying and managing Azure resources for this workload.
 
+The sample reads `uniqueId`, `serviceShort` and `location` from `config/global-config.jsonc` in
+[`base.bicepparam`](./res/sample/params/base.bicepparam), so its resource names follow the platform
+configuration. A change to that file alone does not start the infra workflows; run them manually to
+deploy it.
+
 ## Bicep modules
 
 The Bicep in this directory is a quick-start reference. Write your own Bicep for your workload and

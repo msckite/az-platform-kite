@@ -10,14 +10,17 @@ metadata owner = 'platform-engineers'
 param envCode string
 
 @description('Required. A unique identifier for the deployment. This is used to generate resource names and tags.')
+@minLength(1)
 param uniqueId string
 
 @description('Optional. A short name for the service. This is used to generate resource names and tags.')
+@minLength(1)
 param serviceShort string = 'workload'
 
 @description('Optional. An object with names of the resources to be deployed.')
 param resourceNames object = {
-  // Storage account names allow only lowercase letters/numbers and must be 3-24 characters.
+  // Storage account names allow only lowercase letters/numbers and must be 3-24 characters, so
+  // 'serviceShort' and 'uniqueId' together can be at most 19 letters and digits.
   storageAccountName: toLower('st${serviceShort}${uniqueId}${envCode}')
 }
 
