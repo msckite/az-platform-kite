@@ -41,7 +41,16 @@ flowchart LR
 ## Workload and infra
 
 Workload and infra each have their own CI, CD and release workflow, and their own release pull
-request. One can go to production without the other.
+request. One can go to production without the other, unless the workload needs new infra.
+
+> [!IMPORTANT]
+> The order of the two deployments is up to you. When a workload change needs an infra change:
+>
+> 1. Put the changes in separate pull requests.
+> 2. Merge the infra pull request first and wait until **Infra CD (stg)** succeeds. Then open the
+>    workload pull request, or run its CI again if it's already open.
+> 3. Merge the infra release pull request first and wait until **Infra Release (prd)** succeeds. Then
+>    merge the workload release pull request.
 
 | | Workload | Infra |
 | --- | --- | --- |
