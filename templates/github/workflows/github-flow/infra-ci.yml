@@ -37,15 +37,3 @@ jobs:
       environment: dev-infra
       what-if: false
     secrets: inherit
-
-  plan-prd:
-    name: Preflight (prd)
-    needs: [validate, deploy-dev]
-    uses: ./.github/workflows/infra-provision.yml
-    permissions:
-      contents: read
-      id-token: write
-    with:
-      environment: prd-infra
-      what-if: true
-    secrets: inherit

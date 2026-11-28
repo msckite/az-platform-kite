@@ -68,7 +68,7 @@ You describe your platform once, in a set of configuration files that this READM
 | 1. Resource groups | One Azure resource group per environment | Each environment is isolated and tagged for ownership and cost |
 | 2. Security groups | Groups for developers, administrators and stakeholders, with their Azure roles | People get access through group membership, not one-off grants |
 | 3. Pipeline identities | One identity per environment that GitHub can use to sign in to Azure | No passwords or keys stored in GitHub; access exists only while a pipeline runs |
-| 4. GitHub environments | `dev`, `stg` and `prd` environments with the values pipelines need | Approvals and branch rules can be enforced before a deployment starts (off by default; see the config) |
+| 4. GitHub environments | `dev`, `stg` and `prd` environments with the values pipelines need | `prd` only accepts runs from `main`; approvals and further branch rules can be switched on in the config |
 
 > [!IMPORTANT]
 > A private repository needs a paid GitHub plan for step 4 and the workflows. See
@@ -147,7 +147,7 @@ repository. Check this first.
 | GitHub feature | Kite uses it for | Public repository | Private repository |
 | -------------- | ---------------- | ----------------- | ------------------ |
 | [Environments](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments), with their secrets and variables | Step 4, and every workflow that signs in to Azure | Any plan | Pro, Team or Enterprise |
-| Deployment branch and tag policies | Limiting the `platform` environment to `main` | Any plan | Pro, Team or Enterprise |
+| Deployment branch and tag policies | Limiting the `platform` and `prd` environments to `main` | Any plan | Pro, Team or Enterprise |
 | Branch protection and rulesets | Requiring checks on pull requests to `main` | Any plan | Pro, Team or Enterprise |
 | Required reviewers and wait timers | Optional approval before a deployment, off by default | Any plan | Enterprise |
 

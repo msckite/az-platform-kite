@@ -15,10 +15,11 @@ trigger would not. This page explains what is allowed and what happens when runs
 - **CD workflows** (`*-cd.yml`) only deploy when you run them from `main`. From any other branch,
   every deploy job is skipped, so a feature branch can never reach `stg` or `prd`.
 - **Release workflows** (`*-release.yml`, Release Flow only) ask for the `tag` of an existing
-  release, for example `infra/v1.2.0`. Use this to deploy a release to `prd` again, for instance
-  after a failed run. The run goes through the same check as a published release (see
+  release, for example `infra/v1.2.0`. Start them from `main`, because the `prd` environments accept
+  no other branch or tag. Use this to deploy a release you published by hand, or to deploy a release
+  again, for instance after a failed run. The run checks the content (see
   [what `stg` has to prove](./release-flow.md#what-stg-has-to-prove)) and deploys exactly the
-  verified tag.
+  commit it verified.
 
 ## When runs overlap
 

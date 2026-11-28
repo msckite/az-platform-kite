@@ -39,9 +39,8 @@ jobs:
           config-file: .github/release-please/config.json
           manifest-file: .github/release-please/manifest.json
 
-      # A release created with the built-in GITHUB_TOKEN does not trigger the 'release' event of other workflows,
-      # but a workflow_dispatch started with it does. The release workflows then verify the released content was
-      # deployed to staging before deploying production, exactly as for a release published by hand.
+      # Starts the release workflows from main, the only ref the prd environments accept. They verify the released
+      # content was deployed to staging before deploying production.
       - name: Start production deployment of released deliverables
         if: steps.release.outputs.releases_created == 'true'
         env:

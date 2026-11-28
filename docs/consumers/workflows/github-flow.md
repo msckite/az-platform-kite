@@ -19,7 +19,6 @@ GitHub Flow is the short path to production: you open a pull request, it is chec
 flowchart LR
   PR["pull request"] --> CI["CI<br/>check, build, test"]
   CI --> DEV["deploy to dev"]
-  CI --> PREVIEW["preview for prd<br/>(-WhatIf)"]
   PR --> M["merge to main"]
   M --> CD["CD<br/>build once"]
   CD --> PRD["deploy to prd"]
@@ -27,8 +26,11 @@ flowchart LR
 
 | Event | What runs |
 | --- | --- |
-| A pull request to `main` | CI checks, builds and tests the change, deploys it to `dev` and shows what would change in `prd` without changing anything. |
+| A pull request to `main` | CI checks, builds and tests the change and deploys it to `dev`. |
 | A push to `main` | CD builds the change once and deploys that build to `prd`. |
+
+A pull request never signs in to `prd`: the `prd` environments only accept runs from `main`. See
+[production runs from main only](./identities-and-environments.md#production-runs-from-main-only).
 
 ## Workload and infra
 

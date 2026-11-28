@@ -275,6 +275,14 @@
           },
           "githubEnvironment": {
             "name": "${environmentCode}-infra",
+            "protectionRules": {
+              // Only runs from main may sign in as a production identity
+              "deploymentBranchPolicy": {
+                "branches": [
+                  "main"
+                ]
+              }
+            },
             "variables": [
               {
                 "name": "ENV_CODE",
@@ -307,6 +315,14 @@
           },
           "githubEnvironment": {
             "name": "${environmentCode}-workload",
+            "protectionRules": {
+              // Only runs from main may sign in as a production identity
+              "deploymentBranchPolicy": {
+                "branches": [
+                  "main"
+                ]
+              }
+            },
             "variables": [
               {
                 "name": "ENV_CODE",

@@ -36,7 +36,10 @@ flowchart LR
 | --- | --- |
 | A pull request to `main` | CI checks, builds and tests the change, deploys it to `dev` and shows what would change in `stg` without changing anything. |
 | A push to `main` | CD builds the change once, deploys it to `stg`, and shows what would change in `prd`. |
-| A release is published | The release workflow deploys to `prd`, if `stg` ran this content successfully. |
+| You merge a release pull request | The release workflow deploys to `prd`, if `stg` ran this content successfully. |
+
+The `prd` environments only accept runs from `main`, so a pull request never signs in to `prd`. See
+[production runs from main only](./identities-and-environments.md#production-runs-from-main-only).
 
 ## Workload and infra
 
@@ -82,13 +85,8 @@ A release pull request only changes `CHANGELOG.md`, `version.txt` and the versio
 not trigger another `stg` deployment and does not count as new content. The release goes ahead with
 the content `stg` already ran.
 
-You can also publish a release by hand in GitHub. The release workflow then runs as well, with the
-same checks.
-
-> [!NOTE]
-> A release created with the built-in `GITHUB_TOKEN` does not trigger other workflows, so
-> `release-please.yml` starts the production deployment itself. Do not give release-please a
-> personal access token or a GitHub App token without removing that step, or both paths deploy.
+A release you publish by hand in GitHub does not start a deployment. Run the release workflow from
+`main` and enter the tag. It runs the same checks.
 
 ## What `stg` has to prove
 

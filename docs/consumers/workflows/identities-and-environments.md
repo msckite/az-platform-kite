@@ -10,6 +10,7 @@ how that shows up in your repository.
 
 - [Two pipelines per environment](#two-pipelines-per-environment)
 - [Why they are separate](#why-they-are-separate)
+- [Production runs from main only](#production-runs-from-main-only)
 - [Names you will see](#names-you-will-see)
 - [Adding or changing a pipeline](#adding-or-changing-a-pipeline)
 
@@ -35,6 +36,21 @@ code can never change your infrastructure, because the identity it signs in with
 
 Two workflow files would not give you that. Two separate identities, each tied to its own GitHub
 environment, do.
+
+## Production runs from main only
+
+The sample limits `prd-infra` and `prd-workload` to `main` with
+`protectionRules.deploymentBranchPolicy`. GitHub rejects every other run that asks for one of them,
+including pull request runs and runs from a tag, so a workflow edited on a branch cannot use the
+production identities.
+
+> [!IMPORTANT]
+> This protects production only if changes reach `main` through review. Add a branch protection rule
+> or ruleset that requires a pull request for `main`.
+
+The `dev` and `stg` environments accept any branch, because pull requests deploy to `dev` and, in
+Release Flow, preview `stg`. In a private repository, branch policies need a paid GitHub plan; see
+[before you start](../../../README.md#before-you-start).
 
 ## Names you will see
 

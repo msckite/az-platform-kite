@@ -18,7 +18,7 @@ on:
         required: false
         default: true
       ref:
-        description: Git ref (tag or commit) to deploy. Defaults to the published release tag, or the triggering commit.
+        description: Git ref (tag or commit) to deploy. Defaults to the triggering commit.
         type: string
         required: false
         default: ''
@@ -63,7 +63,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v7
         with:
-          ref: ${{ inputs.ref || github.event.release.tag_name || github.sha }}
+          ref: ${{ inputs.ref || github.sha }}
 
       - name: Download workload package
         uses: actions/download-artifact@v7

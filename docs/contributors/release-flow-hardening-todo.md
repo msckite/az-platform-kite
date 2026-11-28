@@ -39,18 +39,18 @@ filled in generically in the shared template.
 reviewers (and wait timers) only work on **public** repositories; a private repository needs GitHub
 Enterprise. Deployment branch policies work on private repositories from Pro/Team upwards.
 
-**Why this matters beyond approvals:** pull request CI previews `stg`/`prd` (`plan-stg`, `plan-prd`)
-with the real `stg-*`/`prd-*` identities, because a what-if needs the same write permissions as a
-deployment. Those environments therefore cannot be locked to `main`, so anyone who can open a pull
-request can currently run code with their `Contributor` rights. Required reviewers close that gap: the
-preview job waits for an approver, who can read the pull request first, before GitHub hands out the
-environment's OIDC token. Once the license allows it:
+**Why this matters beyond approvals:** `prd-*` only accept runs from `main`
+([ADR 0007](./adr/0007-production-deploys-from-main-only.md)), but pull request CI previews `stg`
+(`plan-stg`) with the real `stg-*` identities. `stg-*` therefore cannot be locked to `main`, so
+anyone who can open a pull request can currently run code with their `Contributor` rights. Required
+reviewers close that gap: the preview job waits for an approver, who can read the pull request first,
+before GitHub hands out the environment's OIDC token. Once the license allows it:
 
-- [ ] Add `requiredReviewers` to `stg-infra`/`stg-workload` and `prd-infra`/`prd-workload`, accepting
-      that main-branch deployments to those environments need the same approval
-- [ ] Alternatively, move the `stg`/`prd` previews out of pull request CI into CD on `main`, and lock
-      `stg-*`/`prd-*` to `main` (plus `infra/*`/`workload/*` tags for `prd-*`) with
-      `deploymentBranchPolicy`, trading the early preview for no pull request access at all
+- [ ] Add `requiredReviewers` to `stg-infra`/`stg-workload`, accepting that main-branch deployments
+      to those environments need the same approval
+- [ ] Alternatively, move the `stg` preview out of pull request CI into CD on `main`, and lock
+      `stg-*` to `main` with `deploymentBranchPolicy`, trading the early preview for no pull request
+      access at all
 
 ## 3. Confirm least-privilege secrets and permissions for your project
 
@@ -63,13 +63,13 @@ GitHub resolves automatically from the job's `environment:` without the caller p
 - [ ] Confirm no other repo or org secrets are relied on implicitly by workload-specific automation
       you add inside `workload-validate.yml` or `workload-provision.yml`
 
-On `Contributor` for what-if: per Microsoft's own docs on
-[template deployment what-if](https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/deploy-what-if#prerequisites),
-"the what-if operation has the same permission requirements" as a real deployment, i.e. write access
-on the resources plus full `Microsoft.Resources/deployments/*` (or `deploymentStacks/*` for a
-deployment stack). `deploy.ps1` also creates a deployment stack what-if result resource. Deployment
-stacks use the caller's own RBAC, not an elevated deployment identity, so `Contributor` on the target
-resource group is genuinely required, not excess. This is not a downgrade candidate.
+On `Contributor` for what-if: by default, a
+[deployment stack what-if](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/deployment-stacks-what-if)
+checks write permission on each resource in the template, and `deploy.ps1` uses that default. The
+`ProviderNoRbac` validation level checks read permission instead. On an existing stack, storing the
+result still takes `Microsoft.Resources/deploymentStacksWhatIfResults/write`. Deployment stacks use
+the caller's own RBAC, not an elevated deployment identity, so an identity that also deploys needs
+`Contributor` on the target resource group. This is not a downgrade candidate.
 
 Each preview job signs in with its **target** environment's own identity (`plan-stg` as `stg-*`,
 `plan-prd` as `prd-*`), so the former cross-environment grants in the template (`dev` identity

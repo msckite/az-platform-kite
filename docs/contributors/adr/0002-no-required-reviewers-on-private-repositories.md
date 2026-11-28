@@ -1,7 +1,7 @@
 <!-- omit from toc -->
 # 0002: No required reviewers on stg and prd by default
 
-- Status: Accepted
+- Status: Superseded by [0007](./0007-production-deploys-from-main-only.md)
 - Date: 2026-10-11
 
 ## Context

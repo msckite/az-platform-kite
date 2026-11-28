@@ -1,11 +1,8 @@
 name: 'Infra Release (prd)'
 
 on:
-  release:
-    types:
-      - published
-  # Manual (re)deployment of an existing release, e.g. after a failed prd run. Goes through the
-  # same staging verification as a published release.
+  # Started by release-please.yml, or by hand to deploy a release again (e.g. after a failed prd run)
+  # or one you published yourself. Run it from main: the prd environments accept no other ref.
   workflow_dispatch:
     inputs:
       tag:
@@ -26,21 +23,20 @@ jobs:
     name: Verify release content was deployed to staging
     # Only 'infra/*' tagged releases trigger infra deploys; 'workload/*' releases are ignored here.
     if: |
-      (github.event_name == 'release' && github.event.release.target_commitish == 'main' &&
-        startsWith(github.event.release.tag_name, 'infra/')) ||
-      (github.event_name == 'workflow_dispatch' && startsWith(inputs.tag, 'infra/'))
+      startsWith(inputs.tag, 'infra/')
     runs-on: ubuntu-latest
     permissions:
       contents: read
       statuses: read
     outputs:
-      tag: ${{ steps.verify.outputs.tag }}
+      # The verified commit; deploying it instead of the tag means a moved tag changes nothing
+      sha: ${{ steps.verify.outputs.sha }}
 
     steps:
-      - name: Check out release commit
+      # No 'ref': the check must run the script from main, never from the tagged commit
+      - name: Check out main with history and tags
         uses: actions/checkout@v7
         with:
-          ref: ${{ github.event.release.tag_name || inputs.tag }}
           fetch-depth: 0
 
       - name: Confirm this content was deployed to staging
@@ -48,11 +44,11 @@ jobs:
         shell: bash
         # Pass the tag through the environment, never inline it into the script (script injection)
         env:
-          RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag }}
+          RELEASE_TAG: ${{ inputs.tag }}
           GH_TOKEN: ${{ github.token }}
         run: |
           bash .github/scripts/stg-verification.sh verify iac kite/stg-infra "refs/tags/$RELEASE_TAG"
-          echo "tag=$RELEASE_TAG" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse "refs/tags/$RELEASE_TAG^{commit}")" >> "$GITHUB_OUTPUT"
 
   deploy-prd:
     name: Deploy (prd)
@@ -67,5 +63,5 @@ jobs:
     with:
       environment: prd-infra
       what-if: false
-      ref: ${{ needs.verify-stg-promotion.outputs.tag }}
+      ref: ${{ needs.verify-stg-promotion.outputs.sha }}
     secrets: inherit
