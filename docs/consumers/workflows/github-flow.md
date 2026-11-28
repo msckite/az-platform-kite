@@ -35,6 +35,13 @@ flowchart LR
 Workload and infra work the same way, but each reacts only to its own folder, so they never trigger
 each other.
 
+> [!IMPORTANT]
+> The order of the two deployments is up to you. When a workload change needs an infra change:
+>
+> 1. Put the changes in separate pull requests.
+> 2. Merge the infra pull request first and wait until **Infra CD (prd)** succeeds.
+> 3. Then open the workload pull request. If it's already open, run its CI again before you merge it.
+
 | | Workload | Infra |
 | --- | --- | --- |
 | Reacts to changes in | `src/` and `.github/workflows/workload-*.yml` | `iac/` and `.github/workflows/infra-*.yml` |
